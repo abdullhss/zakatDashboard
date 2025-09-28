@@ -1,7 +1,6 @@
 // src/services/authService.ts
 
 import { executeProcedure } from "../../../api/apiClient";
-// ⬅️ تم تغيير نوع الاستيراد ليستخدم 'type' لـ ExecutionResult
 import type { ExecutionResult } from "../../../api/apiClient";
 import { PROCEDURE_NAMES } from "../../../api/apiConfig";
 

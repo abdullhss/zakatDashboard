@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { FiLogOut, FiSettings } from "react-icons/fi"; // أيقونات جديدة للإعدادات والخروج
 
 import Logo from "./Logo"; // افترض أن هذا هو المكون الذي يعرض "وصل النبيهة"
-import MainNavBar from "./MainNavBar";
+import MainNavBar from "./MainNavBarMainDepartment";
 
 // 1. حاوية الشريط الجانبي الرئيسية
 const StyledSideBar = chakra("aside", {
@@ -14,16 +14,10 @@ const StyledSideBar = chakra("aside", {
     color: "gray.700",
     px: 0,
     py: 4,
-    // ⬅️ إزالة الخواص المسببة للمشكلة
-    // position: "sticky",
-    // top: 0,
-    // minHeight: "100vh", 
-    
-    // ⬅️ استخدام ارتفاع 100% لملء منطقة Grid المتاحة له
-    height: "100%", 
+  
+  height: "100%", 
     
     alignSelf: "stretch", 
-    // ⬅️ إذا لم يكن هناك تمرير ضروري، اجعلها "hidden"
     overflowY: "hidden", 
     display: "flex",
     flexDirection: "column",
@@ -31,7 +25,6 @@ margin:"auto"
   },
 });
 
-// 2. ستايل الأزرار/الروابط السفلية (الإعدادات وتسجيل الخروج)
 const ActionButton = chakra("button", {
   baseStyle: {
     display: "flex",
@@ -48,7 +41,7 @@ const ActionButton = chakra("button", {
   },
 });
 
-export default function SideBar() {
+export default function SideBarMainDepartment() {
   return (
     <StyledSideBar role="navigation" aria-label="Sidebar">
       <Box px={5} mb={4} textAlign="right" borderBottom="1px solid" borderColor="gray.100" pb={4} mx={5}>
@@ -61,13 +54,11 @@ export default function SideBar() {
 
       <Box mt={4} borderTop="1px solid" borderColor="gray.100" pt={4}>
         
-        {/* رابط الإعدادات */}
         <ActionButton as={NavLink} to="/settings" _hover={{ bg: "gray.100", color: "black" }}>
             الإعدادات
             <Icon as={FiSettings} boxSize={5} /> 
         </ActionButton>
         
-        {/* زر تسجيل الخروج */}
         <ActionButton onClick={() => console.log("Logout clicked")} color="red.500" _hover={{ bg: "grey.50", color: "red.600" }}>
            تسجيل الخروج
            <Icon as={FiLogOut} boxSize={5} />

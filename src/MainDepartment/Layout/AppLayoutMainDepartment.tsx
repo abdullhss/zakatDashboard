@@ -1,8 +1,8 @@
 import { Outlet } from 'react-router'
 
 import { chakra } from '@chakra-ui/react'
-import SideBar from '../../features/DashboardUi/SideBar';
 import PageHeader from '../../Components/HomePageHeader/PageHeader';
+import SideBarMainDepartment from '../../features/MainDashboardUi/SideBarMainDepartment';
 
 
 const StyledAppLayout = chakra("div", {
@@ -27,12 +27,12 @@ const Main = chakra("main", {
   },
 });
 
-export default function DashboardLayout() {
+export default function MainDashboardLayout() {
   return (
     <StyledAppLayout>
-      {/* <Header /> */}
+
        <PageHeader /> 
-       <SideBar />
+       <SideBarMainDepartment />
 
         <Main>
         <Outlet />

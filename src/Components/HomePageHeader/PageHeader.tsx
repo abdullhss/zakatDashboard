@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom"; // ⬅️ لاستخراج ال�
 // دالة بسيطة لترجمة مسار الصفحة إلى عنوان
 const getPageTitle = (pathname :any) => {
     switch (pathname) {
-        case '/Home':
+        case '/officedashboard':
             return 'الصفحة الرئيسية';
         case '/users':
             return 'المستخدمون';

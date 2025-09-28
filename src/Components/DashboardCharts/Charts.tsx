@@ -10,13 +10,12 @@ import { FiChevronDown } from 'react-icons/fi';
 
 // بيانات الرسم البياني الدائري ("الخدمات")
 const pieData = [
-  { name: 'للمشاريع', value: 400, color: '#00A896' }, // تركواز فاتح
-  { name: 'الصدقات', value: 350, color: '#03645F' },  // أخضر داكن (أغمق)
-  { name: 'الزكاة', value: 250, color: '#17343B' },   // أزرق بحري داكن (الأغمق)
+  { name: 'للمشاريع', value: 400, color: '#0b564fff' }, // تركواز فاتح
+  { name: 'الصدقات', value: 350, color: '#0d8a83ff' },  
+  { name: 'الزكاة', value: 250, color: '#17343B' },   
 ];
 
-// بيانات الرسم البياني العمودي ("إجمالي المبالغ") - بيانات عشوائية للأيام
-// يجب أن نبدأ بالسبت (على اليمين) وننتهي بالخميس (على اليسار) في المحور
+
 const barData = [
   { name: 'السبت', uv: 5.5 },
   { name: 'الجمعة', uv: 7 },
@@ -47,9 +46,6 @@ margin="auto"
     />
 );
 
-// ===================================
-// 3. مُكوّن الرسم البياني الدائري (PieChartSection)
-// ===================================
 
 export const PieChartSection = () => (
     <ChartContainer>
@@ -70,7 +66,7 @@ export const PieChartSection = () => (
                     style={{ 
                         filter: 'drop-shadow(0 0 10px rgba(0, 0, 0, 0.1))',
                     }} 
-                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                    label={({ percent }) => `${(percent  * 100).toFixed(0)}%`}
                     labelLine={false} 
                 >
                     {pieData.map((entry, index) => (
@@ -155,7 +151,7 @@ const BarChartSection = () => (
                 {/* الأعمدة */}
                 <Bar 
                     dataKey="uv" 
-                    fill="#00A896" // اللون التركواز الداكن
+                    fill="#07574fff" // اللون التركواز الداكن
                     radius={[5, 5, 0, 0]} 
                     barSize={30}
                 />
@@ -164,9 +160,6 @@ const BarChartSection = () => (
     </ChartContainer>
 );
 
-// ===================================
-// 5. المكون الذي يجمع الرسوم البيانية معاً
-// ===================================
 
 export default function DashboardCharts() {
     return (

@@ -44,38 +44,33 @@ const LinkItem = chakra(NavLink, {
   },
 });
 
-export default function MainNavBar() {
-  return (
-    <NavList>
-      {/* الصفحة الرئيسية - الرابط النشط افتراضياً */}
-      <LinkItem to="/dashboard/Home" end>
+export default function MainNavBarOfficeDepartment() {
+  return (
+    <NavList>
+      {/* الرئيسية = index داخل officedashboard */}
+      <LinkItem to="." end>
         <Icon as={FiHome} boxSize={5} />
-        الصفحة الرئيسية
-      </LinkItem>
-      
-      {/* المستخدمون */}
-      <LinkItem to="/users">
+        الصفحة الرئيسية
+      </LinkItem>
+      <LinkItem to="users">
         <Icon as={FiUsers} boxSize={5} />
         المستخدمون
       </LinkItem>
 
-      {/* التواريخ */}
-      <LinkItem to="/dates">
+      <LinkItem to="dates">
         <Icon as={FiCalendar} boxSize={5} />
         التواريخ
       </LinkItem>
-      
-      {/* مراجعة طلب الإعارة */}
-      <LinkItem to="/loan-requests">
+
+      <LinkItem to="loan-requests">
         <Icon as={FiBookOpen} boxSize={5} />
         مراجعة طلب الإعارة
       </LinkItem>
 
-      {/* مراجعة تحويلات مصرفية */}
-      <LinkItem to="/bank-transfers">
+      <LinkItem to="bank-transfers">
         <Icon as={FiFolder} boxSize={5} />
-        مراجعة تحويلات مصرفية
-      </LinkItem>
-    </NavList>
-  );
+        مراجعة تحويلات مصرفية
+      </LinkItem>
+    </NavList>
+  );
 }

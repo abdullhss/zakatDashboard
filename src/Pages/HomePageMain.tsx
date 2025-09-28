@@ -1,19 +1,15 @@
-// src/pages/HomePage.jsx
 
 import { Box, Heading, SimpleGrid, VStack } from '@chakra-ui/react';
 
-// تأكد من استيراد المكونات المعتمدة على Recharts و StatsCard
 import StatsCard from '../Components/HomeStatesCard/StatsCard'; 
 import DashboardCharts from '../Components/DashboardCharts/Charts'; 
 
-// مُكوّن الحاوية الخارجية لبطاقات الإحصائيات
 const StatsContainer = (props :any) => (
     <Box
         p={8} 
         borderRadius="xl" 
         border="1px solid" 
-        borderColor="gray.200" // تم تغيير اللون ليتناسب مع الخلفية الخفيفة
-        // محاكاة الخلفية الخفيفة (يمكن استبدالها بصورة أو تكرار لـ CSS)
+        borderColor="gray.200" 
         backgroundSize="8px 8px"
         bg="white"
         boxShadow="sm"
@@ -65,9 +61,7 @@ export default function HomePage() {
                     </SimpleGrid>
                 </StatsContainer>
             </Box>
-            
-            {/* 2. منطقة الرسوم البيانية */}
-            {/* ⬅️ يتم هنا عرض الرسم البياني الدائري والعمودي */}
+
             <DashboardCharts /> 
             
         </VStack>
