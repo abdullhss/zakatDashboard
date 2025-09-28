@@ -1,8 +1,11 @@
-// src/api/apiClient.ts
 import axios, { type AxiosResponse } from "axios";
 import { AES256Encryption } from "../utils/encryption";
 
-// ====== الإعدادات ======
+export type AnyRec = Record<string, any>;
+
+// ===================================
+// 1) الإعدادات
+// ===================================
 const API_BASE_URL =
   "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions";
 
@@ -17,25 +20,34 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// ====== أنواع مساعدة ======
-type AnyRec = Record<string, any>;
+export const PROCEDURE_NAMES: Record<string, string> = {
+  CHECK_MAIN_USER_LOGIN: "AatVcw3p5EfgNf7N40tSBY8vN7aBpsqvuSbZqL2vAeo=",
+  GET_CITIES_LIST: "xR3P2FQ9gQI7pvkeyawk7A==",
+  // ✅ صححت الاسم (كان GET_BANKKS_LIST):
+  GET_BANKS_LIST: "D9Ivfj9RKABRqAjFR2qD5w==",
+};
 
+// ===================================
+// 2) أنواع
+// ===================================
 interface ProcedureInput {
   ProcedureName: string;
   ParametersValues: string;
   DataToken: string;
+  Offset?: number;
+  Fetch?: number;
 }
 
 interface DecryptedDataShape {
-  TotalRowsCount?: number;
-  Result?: AnyRec[];
-  [k: string]: any;
+  Result?: AnyRec[]; // أحياناً <X>Data / <X>Count تكون داخل Result[0]
+  TotalRowsCount?: number | string;
+  [k: string]: any; // قد تظهر BanksData / CitiesData / ... إلخ
 }
 
 interface DecryptedResponse {
-  result?: number | string;      
-  error?: string;               
-  data?: DecryptedDataShape | string | null; 
+  result?: number | string;
+  error?: string;
+  data?: DecryptedDataShape | string | null;
   serverTime?: string;
   [k: string]: any;
 }
@@ -43,15 +55,16 @@ interface DecryptedResponse {
 export interface ExecOk {
   success: true;
   code: number;
-  rows: AnyRec[];       
-  row: AnyRec | null;   
+  rows: AnyRec[];
+  row: AnyRec | null;
   meta: {
     total?: number;
     serverTime?: string;
   };
-  decrypted: DecryptedResponse; 
-  raw: AnyRec;                   
+  decrypted: DecryptedResponse;
+  raw: AnyRec;
 }
+
 export interface ExecErr {
   success: false;
   code?: number;
@@ -59,23 +72,183 @@ export interface ExecErr {
   decrypted?: DecryptedResponse;
   raw?: AnyRec;
 }
+
 export type ExecutionResult = ExecOk | ExecErr;
 
+export type TriState = {
+  OK: boolean;
+  OK_BUT_EMPTY: boolean;
+  INTERNAL_ERROR: boolean;
+  FAILURE: boolean;
+};
 
-const isObject = (v: any): v is AnyRec => !!v && typeof v === "object" && !Array.isArray(v);
+export type NormalizedSummary = {
+  flags: TriState;
+  code: number | null;
+  message: string;
+  totalRows: number | null;
+  row: AnyRec | null;
+  rows: AnyRec[];
+  serverTime?: string;
+};
 
-function pickRows(dataField: DecryptedResponse["data"]): { rows: AnyRec[]; row: AnyRec | null; total?: number } {
-  if (!dataField) return { rows: [], row: null, total: 0 };
+// ===================================
+const isObject = (v: any): v is AnyRec =>
+  !!v && typeof v === "object" && !Array.isArray(v);
 
-  if (!isObject(dataField)) return { rows: [], row: null, total: 0 };
-
-  const rows = Array.isArray(dataField.Result) ? dataField.Result as AnyRec[] : [];
-  return { rows, row: rows[0] ?? null, total: (dataField as AnyRec).TotalRowsCount };
+function parseMaybeJson<T = any>(v: any): T | null {
+  if (Array.isArray(v)) return (v as unknown) as T;
+  if (isObject(v)) return (v as unknown) as T;
+  if (typeof v === "string") {
+    const s = v.trim();
+    if (!s) return null;
+    try {
+      return JSON.parse(s) as T;
+    } catch {
+      return null;
+    }
+  }
+  return null;
 }
+
+/**
+ * يستخرج أول مصفوفة يجدها من أي حقل ينتهي بـ "Data"
+ * ويستخرج الإجمالي من أي حقل ينتهي بـ "Count" أو TotalRowsCount.
+ * يدعم الوجود داخل data أو داخل Result[0].
+ */
+function pickRows(
+  dataField: DecryptedResponse["data"]
+): { rows: AnyRec[]; row: AnyRec | null; total?: number } {
+  if (!dataField || !isObject(dataField)) return { rows: [], row: null, total: 0 };
+
+  const dataObject = dataField as DecryptedDataShape;
+
+  let rows: AnyRec[] = [];
+  let total: number | undefined;
+
+  // 1) ابحث عن أي حقل ينتهي بـ Data في المستوى الأعلى
+  for (const k of Object.keys(dataObject)) {
+    if (k.endsWith("Data")) {
+      const parsed = parseMaybeJson<AnyRec[]>(dataObject[k]);
+      if (parsed && Array.isArray(parsed)) {
+        rows = parsed;
+        break;
+      }
+    }
+  }
+
+  // 2) إن لم نجد، جرّب داخل Result[0]
+  if (!rows.length && Array.isArray(dataObject.Result) && dataObject.Result.length) {
+    const r0 = dataObject.Result[0];
+    if (isObject(r0)) {
+      for (const k of Object.keys(r0)) {
+        if (k.endsWith("Data")) {
+          const parsed = parseMaybeJson<AnyRec[]>(r0[k]);
+          if (parsed && Array.isArray(parsed)) {
+            rows = parsed;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // 3) fallback نادر: لو Result نفسها مصفوفة سجلات
+  if (!rows.length && Array.isArray(dataObject.Result)) {
+    rows = dataObject.Result as AnyRec[];
+  }
+
+  // === الإجمالي ===
+  // TotalRowsCount أولاً
+  if (dataObject.TotalRowsCount != null) {
+    const n = Number(dataObject.TotalRowsCount);
+    if (Number.isFinite(n)) total = n;
+  }
+
+  // ثم أي حقل ينتهي بـ Count
+  if (total === undefined) {
+    for (const k of Object.keys(dataObject)) {
+      if (k.endsWith("Count")) {
+        const n = Number((dataObject as AnyRec)[k]);
+        if (Number.isFinite(n)) {
+          total = n;
+          break;
+        }
+      }
+    }
+  }
+
+  // ثم داخل Result[0] لأي <X>Count
+  if (total === undefined && Array.isArray(dataObject.Result) && dataObject.Result.length) {
+    const r0 = dataObject.Result[0];
+    if (isObject(r0)) {
+      for (const k of Object.keys(r0)) {
+        if (k.endsWith("Count")) {
+          const n = Number((r0 as AnyRec)[k]);
+          if (Number.isFinite(n)) {
+            total = n;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // وأخيراً طول المصفوفة
+  if (total === undefined) total = rows.length;
+
+  return { rows, row: rows[0] ?? null, total };
+}
+
+// ===================================
+export function analyzeExecution(result: ExecutionResult): NormalizedSummary {
+  let code: number | null = null;
+  let errorText = "";
+  let rows: AnyRec[] = [];
+  let row: AnyRec | null = null;
+  let total: number | null = null;
+  let serverTime: string | undefined;
+
+  if (result.success) {
+    rows = result.rows ?? [];
+    row = result.row ?? null;
+    total = result.meta?.total ?? (Array.isArray(rows) ? rows.length : null);
+    serverTime = result.meta?.serverTime;
+    code = result.code ?? 200;
+    errorText = "";
+  } else {
+    code = result.code ?? null;
+    errorText = result.error || "Execution failed.";
+  }
+
+  const dec = (result as any).decrypted;
+  const internalErr = dec && typeof dec.error === "string" ? dec.error.trim() : "";
+
+  if (result.success && internalErr) errorText = internalErr;
+
+  const OK = !!(result.success && !internalErr && rows.length > 0);
+  const OK_BUT_EMPTY = !!(result.success && !internalErr && rows.length === 0);
+  const INTERNAL_ERROR = !!(result.success && !!internalErr);
+  const FAILURE = !result.success;
+
+  return {
+    flags: { OK, OK_BUT_EMPTY, INTERNAL_ERROR, FAILURE },
+    code,
+    message: errorText,
+    totalRows: total,
+    row,
+    rows,
+    serverTime,
+  };
+}
+
+// ===================================
 export async function executeProcedure(
   ProcedureName: string,
   procedureValues: string,
-  dataToken: string = API_CONFIG.DATA_TOKEN
+  dataToken: string = API_CONFIG.DATA_TOKEN,
+  offset?: number,
+  fetch?: number
 ): Promise<ExecutionResult> {
   try {
     const toEncrypt: ProcedureInput = {
@@ -83,6 +256,9 @@ export async function executeProcedure(
       ParametersValues: procedureValues,
       DataToken: dataToken,
     };
+
+    if (offset !== undefined) toEncrypt.Offset = Math.max(0, offset);
+    if (fetch !== undefined) toEncrypt.Fetch = fetch;
 
     console.log("%c[ERP] Procedure Input (plain) ⇒", "color:#888", toEncrypt);
 
@@ -93,14 +269,25 @@ export async function executeProcedure(
       Data: encrypted,
     };
 
-
     const res: AxiosResponse = await api.post("/ExecuteProcedure", payload);
     const raw = res.data;
 
     const dec: DecryptedResponse = {};
     for (const K of ["Result", "Error", "Data", "ServerTime"] as const) {
       if (raw?.[K]) {
-        (dec as AnyRec)[K.toLowerCase()] = AES256Encryption.decrypt(raw[K], API_CONFIG.PUBLIC_KEY);
+        const decryptedValue = AES256Encryption.decrypt(raw[K], API_CONFIG.PUBLIC_KEY);
+
+        if (typeof decryptedValue === "string") {
+          const cleanString = decryptedValue.trim();
+          try {
+            (dec as AnyRec)[K.toLowerCase()] = JSON.parse(cleanString);
+          } catch (e) {
+            console.error(`[ERP] JSON parsing failed for decrypted field ${K}:`, cleanString, e);
+            (dec as AnyRec)[K.toLowerCase()] = cleanString;
+          }
+        } else {
+          (dec as AnyRec)[K.toLowerCase()] = decryptedValue;
+        }
       }
     }
 
@@ -108,12 +295,6 @@ export async function executeProcedure(
     const { rows, row, total } = pickRows(dec.data);
 
     console.log("%c[ERP] Decrypted ⇒", "color:#0a0", dec);
-    if (rows.length) {
-      console.log("%c[ERP] Result rows (table) ⇒", "color:#0a0");
-      console.table(rows);
-    } else if (typeof dec.error === "string" && dec.error.trim()) {
-      console.warn("[ERP] Error text ⇒", dec.error);
-    }
 
     if (code === 200) {
       return {

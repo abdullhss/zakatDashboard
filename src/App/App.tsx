@@ -3,26 +3,33 @@ import LoginPage from "../Pages/LoginPage";
 import HomePage from "../Pages/HomePageMain";
 import MainDashboardLayout from "../MainDepartment/Layout/AppLayoutMainDepartment";
 import OfficeDashboardLayout from "../OfficeDashboard/Layout/AppLayoutOfficeDepartment";
+import { RequireAuth } from "../auth/requireAuth";
+import Cities from "../MainDepartment/features/Cities/Cities";
+import Banks from "../MainDepartment/features/Banks/Banks";
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Redirect للّوجين */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Main Dashboard */}
-        <Route path="/maindashboard" element={<MainDashboardLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="home" element={<HomePage />} />
+        {/* Main Dashboard - M */}
+        <Route element={<RequireAuth allow={["M"]} />}>
+          <Route path="/maindashboard" element={<MainDashboardLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="home" element={<HomePage />} />
+            <Route path="cities" element={<Cities />} />
+            <Route path="banks" element ={<Banks />} />
+          </Route>
         </Route>
 
-        {/* Office Dashboard */}
-        <Route path="/officedashboard" element={<OfficeDashboardLayout />}>
-        <Route index element={<HomePage />} />
-          <Route path="home" element={<HomePage />} />
-
+        {/* Office Dashboard - O */}
+        <Route element={<RequireAuth allow={["O"]} />}>
+          <Route path="/officedashboard" element={<OfficeDashboardLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="home" element={<HomePage />} />
+          </Route>
         </Route>
 
         {/* 404 */}
@@ -31,5 +38,3 @@ function App() {
     </BrowserRouter>
   );
 }
-
-export default App;

@@ -4,7 +4,13 @@ import { FiLogOut, FiSettings } from "react-icons/fi";
 
 import Logo from "./Logo"; 
 import MainNavBar from "./MainNavBar";
-
+export function logout(navigate?: (path: string, opts?: any) => void) {
+  localStorage.removeItem("auth");
+  localStorage.removeItem("role");
+  localStorage.removeItem("username");
+  localStorage.removeItem("userId");
+  if (navigate) navigate("/login", { replace: true });
+}
 const StyledSideBar = chakra("aside", {
  baseStyle: {
     gridArea: "sidebar",

@@ -53,14 +53,14 @@ export default function MainNavBar() {
         الصفحة الرئيسية
       </LinkItem>
 
-      <LinkItem to="users">
+      <LinkItem to="cities">
         <Icon as={FiUsers} boxSize={5} />
         المدن
       </LinkItem>
 
-      <LinkItem to="dates">
+      <LinkItem to="banks">
         <Icon as={FiCalendar} boxSize={5} />
-        المستخدمين
+        البنوك
       </LinkItem>
 
       <LinkItem to="loan-requests">
