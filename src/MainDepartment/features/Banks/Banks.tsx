@@ -1,11 +1,23 @@
-import  { useState } from "react";
-import { Box, Spinner, Flex, Alert, AlertIcon } from "@chakra-ui/react";
+// src/features/Banks/Banks.tsx
+import React, { useState } from "react";
+import {
+  Box,
+  Spinner,
+  Flex,
+  Alert,
+  AlertIcon,
+  useDisclosure,
+  Text,
+} from "@chakra-ui/react";
 import { useBanksQuery } from "./hooks/useGetBanks";
-import { DataTable } from "../../../Components/Table/DataTable";
 import type { Column, AnyRec } from "../../../Components/Table/TableTypes";
+import { DataTable } from "../../../Components/Table/DataTable";
 import SharedButton from "../../../Components/SharedButton/Button";
+import { useAddBank } from "./hooks/useAddBank";
 
-// الأعمدة (لاحظ استخدام BankName و BankCode مع fallback)
+// استيراد المودال الجديد
+import AddBankModal from "../AddBankModal";
+
 const BANKS_COLUMNS: Column[] = [
   {
     key: "BankName",
@@ -17,7 +29,8 @@ const BANKS_COLUMNS: Column[] = [
     key: "BankCode",
     header: "الرمز المصرفي",
     width: "160px",
-    render: (row: AnyRec) => row.BankCode ?? row.Bank_Code ?? row.SwiftCode ?? "-",
+    render: (row: AnyRec) =>
+      row.BankCode ?? row.Bank_Code ?? row.SwiftCode ?? "-",
   },
 ];
 
@@ -26,10 +39,20 @@ export default function Banks() {
   const limit = 8;
   const offset = (page - 1) * limit;
 
-  const { data, isLoading, isError, error, isFetching } = useBanksQuery(offset, limit);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const { data, isLoading, isError, error, isFetching } =
+    useBanksQuery(offset, limit);
+
+  const { isPending: isAdding } = useAddBank();
 
   const banksData = data?.rows || [];
   const totalRows = data?.totalRows || 0;
+
+  const handleAddClick = () => {
+    onOpen();
+    console.log("تم النقر على إضافة بنك - فتح المودال");
+  };
 
   if (isLoading && !isFetching) {
     return (
@@ -50,29 +73,36 @@ export default function Banks() {
 
   return (
     <Box p={6}>
+      {/* ✅ مودال إضافة بنك */}
+      <AddBankModal isOpen={isOpen} onClose={onClose} />
+
       <DataTable
         title="قائمة البنوك"
         data={banksData}
         columns={BANKS_COLUMNS}
         startIndex={offset + 1}
         page={page}
-        onPageChange={(p: number) => setPage(p)}
+        onPageChange={setPage}
         totalRows={totalRows}
         pageSize={limit}
         headerAction={
-            <SharedButton
+          <SharedButton
             variant="brandGradient"
-            onClick={() => console.log("إضافة بنك")}
+            onClick={handleAddClick}
             leftIcon={<span>+</span>}
-            isLoading={isFetching}
-            
-            >
-إضافة بنك
-            </SharedButton>
+            isLoading={isFetching || isAdding}
+          >
+            إضافة بنك
+          </SharedButton>
         }
-        />
-   
+      />
 
+      <Flex justify="flex-end" mt={4} pr={4}>
+        <Text fontSize="sm" color="gray.600">
+          عرض {offset + 1}-{Math.min(offset + limit, totalRows)} من {totalRows}{" "}
+          سجل
+        </Text>
+      </Flex>
     </Box>
   );
 }

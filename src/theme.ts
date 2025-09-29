@@ -40,6 +40,15 @@ export const theme = extendTheme({
       },
     },
   },
+  dangerOutline: {
+  border: "2px solid",
+  borderColor: "red.500",
+  color: "red.500",
+  bg: "white",
+  _hover: { bg: "red.50" },
+  _active: { bg: "red.100" },
+  _disabled: { opacity: 0.6, cursor: "not-allowed" },
+},
 
   components: {
     Button: {
