@@ -1,108 +1,109 @@
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Checkbox,
-  Flex,
-  Heading,
-  Box,
-  Menu, // تمت إضافته
-  MenuButton, // تمت إضافته
-  MenuList, // تمت إضافته
-  MenuItem, // تمت إضافته
-  IconButton, // تمت إضافته
-  Text, // تمت إضافته
-} from "@chakra-ui/react";
+// src/components/Table/DataTable.tsx
 import React from "react";
-import { BsThreeDotsVertical } from 'react-icons/bs'; // تمت إضافته
+import {
+  Table, Thead, Tbody, Tr, Flex, Heading, Box,
+  Menu, MenuButton, MenuList, MenuItem, IconButton, Text, Switch
+} from "@chakra-ui/react";
+import { BsThreeDotsVertical } from "react-icons/bs";
 import type { AnyRec, DataTableProps } from "./TableTypes";
-import { TableCardContainer, TableHeader, TableHeadCell, TableDataCell } from "./TableStyles";
+import { TableCardContainer, TableHeader, TableHeadCell, TableDataCell, ROW_H } from "./TableStyles";
 
-export const DataTable: React.FC<DataTableProps> = ({
+type ExtraProps = {
+  onEditRow?: (row: AnyRec, index: number) => void;
+  onDeleteRow?: (row: AnyRec, index: number) => void;
+  renderActions?: (row: AnyRec, index: number) => React.ReactNode;
+  totalRows?: number;
+  stickyHeader?: boolean;
+};
+
+export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
   title, data, columns, headerAction, startIndex = 1,
+  onEditRow, onDeleteRow, renderActions, totalRows, stickyHeader = true,
 }) => {
+  const hasActions = !!(renderActions || onEditRow || onDeleteRow);
+  const shownFrom = data.length ? startIndex : 0;
+  const shownTo   = data.length ? startIndex + data.length - 1 : 0;
+  const total     = typeof totalRows === "number" ? totalRows : data.length;
+
   return (
     <TableCardContainer>
       <TableHeader>
-        <Heading size="md" fontWeight="600" color="gray.700">
-          {title}
-        </Heading>
+        <Heading size="md" fontWeight="700" color="gray.700">{title}</Heading>
         <Box>{headerAction}</Box>
       </TableHeader>
 
       <Box overflowX="auto">
-        <Table variant="unstyled" size="sm">
-          {/* === تم تطبيق الخلفية الرمادية (#E5E9EA) على الـ Thead بالكامل === */}
-          <Thead bg="#E5E9EA"> 
+        {/* نستخدم variant="elevated" اللي جهّزناه في الثيم */}
+        <Table variant="elevated" size="sm" sx={{
+          "tbody tr": {
+            _odd:  { bg: "background.stripe" },
+            _hover:{ bg: "background.hover" },
+            transition: "background 120ms ease",
+          }
+        }}>
+          <Thead
+            bg="background.subtle"
+            position={stickyHeader ? "sticky" : undefined}
+            top={0}
+            zIndex={1}
+          >
             <Tr>
-              {/* الترقيم # */}
-              <TableHeadCell width="20px">#</TableHeadCell> 
-              {/* Checkbox */}
-              <TableHeadCell width="40px"><Checkbox /></TableHeadCell> 
-              
-              {/* الأعمدة المخصصة */}
+              <TableHeadCell width="48px">#</TableHeadCell>
               {columns.map(col => (
                 <TableHeadCell key={col.key} width={col.width}>
                   {col.header}
                 </TableHeadCell>
               ))}
-              
-              {/* الإجراءات */}
-              <TableHeadCell width="50px">إجراءات</TableHeadCell>
+              {hasActions && <TableHeadCell width="64px">إجراءات</TableHeadCell>}
             </Tr>
           </Thead>
-          
+
           <Tbody>
             {data.map((row: AnyRec, index) => (
-              // استخدمنا row.id كـ key إذا كان موجودًا، وإلا استخدمنا index
-              <Tr key={row.id ?? index} _hover={{ bg: "gray.50" }}> 
-                
-                {/* الترقيم # */}
-                <TableDataCell fontWeight="bold" color="gray.600">
+              <Tr key={row.id ?? index}>
+                <TableDataCell fontWeight="700" color="gray.700">
                   {startIndex + index}
                 </TableDataCell>
-                
-                {/* Checkbox */}
-                <TableDataCell><Checkbox /></TableDataCell>
-                
-                {/* عرض البيانات */}
+
                 {columns.map(col => (
                   <TableDataCell key={col.key}>
                     {col.render ? col.render(row, index) : row[col.key]}
                   </TableDataCell>
                 ))}
-                
-                {/* عمود الإجراءات (Menu Button) */}
-                <TableDataCell>
-                  <Flex justify="flex-end">
-                    {/* إضافة Menu كاملًا */}
-                    <Menu>
-                      <MenuButton
-                          as={IconButton}
-                          aria-label='خيارات'
-                          icon={<BsThreeDotsVertical />}
-                          variant='ghost'
-                          size='sm'
-                      />
-                      <MenuList>
-                          <MenuItem>تعديل</MenuItem>
-                          <MenuItem color="red.500">حذف</MenuItem>
-                      </MenuList>
-                    </Menu>
-                  </Flex>
-                </TableDataCell>
+
+                {hasActions && (
+                  <TableDataCell>
+                    <Flex justify="flex-end">
+                      {renderActions ? (
+                        renderActions(row, index)
+                      ) : (
+                        <Menu>
+                          <MenuButton
+                            as={IconButton}
+                            aria-label="خيارات"
+                            icon={<BsThreeDotsVertical />}
+                            variant="brandGhost"
+                            boxSize={ROW_H}
+                            minW={ROW_H}
+                          />
+                          <MenuList>
+                            <MenuItem onClick={() => onEditRow?.(row, index)} isDisabled={!onEditRow}>تعديل</MenuItem>
+                            <MenuItem color="red.500" onClick={() => onDeleteRow?.(row, index)} isDisabled={!onDeleteRow}>حذف</MenuItem>
+                          </MenuList>
+                        </Menu>
+                      )}
+                    </Flex>
+                  </TableDataCell>
+                )}
               </Tr>
             ))}
           </Tbody>
         </Table>
       </Box>
 
-      {/* شريط الترقيم */}
-      <Flex justify="flex-end" align="center" mt={4} pr={4}>
-        <Text color="gray.600" fontSize="sm">
-            عرض 1-{Math.min(data.length, 8)} من {data.length} سجل
-        </Text>
+      <Flex justify="space-between" align="center" mt={3} px={1}>
+        <Box />
+  
       </Flex>
     </TableCardContainer>
   );

@@ -1,7 +1,8 @@
+// src/MainDepartment/Layout/AppLayoutMainDepartment.tsx
 import { Outlet } from "react-router-dom";
 import { chakra } from "@chakra-ui/react";
-import PageHeader from "../../Components/HomePageHeader/PageHeader";
-import SideBarOfficeDepartment from "../../features/OfficeDashboardUI/SideBarOfficeDepartment";
+import PageHeader from "../../../Components/HomePageHeader/PageHeader";
+import SideBarMainDepartment from "../MainDashboardUi/SideBarMainDepartment";
 
 const StyledAppLayout = chakra("div", {
   baseStyle: {
@@ -13,7 +14,7 @@ const StyledAppLayout = chakra("div", {
       "sidebar header"
       "sidebar main"
     `,
-    bg: "gray.50",
+    bg: "background.app", // رمادي فاتح للخلفية العامة
   },
 });
 
@@ -25,14 +26,15 @@ const Main = chakra("main", {
   },
 });
 
+// ✅ لفّافات تضبط gridArea زي اللي عاملها في الأوفيس
 const HeaderWrap = chakra(PageHeader, {
   baseStyle: { gridArea: "header" },
 });
-const SidebarWrap = chakra(SideBarOfficeDepartment, {
+const SidebarWrap = chakra(SideBarMainDepartment, {
   baseStyle: { gridArea: "sidebar" },
 });
 
-export default function OfficeDashboardLayout() {
+export default function MainDashboardLayout() {
   return (
     <StyledAppLayout>
       <HeaderWrap />

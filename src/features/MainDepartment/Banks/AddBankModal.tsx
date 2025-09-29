@@ -14,8 +14,8 @@ import {
   HStack,
   useToast,
 } from "@chakra-ui/react";
-import SharedButton from "../../Components/SharedButton/Button";
-import { useAddBank } from "../../MainDepartment/features/Banks/hooks/useAddBank";
+import SharedButton from "../../../Components/SharedButton/Button";
+import { useAddBank } from "./hooks/useAddBank";
 
 type AddBankModalProps = {
   isOpen: boolean;

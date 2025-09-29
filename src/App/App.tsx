@@ -1,11 +1,11 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "../Pages/LoginPage";
 import HomePage from "../Pages/HomePageMain";
-import MainDashboardLayout from "../MainDepartment/Layout/AppLayoutMainDepartment";
-import OfficeDashboardLayout from "../OfficeDashboard/Layout/AppLayoutOfficeDepartment";
+import MainDashboardLayout from "../features/MainDepartment/Layout/AppLayoutMainDepartment";
+import OfficeDashboardLayout from "../features/OfficeDashboard/Layout/AppLayoutOfficeDepartment";
 import { RequireAuth } from "../auth/requireAuth";
-import Cities from "../MainDepartment/features/Cities/Cities";
-import Banks from "../MainDepartment/features/Banks/Banks";
+import Cities from "../features/MainDepartment/Cities/Cities";
+import Banks from "../features/MainDepartment/Banks/Banks";
 
 export default function App() {
   return (

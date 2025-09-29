@@ -1,4 +1,4 @@
-// apiClient.ts
+// apiClient.ts (النسخة النهائية والنظيفة)
 
 import axios, { type AxiosResponse } from "axios";
 import { AES256Encryption } from "../utils/encryption";
@@ -27,12 +27,13 @@ export const PROCEDURE_NAMES: Record<string, string> = {
   GET_CITIES_LIST: "xR3P2FQ9gQI7pvkeyawk7A==",
   GET_BANKS_LIST: "D9Ivfj9RKABRqAjFR2qD5w==",
   BANK_TABLE_NAME: "7igUjv/3a5Aar+46eK1jiw==", 
+CITIES_TABLE_NAME: "jxZ/VX2ZB73RfXPSzeav0g=="
 };
 
 const TRANSACTION_ENDPOINT = "/DoTransaction";
 
 // ===================================
-// 2) أنواع
+// 2) أنواع (النماذج)
 // ===================================
 interface ProcedureInput {
   ProcedureName: string;
@@ -42,19 +43,17 @@ interface ProcedureInput {
   Fetch?: number;
 }
 
-// === واجهة جديدة لمدخلات المعاملات ===
 interface TransactionInput {
-  TableName: string;
-  WantedAction: 0 | 1 | 2; // 0: Insert, 1: Update, 2: Delete
-  ColumnsValues: string;
-  PointId: number | string;
-  DataToken: string;
-  ColumnsNames?: string;
-  SendNotification?: 'T' | 'F';
-  NotificationProcedure?: string;
-  NotificationPranameters?: string;
+  TableName: string;
+  WantedAction: 0 | 1 | 2; 
+  ColumnsValues: string;
+  PointId: number | string;
+  DataToken: string;
+  ColumnsNames?: string;
+  SendNotification?: 'T' | 'F';
+  NotificationProcedure?: string;
+  NotificationPranameters?: string;
 }
-// ======================================
 
 interface DecryptedDataShape {
   Result?: AnyRec[];
@@ -111,7 +110,7 @@ export type NormalizedSummary = {
 };
 
 // ===================================
-// 3) helpers (for managing some statess)
+// 3) الدوال المساعدة
 // ===================================
 const isObject = (v: any): v is AnyRec =>
   !!v && typeof v === "object" && !Array.isArray(v);
@@ -131,10 +130,6 @@ function parseMaybeJson<T = any>(v: any): T | null {
   return null;
 }
 
-/**
- * يستخرج أول مصفوفة يجدها من أي حقل ينتهي بـ "Data"
- * ويستخرج الإجمالي من أي حقل ينتهي بـ "Count" أو TotalRowsCount.
- */
 function pickRows(
   dataField: DecryptedResponse["data"]
 ): { rows: AnyRec[]; row: AnyRec | null; total?: number } {
@@ -145,7 +140,7 @@ function pickRows(
   let rows: AnyRec[] = [];
   let total: number | undefined;
 
-  // 1) ابحث عن أي حقل ينتهي بـ Data في المستوى الأعلى
+  // 1) ابحث عن أي حقل ينتهي بـ Data في المستوى الأعلى (مثال: CitiesData, BankInfo)
   for (const k of Object.keys(dataObject)) {
     if (k.endsWith("Data")) {
       const parsed = parseMaybeJson<AnyRec[]>(dataObject[k]);
@@ -185,7 +180,7 @@ function pickRows(
     if (Number.isFinite(n)) total = n;
   }
 
-  // ثم أي حقل ينتهي بـ Count في المستوى الأعلى
+  // ثم أي حقل ينتهي بـ Count في المستوى الأعلى (مثال: CitiesCount)
   if (total === undefined) {
     for (const k of Object.keys(dataObject)) {
       if (k.endsWith("Count")) {
@@ -350,94 +345,93 @@ export async function executeProcedure(
 }
 
 // ===================================
-// 6) دالة المعاملات (DoTransaction) - جديدة
+// 6) دالة المعاملات (DoTransaction)
 // ===================================
-// Endpoint مختلف
 const TRANSACTION_ENDPOINT_2 = "/DoTransaction";
 
 export async function doTransaction(
-  input: Omit<TransactionInput, 'DataToken'> & { dataToken?: string } // DataToken اختياري
+  input: Omit<TransactionInput, 'DataToken'> & { dataToken?: string }
 ): Promise<ExecutionResult> {
-  try {
-    const dataToken = input.dataToken || API_CONFIG.DATA_TOKEN;
+  try {
+    const dataToken = input.dataToken || API_CONFIG.DATA_TOKEN;
 
-    const toEncrypt: TransactionInput = {
-      TableName: input.TableName,
-      WantedAction: input.WantedAction,
-      ColumnsValues: input.ColumnsValues,
-      PointId: input.PointId,
-      DataToken: dataToken,
-      
-      // تضمين الحقول الاختيارية
-      ...(input.ColumnsNames && { ColumnsNames: input.ColumnsNames }),
-      ...(input.SendNotification && { SendNotification: input.SendNotification }),
-      ...(input.NotificationProcedure && { NotificationProcedure: input.NotificationProcedure }),
-      ...(input.NotificationPranameters && { NotificationPranameters: input.NotificationPranameters }),
-    };
+    const toEncrypt: TransactionInput = {
+      TableName: input.TableName,
+      WantedAction: input.WantedAction,
+      ColumnsValues: input.ColumnsValues,
+      PointId: input.PointId,
+      DataToken: dataToken,
+      
+      // تضمين الحقول الاختيارية
+      ...(input.ColumnsNames && { ColumnsNames: input.ColumnsNames }),
+      ...(input.SendNotification && { SendNotification: input.SendNotification }),
+      ...(input.NotificationProcedure && { NotificationProcedure: input.NotificationProcedure }),
+      ...(input.NotificationPranameters && { NotificationPranameters: input.NotificationPranameters }),
+    };
 
-    console.log("%c[ERP] Transaction Input (plain) ⇒", "color:#f90", toEncrypt);
+    console.log("%c[ERP] Transaction Input (plain) ⇒", "color:#f90", toEncrypt);
 
-    const encrypted = AES256Encryption.encrypt(toEncrypt, API_CONFIG.PUBLIC_KEY) as string;
+    const encrypted = AES256Encryption.encrypt(toEncrypt, API_CONFIG.PUBLIC_KEY) as string;
 
-    const payload = {
-      ApiToken: API_CONFIG.API_TOKEN,
-      Data: encrypted,
-    };
+    const payload = {
+      ApiToken: API_CONFIG.API_TOKEN,
+      Data: encrypted,
+    };
 
-    const res: AxiosResponse = await api.post(TRANSACTION_ENDPOINT_2, payload);
-    const raw = res.data;
-    
-    // فك التشفير (نفس المنطق المستخدم في executeProcedure)
-    const dec: DecryptedResponse = {};
-    for (const K of ["Result", "Error", "Data", "ServerTime"] as const) {
-        if (raw?.[K]) {
-            const decryptedValue = AES256Encryption.decrypt(raw[K], API_CONFIG.PUBLIC_KEY);
-            
-            if (typeof decryptedValue === "string") {
-                const cleanString = decryptedValue.trim();
-                try {
-                    (dec as AnyRec)[K.toLowerCase()] = JSON.parse(cleanString);
-                } catch (e) {
-                    console.error(`[ERP] JSON parsing failed for decrypted field ${K}:`, cleanString, e);
-                    (dec as AnyRec)[K.toLowerCase()] = cleanString;
-                }
-            } else {
-                (dec as AnyRec)[K.toLowerCase()] = decryptedValue;
-            }
-        }
-    }
+    const res: AxiosResponse = await api.post(TRANSACTION_ENDPOINT_2, payload);
+    const raw = res.data;
+    
+    // فك التشفير (نفس المنطق المستخدم في executeProcedure)
+    const dec: DecryptedResponse = {};
+    for (const K of ["Result", "Error", "Data", "ServerTime"] as const) {
+        if (raw?.[K]) {
+            const decryptedValue = AES256Encryption.decrypt(raw[K], API_CONFIG.PUBLIC_KEY);
+            
+            if (typeof decryptedValue === "string") {
+                const cleanString = decryptedValue.trim();
+                try {
+                    (dec as AnyRec)[K.toLowerCase()] = JSON.parse(cleanString);
+                } catch (e) {
+                    console.error(`[ERP] JSON parsing failed for decrypted field ${K}:`, cleanString, e);
+                    (dec as AnyRec)[K.toLowerCase()] = cleanString;
+                }
+            } else {
+                (dec as AnyRec)[K.toLowerCase()] = decryptedValue;
+            }
+        }
+    }
 
-    const code = Number(dec.result);
-    // في المعاملات، غالبًا لا نتوقع صفوفاً، لكننا نستخدم pickRows لتوحيد الناتج
-    const { rows, row, total } = pickRows(dec.data); 
+    const code = Number(dec.result);
+    // في المعاملات، غالبًا لا نتوقع صفوفاً، لكننا نستخدم pickRows لتوحيد الناتج
+    const { rows, row, total } = pickRows(dec.data); 
 
-    if (code === 200) {
-      return {
-        success: true,
-        code,
-        rows,
-        row,
-        meta: { total, serverTime: dec.serverTime },
-        decrypted: dec,
-        raw,
-      };
-    }
-    
-    // فشل المعاملة
-    return { 
-        success: false, 
-        code: Number.isFinite(code) ? code : undefined, 
-        error: (typeof dec.error === "string" && dec.error) || "Transaction Failed.",
-        decrypted: dec, 
-        raw 
-    };
+    if (code === 200) {
+      return {
+        success: true,
+        code,
+        rows,
+        row,
+        meta: { total, serverTime: dec.serverTime },
+        decrypted: dec,
+        raw,
+      };
+    }
+    
+    // فشل المعاملة
+    return { 
+        success: false, 
+        code: Number.isFinite(code) ? code : undefined, 
+        error: (typeof dec.error === "string" && dec.error) || "Transaction Failed.",
+        decrypted: dec, 
+        raw 
+    };
 
-  } catch (e: any) {
-    console.error("[ERP] Transaction call failed:", e);
-    return {
-      success: false,
-      error: e?.message || "Network/Unknown error",
-      raw: e?.response?.data,
-    };
-  }
+  } catch (e: any) {
+    console.error("[ERP] Transaction call failed:", e);
+    return {
+      success: false,
+      error: e?.message || "Network/Unknown error",
+      raw: e?.response?.data,
+    };
+  }
 }

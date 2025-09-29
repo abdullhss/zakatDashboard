@@ -29,7 +29,7 @@ export default function HomePage() {
     ];
 
     return (
-        <VStack spacing={8} align="stretch" > {/* ⬅️ المحاذاة الرئيسية RTL */}
+        <VStack spacing={8} align="stretch" > 
             
             {/* 1. منطقة الإحصائيات */}
             <Box>

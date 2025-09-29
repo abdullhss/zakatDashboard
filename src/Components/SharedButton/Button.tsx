@@ -1,71 +1,80 @@
-// src/components/shared/SharedButton.tsx
+// src/components/Shared/SharedButton.tsx
 import React from "react";
-// ✅ صح
-import { Button, HStack, Text, Badge } from "@chakra-ui/react";
-import type { ButtonProps } from "@chakra-ui/react";
-
+import {
+  Button,
+  HStack,
+  Text,
+  Badge,
+  type ButtonProps,
+} from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 
 type SharedButtonProps = ButtonProps & {
   label?: string;
-  to?: string;            // لو عايزه لينك داخلي
-  badge?: number | string; // عدّاد صغير اختياري
-  variant?: ButtonProps["variant"] | "brandGradient" | "brandOutline" | "brandGhost";
+  to?: string;
+  href?: string;
+  badge?: number | string;
   fullWidth?: boolean;
 };
 
-const SharedButton: React.FC<SharedButtonProps> = ({
-  label,
-  to,
-  badge,
-  variant = "brandGradient",
-  fullWidth,
-  leftIcon,
-  rightIcon,
-  children,
-  ...rest
-}) => {
-  const content = (
-    <HStack spacing="8px">
-      {leftIcon}
-      {label || children ? (
+const SharedButton = React.forwardRef<HTMLButtonElement, SharedButtonProps>(
+  (
+    { label, to, href, badge, fullWidth, children, leftIcon, rightIcon, ...rest },
+    ref
+  ) => {
+    const content = (
+      <HStack spacing="8px" justify="center">
+        {leftIcon}
         <Text as="span" fontWeight="600">
-          {label || children}
+          {children ?? label}
         </Text>
-      ) : null}
-      {rightIcon}
-      {typeof badge !== "undefined" && (
-        <Badge
-          colorScheme="whiteAlpha"
-          bg="whiteAlpha.300"
-          color="white"
-          rounded="full"
-          px="2"
-          fontSize="0.7rem"
-        >
-          {badge}
-        </Badge>
-      )}
-    </HStack>
-  );
+        {rightIcon}
+        {badge !== undefined && badge !== null && (
+          <Badge
+            rounded="full"
+            px="2"
+            fontSize="0.7rem"
+            // اللون يتظبط تلقائيًا حسب variant (على الغامق تبقى فاتح والعكس)
+            bg="blackAlpha.100"
+            _dark={{ bg: "whiteAlpha.300", color: "white" }}
+          >
+            {badge}
+          </Badge>
+        )}
+      </HStack>
+    );
 
-  const commonProps: ButtonProps = {
-    variant,
-    w: fullWidth ? "full" : undefined,
-    leftIcon: undefined, // احنا بنرندرهم يدويًا داخل HStack علشان الـBadge
-    rightIcon: undefined,
-    ...rest,
-  };
+    const commonProps: ButtonProps = {
+      ref,
+      w: fullWidth ? "full" : undefined,
+      leftIcon, 
+      rightIcon,
+      ...rest,  
+    };
 
-  if (to) {
+    if (to) {
+      return (
+        <Button as={RouterLink} to={to} {...commonProps}>
+          {content}
+        </Button>
+      );
+    }
+
+    if (href) {
+      return (
+        <Button as="a" href={href} target={rest.target} rel={rest.rel} {...commonProps}>
+          {content}
+        </Button>
+      );
+    }
+
     return (
-      <Button as={RouterLink} to={to} {...commonProps}>
+      <Button {...commonProps}>
         {content}
       </Button>
     );
   }
+);
 
-  return <Button {...commonProps}>{content}</Button>;
-};
-
+SharedButton.displayName = "SharedButton";
 export default SharedButton;

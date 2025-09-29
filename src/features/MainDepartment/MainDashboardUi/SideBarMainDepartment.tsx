@@ -29,7 +29,7 @@ const StyledSideBar = chakra("aside", {
   baseStyle: {
     gridArea: "sidebar",
     width: "314px",
-    bg: "white",
+    bg: "background.sidebar", // ✅ بدل الأبيض بخلفية رمادية
     color: "gray.700",
     px: 0,
     py: 4,
