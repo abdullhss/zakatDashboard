@@ -65,13 +65,26 @@ export default function MainNavBar() {
 
       <LinkItem to="loan-requests">
         <Icon as={FiBookOpen} boxSize={5} />
-        تصنيف الاعانات
+       المكاتب
       </LinkItem>
 
       <LinkItem to="bank-transfers">
         <Icon as={FiFolder} boxSize={5} />
-        الكفارة
+        اصناف الذكاء
       </LinkItem>
+      <LinkItem to="bank-transfers">
+        <Icon as={FiFolder} boxSize={5} />
+        حاسبة الزكاة
+      </LinkItem>
+      <LinkItem to="bank-transfers">
+        <Icon as={FiFolder} boxSize={5} />
+        مراجعة طلب الإعانة
+      </LinkItem>
+      <LinkItem to="bank-transfers">
+        <Icon as={FiFolder} boxSize={5} />
+        الحدمات
+      </LinkItem>
+
     </NavList>
   );
 }

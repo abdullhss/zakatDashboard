@@ -8,13 +8,13 @@ import {
 } from "@chakra-ui/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { DataTable } from "../../../Components/Table/DataTable";
-import type { Column, AnyRec } from "../../../Components/Table/TableTypes";
+import type {  AnyRec } from "../../../Components/Table/TableTypes";
 import SharedButton from "../../../Components/SharedButton/Button";
 import { useCitiesQuery } from "./hooks/useCities";
 import { useAddCity } from "./hooks/useAddCities";
 import { useDeleteCity } from "./hooks/useDeleteCities";
 import { useUpdateCities } from "./hooks/useUpdateCities";
-import FormModal, { type FieldConfig } from "../../../Components/ModalAction/FormModel";
+import FormModal from "../../../Components/ModalAction/FormModel";
 
 /** غيّر الاسم ده لاسم الحقل الصحيح عندك في الـ API (مثلاً "isActive" أو "Active") */
 const STATUS_FIELD = "isActive" as const;
@@ -151,40 +151,8 @@ export default function Cities() {
       { key: "CityName", header: "اسم المدينة", width: "auto" },
       {
         key: "Status",
-        header: "الحالة",
         width: "160px",
-        render: (row: AnyRec) => {
-          const isActive =
-            row.Status === 1 || row.IsActive === 1 || row.Active === 1 || row.IsBlocked === 0;
 
-          const hasStatus =
-            row.Status !== undefined || row.IsActive !== undefined ||
-            row.Active !== undefined || row.IsBlocked !== undefined;
-
-          const id = row.Id ?? row.id ?? row.CityId ?? row.city_id;
-          const loading = switchingId === id;
-
-          return (
-            <Flex align="center" gap="2" justify="flex-end" position="relative">
-              {/* سبنر صغير فوق السويتش أثناء التحديث */}
-              {loading && (
-                <Spinner size="xs" position="absolute" left="-14px" />
-              )}
-              <Box opacity={loading ? 0.6 : 1}>
-                <Switch
-                  isChecked={!!isActive}
-                  size="sm"
-                  colorScheme="teal"
-                  isDisabled={!hasStatus || loading}
-                  onChange={(e) => handleToggleStatus(row, e.target.checked)}
-                />
-              </Box>
-              <Text fontSize="sm" color={isActive ? "green.600" : "gray.600"}>
-                {hasStatus ? (isActive ? "مفعل" : "غير مفعل") : "غير محدد"}
-              </Text>
-            </Flex>
-          );
-        },
       },
     ],
     [switchingId]
@@ -202,7 +170,7 @@ export default function Cities() {
     <Box p={6}>
       {/* مودال إضافة مدينة */}
       <FormModal
-        isOpen={addModal.isOpen}
+        isOpen={addModal.isOpen} 
         onClose={addModal.onClose}
         title="إضافة مدينة"
         fields={fields}

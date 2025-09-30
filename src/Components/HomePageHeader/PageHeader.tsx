@@ -7,13 +7,12 @@ import { useLocation } from "react-router-dom"; // ⬅️ لاستخراج ال�
 // دالة بسيطة لترجمة مسار الصفحة إلى عنوان
 const getPageTitle = (pathname :any) => {
     switch (pathname) {
-        case '/officedashboard':
+        case '/maindashboard':
             return 'الصفحة الرئيسية';
-        case '/users':
-            return 'المستخدمون';
-        case '/dates':
-            return 'التواريخ';
-        // يمكنك إضافة باقي مساراتك هنا
+        case '/maindashboard/cities':
+            return 'المدن';
+        case '/maindashboard/banks':
+            return 'البنوك';
         default:
             return 'لوحة التحكم';
     }
@@ -58,12 +57,9 @@ export default function PageHeader() {
                     _active={{ bg: "gray.200" }}
                     borderRadius="full" // لجعله دائرياً كما في التصميم
                 >
-                    مكتب الأصدقاء
+                    الإدارة الرئيسية
                 </MenuButton>
-                <MenuList dir="rtl">
-                    <MenuItem>مكتب 1</MenuItem>
-                    <MenuItem>مكتب 2</MenuItem>
-                </MenuList>
+     
             </Menu>
             
         </StyledHeader>

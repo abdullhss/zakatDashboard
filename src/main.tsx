@@ -6,7 +6,6 @@ import createCache from "@emotion/cache";
 import stylisRTLPlugin from "stylis-plugin-rtl";
 import App from "./App/App";
 import theme from "./theme";
-// ⬅️ استيراد مكونات React Query
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'; 
 

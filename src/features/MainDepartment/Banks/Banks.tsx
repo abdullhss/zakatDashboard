@@ -4,7 +4,7 @@ import {
   Menu, MenuButton, MenuList, MenuItem, IconButton,
   AlertDialog, AlertDialogOverlay, AlertDialogContent,
   AlertDialogHeader, AlertDialogBody, AlertDialogFooter,
-  HStack, // ✅ جديد
+  HStack,
 } from "@chakra-ui/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 
@@ -13,7 +13,7 @@ import { useAddBank } from "./hooks/useAddBank";
 import { useDeleteBank } from "./hooks/useDeleteBank";
 import { useUpdateBank } from "./hooks/useUpdateBank";
 
-import type { Column, AnyRec } from "../../../Components/Table/TableTypes";
+import type { AnyRec, Column } from "../../../Components/Table/TableTypes";
 import { DataTable } from "../../../Components/Table/DataTable";
 import SharedButton from "../../../Components/SharedButton/Button";
 import FormModal, { type FieldConfig } from "../../../Components/ModalAction/FormModel";
@@ -117,13 +117,19 @@ function RowActions({
 
 // ===== أعمدة الجدول =====
 const BANKS_COLUMNS: Column[] = [
+
   {
     key: "BankName",
     header: "اسم البنك",
     width: "auto",
     render: (row: AnyRec) => row.BankName ?? row.Bank_Name ?? "-",
   },
- 
+    {
+    key: "__spacer",
+    header: "",           // 👈 عمود فاضي
+    width: "180px",        // غيّرها زي ما تحب (12px / 32px)
+    render: () => null,
+  },
 ];
 
 export default function Banks() {
@@ -146,12 +152,12 @@ export default function Banks() {
     { name: "bankName", label: "اسم البنك", placeholder: "برجاء كتابة اسم البنك", required: true, type: "input", colSpan: 2 },
   ];
 
-const handleAddSubmit = async (vals: { bankName: string }) => {
-  await addBank.mutateAsync({ bankName: vals.bankName }); // ✅ من غير bankCode
-  toast({ status: "success", title: "تمت الإضافة", description: "تمت إضافة البنك بنجاح" });
-  addModal.onClose();
-  refetch();
-};
+  const handleAddSubmit = async (vals: { bankName: string }) => {
+    await addBank.mutateAsync({ bankName: vals.bankName });
+    toast({ status: "success", title: "تمت الإضافة", description: "تمت إضافة البنك بنجاح" });
+    addModal.onClose();
+    refetch();
+  };
 
   if (isLoading && !isFetching) {
     return (
@@ -188,29 +194,29 @@ const handleAddSubmit = async (vals: { bankName: string }) => {
         data={banksData}
         columns={BANKS_COLUMNS}
         startIndex={offset + 1}
-          page={page}
-  pageSize={limit}
-  onPageChange={setPage}
+        page={page}
+        pageSize={limit}
+        onPageChange={setPage}
         headerAction={
           <SharedButton
             variant="brandGradient"
             onClick={addModal.onOpen}
-      leftIcon={
-        <Box
-          bg="white"
-          color="brand.900"
-          w="22px"
-          h="22px"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          fontWeight="700"
-          lineHeight="1"
-          fontSize="18px"
-        >
-          ＋
-        </Box>
-      }
+            leftIcon={
+              <Box
+                bg="white"
+                color="brand.900"
+                w="22px"
+                h="22px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                fontWeight="700"
+                lineHeight="1"
+                fontSize="18px"
+              >
+                ＋
+              </Box>
+            }
             isLoading={isFetching || addBank.isPending}
           >
             إضافة بنك
@@ -219,8 +225,6 @@ const handleAddSubmit = async (vals: { bankName: string }) => {
         totalRows={totalRows}
         renderActions={(row) => <RowActions row={row} onChanged={refetch} />}
       />
-
-
     </Box>
   );
 }
