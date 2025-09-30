@@ -1,4 +1,3 @@
-// src/components/Table/TableStyles.tsx
 import { Box, Th, Td, chakra, Flex } from "@chakra-ui/react";
 
 /** قيَم متدرجة حسب المقاس */
@@ -65,9 +64,15 @@ export const TableDataCell = chakra(Td, {
     textAlign: "right",
 
     // أول عمود (#) في النص
-    "&:nth-child(1)": { textAlign: "center", w: { base: "44px", md: "48px", lg: "52px" } },
+    "&:nth-child(1)": { 
+      textAlign: "center", 
+      w: { base: "44px", md: "48px", lg: "52px" } 
+    },
 
     // 👇 نفس الزيادة للعمود التاني (RTL-aware) بشكل متدرّج
     "&:nth-child(2)": { ps: { base: 4, md: 6, lg: 8 } },
   },
 });
+
+// ✅ alias بالاسم القديم عشان DataTable يلاقيه
+export const ROW_H = ROW_H_RESP;

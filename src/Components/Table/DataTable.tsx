@@ -1,4 +1,3 @@
-// src/components/Table/DataTable.tsx
 import React from "react";
 import {
   Table,
@@ -22,7 +21,7 @@ import {
   TableHeader,
   TableHeadCell,
   TableDataCell,
-  ROW_H,
+  ROW_H, // ✅ هيشتغل دلوقتي لأنه بقى متصدّر من TableStyles
 } from "./TableStyles";
 
 import Pagination from "./Pagination";
@@ -60,9 +59,6 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
 }) => {
   const hasActions = !!(renderActions || onEditRow || onDeleteRow);
 
-  // أرقام العرض أسفل الجدول
-  const shownFrom = data.length ? startIndex : 0;
-  const shownTo = data.length ? startIndex + data.length - 1 : 0;
   const total = typeof totalRows === "number" ? totalRows : data.length;
 
   return (
@@ -118,7 +114,9 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
                 {/* data cells */}
                 {columns.map((col) => (
                   <TableDataCell key={col.key}>
-                    {col.render ? col.render(row, index) : (row as any)[col.key]}
+                    {col.render
+                      ? col.render(row, index)
+                      : (row as any)[col.key]}
                   </TableDataCell>
                 ))}
 
@@ -136,7 +134,7 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
                             icon={<BsThreeDotsVertical />}
                             variant="ghost"
                             border="none"
-                            boxSize={ROW_H}
+                            boxSize={ROW_H}  
                             minW={ROW_H}
                             _hover={{ bg: "blackAlpha.50" }}
                             _active={{ bg: "blackAlpha.100" }}
@@ -167,10 +165,8 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
         </Table>
       </Box>
 
-      {/* Footer: left (info) — right (pagination) */}
+      {/* Footer */}
       <Flex justify="space-between" align="center" mt={3} px={1}>
-    
-
         {page && pageSize && onPageChange && (
           <Pagination
             page={page}
