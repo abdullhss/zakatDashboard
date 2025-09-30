@@ -13,7 +13,7 @@ import { useAddBank } from "./hooks/useAddBank";
 import { useDeleteBank } from "./hooks/useDeleteBank";
 import { useUpdateBank } from "./hooks/useUpdateBank";
 
-import type { AnyRec, Column } from "../../../Components/Table/TableTypes";
+import type { AnyRec } from "../../../Components/Table/TableTypes";
 import { DataTable } from "../../../Components/Table/DataTable";
 import SharedButton from "../../../Components/SharedButton/Button";
 import FormModal, { type FieldConfig } from "../../../Components/ModalAction/FormModel";

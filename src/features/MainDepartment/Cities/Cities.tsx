@@ -1,23 +1,22 @@
+// src/features/MainDepartment/Cities/Cities.tsx
 import { useMemo, useRef, useState } from "react";
 import {
-  Box, Switch, Text, Flex, Spinner, Alert, AlertIcon, useDisclosure,
+  Box, Flex, Spinner, Alert, AlertIcon, useDisclosure,
   useToast, IconButton, Menu, MenuButton, MenuList, MenuItem,
   AlertDialog, AlertDialogOverlay, AlertDialogContent,
   AlertDialogHeader, AlertDialogBody, AlertDialogFooter,
   HStack, Portal,
 } from "@chakra-ui/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
+
 import { DataTable } from "../../../Components/Table/DataTable";
-import type {  AnyRec } from "../../../Components/Table/TableTypes";
+import type { AnyRec, Column } from "../../../Components/Table/TableTypes";
 import SharedButton from "../../../Components/SharedButton/Button";
 import { useCitiesQuery } from "./hooks/useCities";
 import { useAddCity } from "./hooks/useAddCities";
 import { useDeleteCity } from "./hooks/useDeleteCities";
 import { useUpdateCities } from "./hooks/useUpdateCities";
-import FormModal from "../../../Components/ModalAction/FormModel";
-
-/** غيّر الاسم ده لاسم الحقل الصحيح عندك في الـ API (مثلاً "isActive" أو "Active") */
-const STATUS_FIELD = "isActive" as const;
+import FormModal, { type FieldConfig } from "../../../Components/ModalAction/FormModel";
 
 /** قائمة الإجراءات لكل صف */
 function RowActions({
@@ -95,30 +94,6 @@ export default function Cities() {
   const citiesData = data?.rows || [];
   const totalRows = data?.totalRows ?? 0;
 
-  // 🔁 لودر للسويتش أثناء التحديث
-  const [switchingId, setSwitchingId] = useState<number | string | null>(null);
-
-  // ✅ تغيير الحالة (تفعيل/إلغاء)
-  const handleToggleStatus = async (row: AnyRec, nextChecked: boolean) => {
-    const id = row.Id ?? row.id ?? row.CityId ?? row.city_id;
-    try {
-      setSwitchingId(id);
-
-      // كون الـ key ديناميكي لتفادي خطأ النوع (TS) لو النوع ثابت
-      await updateCity.mutateAsync({
-        id,
-        [STATUS_FIELD]: nextChecked ? 1 : 0,
-      } as any);
-
-      toast({ status: "success", title: nextChecked ? "تم التفعيل" : "تم إلغاء التفعيل" });
-      refetch();
-    } catch (e: any) {
-      toast({ status: "error", title: "فشل تحديث الحالة", description: e?.message || "" });
-    } finally {
-      setSwitchingId(null);
-    }
-  };
-
   const fields = useMemo<FieldConfig[]>(
     () => [
       { name: "cityName", label: "اسم المدينة", placeholder: "برجاء كتابة اسم المدينة", required: true, type: "input", colSpan: 2 },
@@ -145,17 +120,13 @@ export default function Cities() {
     refetch();
   };
 
-  // ✅ أعمدة الجدول
+  /** أعمدة الجدول — بدون عمود الحالة */
   const CITIES_COLUMNS: Column[] = useMemo(
     () => [
-      { key: "CityName", header: "اسم المدينة", width: "auto" },
-      {
-        key: "Status",
-        width: "160px",
-
-      },
+      { key: "CityName", header: "اسم المدينة", width: "auto",
+        render: (row: AnyRec) => row.CityName ?? row.name ?? "-" },
     ],
-    [switchingId]
+    []
   );
 
   if (isLoading && !isFetching) {
@@ -170,7 +141,7 @@ export default function Cities() {
     <Box p={6}>
       {/* مودال إضافة مدينة */}
       <FormModal
-        isOpen={addModal.isOpen} 
+        isOpen={addModal.isOpen}
         onClose={addModal.onClose}
         title="إضافة مدينة"
         fields={fields}

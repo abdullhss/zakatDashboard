@@ -1,4 +1,5 @@
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+// src/features/MainDepartment/Banks/hooks/useGetBanks.ts
+import { useQuery, keepPreviousData, type UseQueryResult } from "@tanstack/react-query";
 import { getBanks } from "../Services/getBanks";
 import type { NormalizedSummary, AnyRec } from "../../../../api/apiClient";
 
@@ -23,6 +24,9 @@ export function useBanksQuery(offset: number, limit: number): UseQueryResult<Ban
       };
     },
     staleTime: 60_000,
-    keepPreviousData: true,
+    // ✅ بديل v5 لـ keepPreviousData
+    placeholderData: keepPreviousData,
+    // (اختياري) فترة الاحتفاظ بالـ cache قبل الجمع القمامي
+    // gcTime: 5 * 60 * 1000,
   });
 }
