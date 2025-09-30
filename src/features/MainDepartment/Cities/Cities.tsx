@@ -120,11 +120,17 @@ export default function Cities() {
     refetch();
   };
 
-  /** أعمدة الجدول — بدون عمود الحالة */
+  /** أعمدة الجدول — أضفنا عمود فاضي قبل اسم المدينة */
   const CITIES_COLUMNS: Column[] = useMemo(
     () => [
-      { key: "CityName", header: "اسم المدينة", width: "auto",
-        render: (row: AnyRec) => row.CityName ?? row.name ?? "-" },
+      
+      {
+        key: "CityName",
+        header: "اسم المدينة",
+        width: "auto",
+        render: (row: AnyRec) => row.CityName ?? row.name ?? "-",
+      },
+      { key: "__spacer", header: "", width: "35%", render: () => null }, // 👈 عمود فاضي
     ],
     []
   );

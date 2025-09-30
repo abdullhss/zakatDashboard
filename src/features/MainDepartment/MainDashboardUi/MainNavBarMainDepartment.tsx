@@ -1,88 +1,107 @@
 import { chakra, Icon } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
-// استيراد أيقونات إضافية لتطابق التصميم
-import { FiHome, FiFolder, FiUsers, FiCalendar, FiBookOpen } from "react-icons/fi"; 
+// استيراد الأيقونات
+import { 
+  FiHome, FiMapPin, FiCreditCard, FiCpu, 
+  FiPercent, FiSettings, FiUsers, FiBookOpen 
+} from "react-icons/fi"; 
+import { MdOutlineAssignmentTurnedIn } from "react-icons/md";  // لمراجعة طلب الإعانة
+import { AiOutlineCalculator } from "react-icons/ai";         // حاسبة الزكاة
+import { RiServiceLine } from "react-icons/ri";               // الخدمات
 
-const NavList = chakra("nav", { baseStyle: { display: "flex", flexDirection: "column", mt: 4 , fontsize:"18px", fontWeight:"bold.700" ,lineHeight:"120%" },
+// ✅ قائمة الناف بار
+const NavList = chakra("nav", { 
+  baseStyle: { 
+    display: "flex", 
+    flexDirection: "column", 
+    mt: 4,
+    fontSize: "18px", 
+    fontWeight: "bold", 
+    lineHeight: "120%" 
+  },
 });
 
 const LinkItem = chakra(NavLink, {
-     baseStyle: {
+  baseStyle: {
     display: "flex",
     alignItems: "center",
     gap: 6,
-    h: "56px", // ارتفاع أصغر
-    paddingInline: 6, // مسافة داخلية جانبية أقل
+    h: "56px",
+    paddingInline: 6,
     width: "100%",
-    color: "gray.500", 
+    color: "gray.500",
     fontWeight: 800,
-
     transition: "all .2s ease",
-    _hover: { bg: "gray.200", color: "gray.700" }, // تأثير خفيف عند المرور
-    
-    
+    _hover: { bg: "gray.200", color: "gray.700" },
 
     "&.active, &[aria-current='page']": {
-      color: "black", // اللون الأزرق الرئيسي للنص والأيقونة
-      bg: "grey.800", // خلفية زرقاء فاتحة
+      color: "black",
+      bg: "gray.100",
       fontWeight: 600,
-
-      
-      // الشريط الأزرق السميك على الجانب الأيمن (RTL)
       position: "relative",
       _before: {
         content: `""`,
         position: "absolute",
-        left: 0, // وضعه على اليمين
+        left: 0,
         top: 0,
         bottom: 0,
-        width: "4px", // سُمك الشريط
-        bg: "#17343B", // اللون الأزرق
-        borderRadius: "4px 0 0 4px", // حواف دائرية على اليمين
+        width: "4px",
+        bg: "#17343B",
+        borderRadius: "4px 0 0 4px",
       }
     },
-  },
+  },
 });
 
 export default function MainNavBar() {
   return (
     <NavList>
-      {/* الرئيسية = index route */}
+      {/* الرئيسية */}
       <LinkItem to="." end>
         <Icon as={FiHome} boxSize={5} />
         الصفحة الرئيسية
       </LinkItem>
 
+      {/* المدن */}
       <LinkItem to="cities">
-        <Icon as={FiUsers} boxSize={5} />
+        <Icon as={FiMapPin} boxSize={5} />
         المدن
       </LinkItem>
 
+      {/* البنوك */}
       <LinkItem to="banks">
-        <Icon as={FiCalendar} boxSize={5} />
+        <Icon as={FiCreditCard} boxSize={5} />
         البنوك
       </LinkItem>
 
+      {/* المكاتب */}
       <LinkItem to="loan-requests">
-        <Icon as={FiBookOpen} boxSize={5} />
-       المكاتب
+        <Icon as={FiUsers} boxSize={5} />
+        المكاتب
       </LinkItem>
 
-      <LinkItem to="bank-transfers">
-        <Icon as={FiFolder} boxSize={5} />
-        اصناف الذكاء
+      {/* أصناف الذكاء */}
+      <LinkItem to="ai-categories">
+        <Icon as={FiCpu} boxSize={5} />
+        أصناف الزكاة
       </LinkItem>
-      <LinkItem to="bank-transfers">
-        <Icon as={FiFolder} boxSize={5} />
+
+      {/* حاسبة الزكاة */}
+      <LinkItem to="zakat-calculator">
+        <Icon as={AiOutlineCalculator} boxSize={5} />
         حاسبة الزكاة
       </LinkItem>
-      <LinkItem to="bank-transfers">
-        <Icon as={FiFolder} boxSize={5} />
+
+      {/* مراجعة طلب الإعانة */}
+      <LinkItem to="aid-requests">
+        <Icon as={MdOutlineAssignmentTurnedIn} boxSize={5} />
         مراجعة طلب الإعانة
       </LinkItem>
-      <LinkItem to="bank-transfers">
-        <Icon as={FiFolder} boxSize={5} />
-        الحدمات
+
+      {/* الخدمات */}
+      <LinkItem to="services">
+        <Icon as={RiServiceLine} boxSize={5} />
+        الخدمات
       </LinkItem>
 
     </NavList>
