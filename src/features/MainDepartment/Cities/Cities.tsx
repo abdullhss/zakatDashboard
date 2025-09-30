@@ -1,10 +1,10 @@
-import  { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Box, Switch, Text, Flex, Spinner, Alert, AlertIcon, useDisclosure,
   useToast, IconButton, Menu, MenuButton, MenuList, MenuItem,
   AlertDialog, AlertDialogOverlay, AlertDialogContent,
   AlertDialogHeader, AlertDialogBody, AlertDialogFooter,
-  HStack, // ✅ جديد
+  HStack, Portal,
 } from "@chakra-ui/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { DataTable } from "../../../Components/Table/DataTable";
@@ -16,16 +16,13 @@ import { useDeleteCity } from "./hooks/useDeleteCities";
 import { useUpdateCities } from "./hooks/useUpdateCities";
 import FormModal, { type FieldConfig } from "../../../Components/ModalAction/FormModel";
 
-/** قائمة الإجراءات داخل كل صف */
+/** غيّر الاسم ده لاسم الحقل الصحيح عندك في الـ API (مثلاً "isActive" أو "Active") */
+const STATUS_FIELD = "isActive" as const;
+
+/** قائمة الإجراءات لكل صف */
 function RowActions({
-  row,
-  onDeleted,
-  onEdited,
-}: {
-  row: AnyRec;
-  onDeleted: () => void;
-  onEdited: (row: AnyRec) => void;
-}) {
+  row, onDeleted, onEdited,
+}: { row: AnyRec; onDeleted: () => void; onEdited: (row: AnyRec) => void; }) {
   const toast = useToast();
   const del = useDeleteCity();
   const confirm = useDisclosure();
@@ -45,12 +42,21 @@ function RowActions({
 
   return (
     <>
-      <Menu placement="bottom-start" isLazy>
-        <MenuButton as={IconButton} aria-label="إجراءات" icon={<BsThreeDotsVertical />} size="sm" variant="brandOutline" />
-        <MenuList>
-          <MenuItem onClick={() => onEdited(row)}>تعديل</MenuItem>
-          <MenuItem color="red.600" onClick={confirm.onOpen}>حذف</MenuItem>
-        </MenuList>
+      <Menu placement="bottom-start" isLazy strategy="fixed">
+        <MenuButton
+          as={IconButton}
+          aria-label="إجراءات"
+          icon={<BsThreeDotsVertical />}
+          size="sm"
+          variant="brandOutline"
+          onClick={(e) => e.stopPropagation()}
+        />
+        <Portal>
+          <MenuList>
+            <MenuItem onClick={() => onEdited(row)}>تعديل</MenuItem>
+            <MenuItem color="red.600" onClick={confirm.onOpen}>حذف</MenuItem>
+          </MenuList>
+        </Portal>
       </Menu>
 
       <AlertDialog isOpen={confirm.isOpen} leastDestructiveRef={cancelRef} onClose={confirm.onClose} isCentered>
@@ -62,20 +68,8 @@ function RowActions({
           </AlertDialogBody>
           <AlertDialogFooter w="100%">
             <HStack w="100%" spacing={4} justify="space-around">
-              <SharedButton
-                label="إلغاء"
-                variant="dangerOutline"
-                onClick={confirm.onClose}
-                ref={cancelRef as any}
-                fullWidth
-              />
-              <SharedButton
-                label="حذف"
-                variant="brandGradient"
-                onClick={handleDelete}
-                isLoading={del.isPending}
-                fullWidth
-              />
+              <SharedButton label="إلغاء" variant="dangerOutline" onClick={confirm.onClose} ref={cancelRef as any} fullWidth />
+              <SharedButton label="حذف" variant="brandGradient" onClick={handleDelete} isLoading={del.isPending} fullWidth />
             </HStack>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -83,32 +77,6 @@ function RowActions({
     </>
   );
 }
-
-const CITIES_COLUMNS: Column[] = [
-  { key: "CityName", header: "اسم المدينة", width: "auto" },
-  {
-    key: "Status",
-    header: "الحالة",
-    width: "160px",
-    render: (row: AnyRec) => {
-      const isActive =
-        row.Status === 1 || row.IsActive === 1 || row.Active === 1 || row.IsBlocked === 0;
-
-      const hasStatus =
-        row.Status !== undefined || row.IsActive !== undefined ||
-        row.Active !== undefined || row.IsBlocked !== undefined;
-
-      return (
-        <Flex align="center" gap="2" justify="flex-end">
-          <Switch isChecked={!!isActive} size="sm" colorScheme="teal" isDisabled={!hasStatus} />
-          <Text fontSize="sm" color={isActive ? "green.600" : "gray.600"}>
-            {hasStatus ? (isActive ? "مفعل" : "غير مفعل") : "غير محدد"}
-          </Text>
-        </Flex>
-      );
-    },
-  },
-];
 
 export default function Cities() {
   const toast = useToast();
@@ -126,6 +94,30 @@ export default function Cities() {
 
   const citiesData = data?.rows || [];
   const totalRows = data?.totalRows ?? 0;
+
+  // 🔁 لودر للسويتش أثناء التحديث
+  const [switchingId, setSwitchingId] = useState<number | string | null>(null);
+
+  // ✅ تغيير الحالة (تفعيل/إلغاء)
+  const handleToggleStatus = async (row: AnyRec, nextChecked: boolean) => {
+    const id = row.Id ?? row.id ?? row.CityId ?? row.city_id;
+    try {
+      setSwitchingId(id);
+
+      // كون الـ key ديناميكي لتفادي خطأ النوع (TS) لو النوع ثابت
+      await updateCity.mutateAsync({
+        id,
+        [STATUS_FIELD]: nextChecked ? 1 : 0,
+      } as any);
+
+      toast({ status: "success", title: nextChecked ? "تم التفعيل" : "تم إلغاء التفعيل" });
+      refetch();
+    } catch (e: any) {
+      toast({ status: "error", title: "فشل تحديث الحالة", description: e?.message || "" });
+    } finally {
+      setSwitchingId(null);
+    }
+  };
 
   const fields = useMemo<FieldConfig[]>(
     () => [
@@ -153,12 +145,57 @@ export default function Cities() {
     refetch();
   };
 
+  // ✅ أعمدة الجدول
+  const CITIES_COLUMNS: Column[] = useMemo(
+    () => [
+      { key: "CityName", header: "اسم المدينة", width: "auto" },
+      {
+        key: "Status",
+        header: "الحالة",
+        width: "160px",
+        render: (row: AnyRec) => {
+          const isActive =
+            row.Status === 1 || row.IsActive === 1 || row.Active === 1 || row.IsBlocked === 0;
+
+          const hasStatus =
+            row.Status !== undefined || row.IsActive !== undefined ||
+            row.Active !== undefined || row.IsBlocked !== undefined;
+
+          const id = row.Id ?? row.id ?? row.CityId ?? row.city_id;
+          const loading = switchingId === id;
+
+          return (
+            <Flex align="center" gap="2" justify="flex-end" position="relative">
+              {/* سبنر صغير فوق السويتش أثناء التحديث */}
+              {loading && (
+                <Spinner size="xs" position="absolute" left="-14px" />
+              )}
+              <Box opacity={loading ? 0.6 : 1}>
+                <Switch
+                  isChecked={!!isActive}
+                  size="sm"
+                  colorScheme="teal"
+                  isDisabled={!hasStatus || loading}
+                  onChange={(e) => handleToggleStatus(row, e.target.checked)}
+                />
+              </Box>
+              <Text fontSize="sm" color={isActive ? "green.600" : "gray.600"}>
+                {hasStatus ? (isActive ? "مفعل" : "غير مفعل") : "غير محدد"}
+              </Text>
+            </Flex>
+          );
+        },
+      },
+    ],
+    [switchingId]
+  );
+
   if (isLoading && !isFetching) {
-    return (<Flex justify="center" p={10}><Spinner size="xl" /></Flex>);
+    return <Flex justify="center" p={10}><Spinner size="xl" /></Flex>;
   }
 
   if (isError) {
-    return (<Alert status="error" m={6}><AlertIcon />حدث خطأ أثناء جلب المدن: {error.message}</Alert>);
+    return <Alert status="error" m={6}><AlertIcon />حدث خطأ أثناء جلب المدن: {error.message}</Alert>;
   }
 
   return (
@@ -193,16 +230,31 @@ export default function Cities() {
         data={citiesData}
         columns={CITIES_COLUMNS}
         startIndex={offset + 1}
-          page={page}
-  pageSize={limit}
-  onPageChange={setPage}
+        page={page}
+        pageSize={limit}
+        onPageChange={setPage}
         headerAction={
-          
           <SharedButton
             variant="brandGradient"
             onClick={addModal.onOpen}
-            leftIcon={<span>＋</span>}
             isLoading={isFetching || addCity.isPending}
+            leftIcon={
+              <Box
+                bg="white"
+                color="brand.900"
+                w="22px"
+                h="22px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                fontWeight="700"
+                lineHeight="1"
+                fontSize="18px"
+                rounded="sm"
+              >
+                ＋
+              </Box>
+            }
           >
             إضافة مدينة
           </SharedButton>
@@ -216,8 +268,6 @@ export default function Cities() {
           />
         )}
       />
-
-
     </Box>
   );
 }

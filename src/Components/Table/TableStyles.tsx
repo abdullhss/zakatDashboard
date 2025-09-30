@@ -9,18 +9,18 @@ export const CELL_PX = 2;     // 8px أفقيًا
 /** حاوية الكارت/الجدول */
 export const TableCardContainer = chakra(Box, {
   baseStyle: {
-    bg: "background.surface",        // سطح رمادي فاتح
+    bg: "background.surface",        
     border: "1px solid",
     borderColor: "background.border",
     borderRadius: "lg",
     boxShadow: "sm",
-    p: 4,                            // padding للكارت
+    p: 4,                            
     overflowX: "auto",
     mx: "auto",
   },
 });
 
-/** ترويسة الكارت */
+
 export const TableHeader = chakra(Flex, {
   baseStyle: {
     justifyContent: "space-between",
@@ -32,7 +32,7 @@ export const TableHeader = chakra(Flex, {
 /** خلية رأس الجدول */
 export const TableHeadCell = chakra(Th, {
   baseStyle: {
-    bg: "background.subtle",         // أغمق سنة من سطح الجدول
+    bg: "background.subtle",       
     color: "gray.700",
     fontSize: "14px",
     fontWeight: 700,
@@ -43,7 +43,6 @@ export const TableHeadCell = chakra(Th, {
     h: ROW_H,
     lineHeight: ROW_H,
     textAlign: "right",
-    // تحسين بسيط لشكل الحافة اليمنى/اليسرى في أول وآخر رأس
     _first: { borderTopRightRadius: "md" },
     _last:  { borderTopLeftRadius: "md"  },
   },
@@ -54,15 +53,15 @@ export const TableDataCell = chakra(Td, {
   baseStyle: {
     py: CELL_PY,
     px: CELL_PX,
-    fontSize: "14px",
+    fontSize: "16px",
     borderBottom: "1px solid",
     borderColor: "background.border",
+    
     bg: "white",
     verticalAlign: "middle",
     h: ROW_H,
     lineHeight: ROW_H,
     textAlign: "right",
-    // عمود الترقيم في المنتصف
     "&:nth-child(1)": { textAlign: "center" },
   },
 });

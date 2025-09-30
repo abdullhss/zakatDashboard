@@ -30,7 +30,7 @@ export const PROCEDURE_NAMES: Record<string, string> = {
 CITIES_TABLE_NAME: "jxZ/VX2ZB73RfXPSzeav0g=="
 };
 
-const TRANSACTION_ENDPOINT = "/DoTransaction";
+
 
 // ===================================
 // 2) أنواع (النماذج)

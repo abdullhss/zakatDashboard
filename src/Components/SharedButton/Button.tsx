@@ -24,7 +24,7 @@ const SharedButton = React.forwardRef<HTMLButtonElement, SharedButtonProps>(
   ) => {
     const content = (
       <HStack spacing="8px" justify="center">
-        {leftIcon}
+   
         <Text as="span" fontWeight="600">
           {children ?? label}
         </Text>
@@ -34,7 +34,6 @@ const SharedButton = React.forwardRef<HTMLButtonElement, SharedButtonProps>(
             rounded="full"
             px="2"
             fontSize="0.7rem"
-            // اللون يتظبط تلقائيًا حسب variant (على الغامق تبقى فاتح والعكس)
             bg="blackAlpha.100"
             _dark={{ bg: "whiteAlpha.300", color: "white" }}
           >

@@ -28,7 +28,7 @@ const ActionButton = chakra("button", {
 const StyledSideBar = chakra("aside", {
   baseStyle: {
     gridArea: "sidebar",
-    width: "314px",
+    width: "282.6300048828125px",
     bg: "background.sidebar", // ✅ بدل الأبيض بخلفية رمادية
     color: "gray.700",
     px: 0,

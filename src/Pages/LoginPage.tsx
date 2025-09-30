@@ -18,7 +18,7 @@ export default function LoginPage() {
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { mutateAsync, isLoading } = useLogin();
+  const { mutateAsync, isPending } = useLogin();
 
   // ✅ ما نحولش إلا لو فيه auth=true ودور صحيح
   useEffect(() => {
@@ -88,10 +88,10 @@ export default function LoginPage() {
               password={password}
               setUsername={setUsername}
               setPassword={setPassword}
-              isDisabled={isLoading}
+              isDisabled={isPending}
             />
-            <SubmitBtn type="submit" disabled={isLoading}>
-              {isLoading ? "جارِ التحقق..." : "تسجيل الدخول"}
+            <SubmitBtn type="submit" disabled={isPending}>
+              {isPending ? "جارِ التحقق..." : "تسجيل الدخول"}
             </SubmitBtn>
             <AyahWrap>
               <Image src={ayahSrc} alt="آية" maxH="56px" objectFit="contain" />

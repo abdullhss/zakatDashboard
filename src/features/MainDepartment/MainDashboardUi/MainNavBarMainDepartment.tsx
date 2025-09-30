@@ -18,7 +18,7 @@ const LinkItem = chakra(NavLink, {
     fontWeight: 800,
 
     transition: "all .2s ease",
-    _hover: { bg: "gray.50", color: "gray.700" }, // تأثير خفيف عند المرور
+    _hover: { bg: "gray.200", color: "gray.700" }, // تأثير خفيف عند المرور
     
     
 

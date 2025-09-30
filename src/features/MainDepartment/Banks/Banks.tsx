@@ -195,7 +195,22 @@ const handleAddSubmit = async (vals: { bankName: string }) => {
           <SharedButton
             variant="brandGradient"
             onClick={addModal.onOpen}
-            leftIcon={<span>＋</span>}
+      leftIcon={
+        <Box
+          bg="white"
+          color="brand.900"
+          w="22px"
+          h="22px"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          fontWeight="700"
+          lineHeight="1"
+          fontSize="18px"
+        >
+          ＋
+        </Box>
+      }
             isLoading={isFetching || addBank.isPending}
           >
             إضافة بنك
