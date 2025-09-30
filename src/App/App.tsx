@@ -16,7 +16,7 @@ export default function App() {
 
         {/* Main Dashboard - M */}
         <Route element={<RequireAuth allow={["M"]} />}>
-          <Route path="/demo/maindashboard" element={<MainDashboardLayout />}>
+          <Route path="/maindashboard" element={<MainDashboardLayout />}>
             <Route index element={<HomePage />} />
             <Route path="home" element={<HomePage />} />
             <Route path="cities" element={<Cities />} />
@@ -26,7 +26,7 @@ export default function App() {
 
         {/* Office Dashboard - O */}
         <Route element={<RequireAuth allow={["O"]} />}>
-          <Route path="/demo/officedashboard" element={<OfficeDashboardLayout />}>
+          <Route path="/officedashboard" element={<OfficeDashboardLayout />}>
             <Route index element={<HomePage />} />
             <Route path="home" element={<HomePage />} />
           </Route>
