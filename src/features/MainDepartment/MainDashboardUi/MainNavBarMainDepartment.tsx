@@ -75,7 +75,7 @@ export default function MainNavBar() {
       </LinkItem>
 
       {/* المكاتب */}
-      <LinkItem to="loan-requests">
+      <LinkItem to="offices">
         <Icon as={FiUsers} boxSize={5} />
         المكاتب
       </LinkItem>

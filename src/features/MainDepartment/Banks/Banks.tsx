@@ -126,8 +126,8 @@ const BANKS_COLUMNS: Column[] = [
   },
     {
     key: "__spacer",
-    header: "",           // 👈 عمود فاضي
-    width: "35%",        // غيّرها زي ما تحب (12px / 32px)
+    header: "",           
+    width: "35%",       
     render: () => null,
   },
 ];

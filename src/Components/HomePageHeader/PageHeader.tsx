@@ -13,6 +13,8 @@ const getPageTitle = (pathname :any) => {
             return 'المدن';
         case '/maindashboard/banks':
             return 'البنوك';
+        case '/maindashboard/offices':
+            return 'المكاتب';
         default:
             return 'لوحة التحكم';
     }

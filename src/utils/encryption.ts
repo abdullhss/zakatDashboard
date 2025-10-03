@@ -12,10 +12,9 @@ import CryptoJS from "crypto-js";
  * @returns An array of number representing the ASCII codes.
  */
 function AsciiConverter(key: string): number[] {
-  let keyASCIIArry: number[] = [];
+  const keyASCIIArry: number[] = [];
   for (let i = 0; i < key.length; i++) {
-    let char = key[i];
-    let ascii = char.charCodeAt(0);
+    const ascii = key.charCodeAt(i);
     keyASCIIArry.push(ascii);
   }
   return keyASCIIArry;
@@ -33,60 +32,69 @@ export function ArrayResizer(arr: number[], newSize: number, defaultValue: numbe
   if (newArr.length > newSize) {
     newArr = newArr.slice(0, newSize);
   } else {
-    // ⬅️ تصحيح بسيط للـ loop: استخدام push بدلاً من while لا داعي له هنا
-    while (newSize > newArr.length) {
+    while (newArr.length < newSize) {
       newArr.push(defaultValue);
     }
   }
-  // لا حاجة لـ newArr.length = newSize; طالما تم استخدام push/slice بشكل صحيح
   return newArr;
+}
+
+/** يشيل أقواس مفردة من بداية/نهاية النص لو موجودة */
+function stripSingleQuotes(s: string): string {
+  return s.replace(/^'+|'+$/g, "");
+}
+
+/** يحوّل مصفوفة بايتات لأوبجكت WordArray بصيغة Hex */
+function byteArrayToWordArrayHex(bytes: number[]) {
+  const hex = bytes.map((num) => ("0" + num.toString(16)).slice(-2)).join("");
+  return CryptoJS.enc.Hex.parse(hex);
 }
 
 // ----------------------------------------------------
 // صنف التشفير الرئيسي (AES256Encryption Class)
 // ----------------------------------------------------
 
-// ⬅️ تعريف نوع القيمة المرجعة لدوال التشفير وفك التشفير
+// نوع القيمة المرجعة لدوال التشفير
 type EncryptionResult = string | { [key: string]: string };
 
 export class AES256Encryption {
-  
   /**
    * Encrypts data using AES-256-CBC with a key derived from the input string.
    * @param data The data to encrypt (object or string).
    * @param key The encryption key. Defaults to VITE_AES256_ENCRYPTED_KEY.
    * @returns The encrypted string or an error object.
    */
-  static encrypt(data: any, key: string = import.meta.env.VITE_AES256_ENCRYPTED_KEY as string): EncryptionResult {
+  static encrypt(
+    data: any,
+    key: string = import.meta.env.VITE_AES256_ENCRYPTED_KEY as string
+  ): EncryptionResult {
     try {
-      if (!key) {
-        throw new Error("Key is required");
-      }
-      
-      let JsonObject: any = data;
+      if (!key) throw new Error("Key is required");
 
-      // ⬅️ تصحيح بسيط للتحقق من نوع البيانات
-      if (typeof data === "object" && data !== null && !Object.keys(data).length) {
-          JsonObject = { ...data };
-          for (const k in JsonObject) {
-              if (JsonObject[k] === undefined) {
-                  delete JsonObject[k];
-              }
-          }
+      // تنظيف الكائن من undefined (لو data كائن)
+      let jsonObject = data;
+      if (data !== null && typeof data === "object") {
+        jsonObject = Array.isArray(data) ? [...data] : { ...data };
+        for (const k in jsonObject) {
+          if (jsonObject[k] === undefined) delete jsonObject[k];
+        }
       }
-      
-      const plaintext = typeof JsonObject === 'object' ? JSON.stringify(JsonObject) : String(JsonObject);
+
+      const plaintext =
+        typeof jsonObject === "string" ? jsonObject : JSON.stringify(jsonObject);
+
       const asciiArr = AsciiConverter(key);
-      const encKey = ArrayResizer(asciiArr, 32, 0);
+      const encKeyArr = ArrayResizer(asciiArr, 32, 0);
       const ivArr = ArrayResizer(asciiArr, 16, 0);
-      
-      // تحويل مصفوفات البايت إلى Hex.WordArray
-      const encodedKey = CryptoJS.enc.Hex.parse(encKey.map((num) => ('0' + num.toString(16)).slice(-2)).join(''));
-      const iv = CryptoJS.enc.Hex.parse(ivArr.map((num) => ('0' + num.toString(16)).slice(-2)).join(''));
-      
-      return CryptoJS.AES.encrypt(plaintext, encodedKey, { iv }).toString();
+
+      const encodedKey = byteArrayToWordArrayHex(encKeyArr);
+      const iv = byteArrayToWordArrayHex(ivArr);
+
+      // CryptoJS.AES.encrypt بالـ WordArray + iv يستخدم CBC/PKCS7 افتراضيًا
+      const encrypted = CryptoJS.AES.encrypt(plaintext, encodedKey, { iv });
+      return encrypted.toString();
     } catch (error: any) {
-      return { 'Encryption failed:': error.message };
+      return { "Encryption failed:": error.message };
     }
   }
 
@@ -94,46 +102,36 @@ export class AES256Encryption {
    * Decrypts an AES-256-CBC encrypted string.
    * @param encryptedData The encrypted string.
    * @param key The encryption key. Defaults to VITE_AES256_ENCRYPTED_KEY.
-   * @returns The decrypted object, string, or an error object.
+   * @returns The decrypted UTF-8 string (بدون محاولة JSON.parse هنا).
    */
-  static decrypt(encryptedData: string, key: string = import.meta.env.VITE_AES256_ENCRYPTED_KEY as string): any {
+  static decrypt(
+    encryptedData: string,
+    key: string = import.meta.env.VITE_AES256_ENCRYPTED_KEY as string
+  ): string | { [key: string]: string } {
     try {
-      if (!key) {
-        throw new Error("Key is required");
-      }
-      if (!encryptedData) return ""; // معالجة حالة البيانات الفارغة
+      if (!key) throw new Error("Key is required");
+      if (!encryptedData) return "";
 
       const asciiArr = AsciiConverter(key);
-      const encKey = ArrayResizer(asciiArr, 32, 0);
+      const encKeyArr = ArrayResizer(asciiArr, 32, 0);
       const ivArr = ArrayResizer(asciiArr, 16, 0);
-      
-      // تحويل مصفوفات البايت إلى Hex.WordArray
-      const encodedKey = CryptoJS.enc.Hex.parse(encKey.map((num) => ('0' + num.toString(16)).slice(-2)).join(''));
-      const iv = CryptoJS.enc.Hex.parse(ivArr.map((num) => ('0' + num.toString(16)).slice(-2)).join(''));
-      
-      // فك التشفير: إزالة مسافات Carriage Returns/Line Feeds قبل فك التشفير
-      const decrypted = CryptoJS.AES.decrypt(encryptedData.replaceAll("\r\n", ""), encodedKey, { iv });
-      
-      // تحويل الناتج إلى نص UTF8
-      const decryption = decrypted.toString(CryptoJS.enc.Utf8);
-      
-      // محاولة تحليل الناتج كـ JSON
-      try {
-        const trimmedDecryption = decryption.trim();
-        if (!trimmedDecryption) {
-            return trimmedDecryption; // إرجاع سلسلة فارغة إذا كان الناتج فارغًا
-        }
-        return JSON.parse(trimmedDecryption);
-      } catch (error) {
-        // إذا فشل التحليل كـ JSON، يتم إرجاع النص العادي
-        if (decryption.trim().length) {
-            console.error("JSON parsing failed for decrypted data:", (error as Error).message);
-        }
-        return decryption.trim();
-      }
+
+      const encodedKey = byteArrayToWordArrayHex(encKeyArr);
+      const iv = byteArrayToWordArrayHex(ivArr);
+
+      // إزالة CR/LF قبل فك التشفير
+      const cleanCipher = encryptedData.replace(/\r?\n/g, "");
+
+      const bytes = CryptoJS.AES.decrypt(cleanCipher, encodedKey, { iv });
+      let out = bytes.toString(CryptoJS.enc.Utf8);
+
+      // تنظيف: trim + إزالة أقواس مفردة إن وُجدت
+      out = stripSingleQuotes((out || "").trim());
+
+      // ⚠️ مهم: لا نعمل JSON.parse هنا — نخلي apiClient يتعامل
+      return out;
     } catch (error: any) {
-      // إرجاع خطأ في حالة فشل عملية فك التشفير بأكملها
-      return { 'Decryption failed:': error.message };
+      return { "Decryption failed:": error.message };
     }
   }
 }

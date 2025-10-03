@@ -6,6 +6,9 @@ import OfficeDashboardLayout from "../features/OfficeDashboard/Layout/AppLayoutO
 import { RequireAuth } from "../auth/requireAuth";
 import Cities from "../features/MainDepartment/Cities/Cities";
 import Banks from "../features/MainDepartment/Banks/Banks";
+import Office from "../features/MainDepartment/Offices/Office";
+import AddOffice from "../features/MainDepartment/Offices/AddOffice";
+import OfficeDetailsView from "../features/MainDepartment/Offices/OfficeAdded";
 
 export default function App() {
   return (
@@ -21,6 +24,9 @@ export default function App() {
             <Route path="home" element={<HomePage />} />
             <Route path="cities" element={<Cities />} />
             <Route path="banks" element ={<Banks />} />
+            <Route path="offices" element={<Office />} />
+             <Route path="/maindashboard/offices/add" element={<AddOffice />} />
+             <Route path="/maindashboard/offices/created" element={<OfficeDetailsView />} />
           </Route>
         </Route>
 

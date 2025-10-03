@@ -13,11 +13,10 @@ export async function addBank(
   input: BankInput,
   pointId: number | string = 1
 ): Promise<NormalizedSummary> {
-  // نفس الإضافة السابقة (باسم البنك فقط). لو عندك BankCode في الإضافة بدّل ColumnsNames/Values
-  const result = await doTransaction({
+    const result = await doTransaction({
     TableName: PROCEDURE_NAMES.BANK_TABLE_NAME,
-    WantedAction: 0,                         // Insert
-    ColumnsValues: `0#${input.bankName}`,    // Id=0 للإضافة
+    WantedAction: 0,                         
+    ColumnsValues: `0#${input.bankName}`,    
     ColumnsNames: "Id#BankName",
     PointId: pointId,
   });
