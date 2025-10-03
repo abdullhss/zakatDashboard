@@ -9,6 +9,9 @@ import Banks from "../features/MainDepartment/Banks/Banks";
 import Office from "../features/MainDepartment/Offices/Office";
 import AddOffice from "../features/MainDepartment/Offices/AddOffice";
 import OfficeDetailsView from "../features/MainDepartment/Offices/OfficeAdded";
+import SubventionTypes from "../features/MainDepartment/Subvention/SubventionTypes";
+import KafaraValues from "../features/MainDepartment/Kafara/KafaraValues";
+import ZakahTypes from "../features/MainDepartment/Zakah/ZakahTypes";
 
 export default function App() {
   return (
@@ -27,6 +30,9 @@ export default function App() {
             <Route path="offices" element={<Office />} />
              <Route path="/maindashboard/offices/add" element={<AddOffice />} />
              <Route path="/maindashboard/offices/created" element={<OfficeDetailsView />} />
+             <Route path="subventionTypes" element={<SubventionTypes />} />
+             <Route path="kafara" element={<KafaraValues />}  />
+             <Route path="zakah" element={<ZakahTypes />} />
           </Route>
         </Route>
 

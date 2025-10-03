@@ -79,9 +79,20 @@ export default function MainNavBar() {
         <Icon as={FiUsers} boxSize={5} />
         المكاتب
       </LinkItem>
+      {/* تصنيف الإعانات */}
+      <LinkItem to="subventionTypes">
+        <Icon as={FiUsers} boxSize={5} />
+        تصنيف الإعانات
+      </LinkItem>
+
+      {/* الكفارة  */}
+      <LinkItem to="kafara">
+        <Icon as={FiCpu} boxSize={5} />
+         الكفارة
+      </LinkItem>
 
       {/* أصناف الذكاء */}
-      <LinkItem to="ai-categories">
+      <LinkItem to="zakah">
         <Icon as={FiCpu} boxSize={5} />
         أصناف الزكاة
       </LinkItem>

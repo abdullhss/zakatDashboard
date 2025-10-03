@@ -15,6 +15,12 @@ const getPageTitle = (pathname :any) => {
             return 'البنوك';
         case '/maindashboard/offices':
             return 'المكاتب';
+        case '/maindashboard/subventionTypes':
+            return 'تصنيف الإعانات';
+        case '/maindashboard/kafara':
+            return 'الكفارة ';
+        case '/maindashboard/zakah':
+            return 'أصناف الزكاة ';
         default:
             return 'لوحة التحكم';
     }

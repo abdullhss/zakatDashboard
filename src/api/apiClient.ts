@@ -29,6 +29,11 @@ export const PROCEDURE_NAMES: Record<string, string> = {
   CITIES_TABLE_NAME: "0MomPyA4q+4ZMI8avKbfUg==",
   GET_OFFICES_LIST: "mdemtAbueh2oz+k6MjjaFaOfTRzNK4XQQy0TBhCaV0Y=",
   OFFICE: "msDmpDYZ2wcHBSmvMDczrg==",
+  GET_SUBVENTION_TYPES: "CjSj0j5kAa/aqk9LMpWvCavGukOw8WsDmvfzbXkXVaI=",
+  SUBVENTION_TYPE_TABLE_NAME: "l+3chSRUz867HysB0r4EWQ==", // For ADDING & DELETING & UPDATING 
+ GET_KAFARA_VALUES: "T8mEvmQC2AYQQYTmdNYTU/U5ngsTOI/NJy4+CGMFmAM=",
+  KAFARA_TABLE_NAME: "gggqsde9BRYL7OcqrwJ7jw==", // for updating kafara value
+  GET_ZAKAH_TYPES: "8AFjIZeX9cjy7pMRrml6FO5YoUub6zJXVMIhh/yYrlk=",
 };
 
 /* ===================================
