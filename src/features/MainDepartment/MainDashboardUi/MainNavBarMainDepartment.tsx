@@ -1,23 +1,29 @@
 import { chakra, Icon } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
-// استيراد الأيقونات
-import { 
-  FiHome, FiMapPin, FiCreditCard, FiCpu, 
-  FiPercent, FiSettings, FiUsers, FiBookOpen 
-} from "react-icons/fi"; 
-import { MdOutlineAssignmentTurnedIn } from "react-icons/md";  // لمراجعة طلب الإعانة
-import { AiOutlineCalculator } from "react-icons/ai";         // حاسبة الزكاة
-import { RiServiceLine } from "react-icons/ri";               // الخدمات
+
+// أيقونات مناسبة لكل عنصر
+import { FiHome, FiMapPin, FiCreditCard, FiUsers } from "react-icons/fi";
+import { HiOutlineBuildingOffice } from "react-icons/hi2";
+import {
+  RiShieldKeyholeLine,
+  RiHandCoinLine,
+  RiHandHeartLine,
+  RiServiceLine,
+} from "react-icons/ri";
+import { TbCategory2 } from "react-icons/tb";
+import { GiSheep } from "react-icons/gi";
+import { MdOutlineAssignmentTurnedIn } from "react-icons/md";
+import { AiOutlineCalculator } from "react-icons/ai";
 
 // ✅ قائمة الناف بار
-const NavList = chakra("nav", { 
-  baseStyle: { 
-    display: "flex", 
-    flexDirection: "column", 
+const NavList = chakra("nav", {
+  baseStyle: {
+    display: "flex",
+    flexDirection: "column",
     mt: 4,
-    fontSize: "18px", 
-    fontWeight: "bold", 
-    lineHeight: "120%" 
+    fontSize: "18px",
+    fontWeight: "bold",
+    lineHeight: "120%",
   },
 });
 
@@ -48,7 +54,7 @@ const LinkItem = chakra(NavLink, {
         width: "4px",
         bg: "#17343B",
         borderRadius: "4px 0 0 4px",
-      }
+      },
     },
   },
 });
@@ -76,45 +82,63 @@ export default function MainNavBar() {
 
       {/* المكاتب */}
       <LinkItem to="offices">
-        <Icon as={FiUsers} boxSize={5} />
+        <Icon as={HiOutlineBuildingOffice} boxSize={5} />
         المكاتب
       </LinkItem>
+
       {/* تصنيف الإعانات */}
       <LinkItem to="subventionTypes">
-        <Icon as={FiUsers} boxSize={5} />
+        <Icon as={TbCategory2} boxSize={5} />
         تصنيف الإعانات
       </LinkItem>
 
-      {/* الكفارة  */}
+      {/* الكفارة */}
       <LinkItem to="kafara">
-        <Icon as={FiCpu} boxSize={5} />
-         الكفارة
+        <Icon as={RiHandHeartLine} boxSize={5} />
+        الكفارة
       </LinkItem>
 
-      {/* أصناف الذكاء */}
+      {/* أصناف الزكاة */}
       <LinkItem to="zakah">
-        <Icon as={FiCpu} boxSize={5} />
+        <Icon as={RiHandCoinLine} boxSize={5} />
         أصناف الزكاة
       </LinkItem>
 
+      {/* الصلاحيات */}
+      <LinkItem to="privelges">
+        <Icon as={RiShieldKeyholeLine} boxSize={5} />
+        الصلاحيات
+      </LinkItem>
+
+      {/* المستخدمين */}
+      <LinkItem to="users">
+        <Icon as={FiUsers} boxSize={5} />
+        المستخدمين
+      </LinkItem>
+
       {/* حاسبة الزكاة */}
-      <LinkItem to="zakat-calculator">
+      <LinkItem to="zakatGold">
         <Icon as={AiOutlineCalculator} boxSize={5} />
         حاسبة الزكاة
       </LinkItem>
 
+      {/* أنواع الأضحيات */}
+      <LinkItem to="sacirificeTypes">
+        <Icon as={GiSheep} boxSize={5} />
+        أنواع الأضحيات
+      </LinkItem>
+
       {/* مراجعة طلب الإعانة */}
-      <LinkItem to="aid-requests">
+      <LinkItem to="assistanceData">
         <Icon as={MdOutlineAssignmentTurnedIn} boxSize={5} />
         مراجعة طلب الإعانة
       </LinkItem>
 
       {/* الخدمات */}
-      <LinkItem to="services">
+      <LinkItem to="campaign">
         <Icon as={RiServiceLine} boxSize={5} />
         الخدمات
       </LinkItem>
-
     </NavList>
   );
 }

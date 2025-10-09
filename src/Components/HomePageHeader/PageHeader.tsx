@@ -21,6 +21,14 @@ const getPageTitle = (pathname :any) => {
             return 'الكفارة ';
         case '/maindashboard/zakah':
             return 'أصناف الزكاة ';
+        case '/maindashboard/privelges':
+            return ' الصلاحيات ';
+        case '/maindashboard/users':
+            return ' المستخدمين ';
+        case '/maindashboard/zakatGold':
+            return ' المستخدمين ';
+        case '/maindashboard/assistanceData':
+            return ' طلب الإعانة ';
         default:
             return 'لوحة التحكم';
     }

@@ -34,6 +34,19 @@ export const PROCEDURE_NAMES: Record<string, string> = {
  GET_KAFARA_VALUES: "T8mEvmQC2AYQQYTmdNYTU/U5ngsTOI/NJy4+CGMFmAM=",
   KAFARA_TABLE_NAME: "gggqsde9BRYL7OcqrwJ7jw==", // for updating kafara value
   GET_ZAKAH_TYPES: "8AFjIZeX9cjy7pMRrml6FO5YoUub6zJXVMIhh/yYrlk=",
+  UPDATE_ZAKAH_TYPES: "qe+QzzxA0+wsdPqshbdRrQ==", //for updating zakah status
+  GET_GROUP_RIGHT_DATA: "JLwtcLn8SZNZPWof/CzIvDXZnUMGA2QmTOscUBGqORs=",
+  GET_FEATURES_DATA: "ZhEv0ofVhejGIX2/As9S6w==",
+   GROUP_RIGHT: "M8VBuM2f3OsFRzuHNORBqQ==",     // 11- GroupRight
+  GROUP_RIGHT_D: "wLOgTIhs+yAlMfhfpR9Hmg==",   // 12- GroupRight_D
+   GET_FEATURES_BY_GROUP: "rPZXg2bpV1n9cBmjo+xzxPuUQqoHOmQW8jTEf8pOzFo=", // FeatureFOR UPDATE PAGE
+    GET_WORK_USERS_DATA: "DunhuDiDke6AaKtXnSA7y9dsXr2xJdeI/NYAUwgD4Xg=", // 109-GetWorkUsersData
+    GET_GROUP_RIGHT_FEATURES_DATA: "rPZXg2bpV1n9cBmjo+xzxPuUQqoHOmQW8jTEf8pOzFo=",
+    Zakah_GOLD_VALUE: "T+uXWr/5gc+YZsR9SZKxeQ==",
+    GET_SACRIFICES_TYPES_DATA: "BuFxFqz2qLdv8Q6E+j0XT/TUax4yIRsqrXkuc2DpOWU=",
+    ADD_SACRIFICE_TYPE: "yjhWQPC+X9N5+2FVbLegdw==",
+    GET_DASH_ASSISTANCES_DATA: "BRS3bAAF18bzUTsgdRNLAc0qkwzHQQSl45LE0afsSfc=", // مراجعة طلب الإعانات
+    GET_DASH_CAMPAIGNS_DATA: "W1+18V1NJ8jOLNpNXd3t8zcC//3vLKdAYFTUmyBOIGo="
 };
 
 /* ===================================

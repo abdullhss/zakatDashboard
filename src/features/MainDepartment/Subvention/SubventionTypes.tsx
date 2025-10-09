@@ -9,7 +9,8 @@ import FormModal from "../../../Components/ModalAction/FormModel";
 import { useGetSubventionTypes } from "./hooks/useGetubventionTypes";
 import { useAddSubventionType } from "./hooks/useAddSubvention";
 import { useDeleteSubventionType } from "./hooks/useDeleteSubvention";
-import { useUpdateSubventionStatus } from "./hooks/useUpdateSubvention"; 
+import { useUpdateSubventionStatus } from "./hooks/useUpdateSubvention";
+
 type Row = {
   id: number | string;
   name: string;
@@ -32,7 +33,7 @@ export default function SubventionTypes() {
   const deleteMutation = useDeleteSubventionType();
   const [toDelete, setToDelete] = useState<Row | null>(null);
 
-  // ✅ تحديث الحالة فقط
+  // تحديث الحالة
   const updateStatus = useUpdateSubventionStatus();
 
   // البيانات
@@ -53,14 +54,16 @@ export default function SubventionTypes() {
         header: "بيان التصنيف",
         width: "48%",
         render: (row: AnyRec) => (
-          <Text fontWeight="600" color="gray.700">{(row as Row).name}</Text>
+          <Text fontWeight="600" color="gray.700">
+            {(row as Row).name}
+          </Text>
         ),
       },
       {
         key: "acceptZakat",
         header: "تقبل الزكاة",
         width: "20%",
-        render: () => <Text color="gray.600">—</Text>, // (مش متاح من الـ API حالياً)
+        render: () => <Text color="gray.600">—</Text>,
       },
       {
         key: "isActive",
@@ -68,8 +71,7 @@ export default function SubventionTypes() {
         width: "20%",
         render: (row: AnyRec) => {
           const r = row as Row;
-          const loading =
-            updateStatus.isPending && updateStatus.variables?.id === r.id;
+          const loading = updateStatus.isPending && updateStatus.variables?.id === r.id;
 
           return (
             <>
@@ -203,8 +205,19 @@ export default function SubventionTypes() {
         onDeleteRow={(row: AnyRec) => openDelete(row as Row)}
       />
 
-      {/* مودال الإضافة */}
-     
+      {/* ✅ مودال الإضافة */}
+      <FormModal
+        isOpen={addModal.isOpen}
+        onClose={addModal.onClose}
+        title="إضافة تصنيف إعانة"
+        mode="form"
+        fields={addFields}
+        onSubmit={handleAddSubmit}
+        submitLabel="حفظ"
+        cancelLabel="إلغاء"
+        isSubmitting={addMutation.isPending}
+        maxW="640px"
+      />
 
       {/* مودال تأكيد الحذف */}
       <FormModal
@@ -218,7 +231,9 @@ export default function SubventionTypes() {
         description={
           <Text>
             سيتم حذف التصنيف:{" "}
-            <Text as="span" fontWeight="bold">{toDelete?.name}</Text>
+            <Text as="span" fontWeight="bold">
+              {toDelete?.name}
+            </Text>
             . هل أنت متأكد؟
           </Text>
         }

@@ -1,129 +1,60 @@
-import {
-  doTransaction,
-  PROCEDURE_NAMES,
-  analyzeExecution,
-  type NormalizedSummary,
-} from "../../../../api/apiClient";
+// src/features/MainDepartment/Offices/services/updateOffice.ts
+import { doTransaction, analyzeExecution, type NormalizedSummary } from "../../../../api/apiClient";
 
-export type OfficeUpdateInput = {
-  id: number | string;
+/** اسم جدول المكاتب (Encrypted) من الدوكيومنت */
+export const OFFICE_TABLE = "msDmpDYZ2wcHBSmvMDczrg==";
 
-  officeName?: string | null;
-  cityId?: string | number | null;
-  phone?: string | null;
-  address?: string | null;
-  isActive?: boolean | 0 | 1;
+/** الحقول المطلوبة بالترتيب حسب الدوكيومنت */
+const COLS = "Id#OfficeName#OfficeLatitude#OfficeLongitude#City_Id#PhoneNum#Address#IsActive#OfficePhotoName";
 
-  latitude?: string | number | null;
-  longitude?: string | number | null;
-  photoName?: string | null;
+export type UpdateOfficePayload = {
+  id: number | string;             // Id
+  officeName: string;              // OfficeName
+  cityId: number | string;         // City_Id
+  phone: string;                   // PhoneNum
+  address: string;                 // Address
+  isActive: boolean | 0 | 1;       // IsActive (bit)
+  latitude?: string | number | null;   // OfficeLatitude
+  longitude?: string | number | null;  // OfficeLongitude
+  photoName?: string | null;           // OfficePhotoName
+  pointId?: number | string;           // PointId (افتراضي 0)
+  dataToken?: string | number;         // إن لزم
 };
 
-/**
- * ✅ الطريقة الآمنة: نرسل كل الأعمدة بالترتيب المطلوب
- * Id#OfficeName#OfficeLatitude#OfficeLongitude#City_Id#PhoneNum#Address#IsActive#OfficePhotoName
- */
-export async function updateOfficeFull(
-  row: Required<Pick<OfficeUpdateInput, "id">> & {
-    officeName: string;
-    cityId: string | number;
-    phone: string;
-    address: string;
-    isActive: boolean | 0 | 1;
-    latitude?: string | number | null;
-    longitude?: string | number | null;
-    photoName?: string | null;
-  },
-  pointId: number | string = 0
-): Promise<NormalizedSummary> {
-  const cols = [
-    "Id",
-    "OfficeName",
-    "OfficeLatitude",
-    "OfficeLongitude",
-    "City_Id",
-    "PhoneNum",
-    "Address",
-    "IsActive",
-    "OfficePhotoName",
+const scrub = (v: unknown) => String(v ?? "").replace(/#/g, "");
+
+export async function updateOffice(payload: UpdateOfficePayload): Promise<NormalizedSummary> {
+  const {
+    id, officeName, cityId, phone, address, isActive,
+    latitude, longitude, photoName, pointId = 0, dataToken,
+  } = payload;
+
+  const bit = typeof isActive === "boolean" ? (isActive ? 1 : 0) : (Number(isActive) ? 1 : 0);
+
+  const ColumnsValues = [
+    String(id),
+    scrub(officeName),
+    scrub(latitude ?? ""),
+    scrub(longitude ?? ""),
+    String(cityId ?? ""),
+    scrub(phone),
+    scrub(address),
+    String(bit),
+    scrub(photoName ?? ""),
   ].join("#");
 
-  const vals = [
-    row.id,
-    row.officeName ?? "",
-    row.latitude ?? "",
-    row.longitude ?? "",
-    row.cityId ?? "",
-    row.phone ?? "",
-    row.address ?? "",
-    (typeof row.isActive === "boolean" ? (row.isActive ? 1 : 0) : row.isActive) ?? 0, // 0/1
-    row.photoName ?? "",
-  ].join("#");
-
-  const res = await doTransaction({
-    TableName: PROCEDURE_NAMES.OFFICE,
-    WantedAction: 1, // Update
-    ColumnsNames: cols,
-    ColumnsValues: vals,
+  const body: any = {
+    TableName: OFFICE_TABLE,
+    WantedAction: 1,          // Update
+    ColumnsNames: COLS,       // ← نرسل الأسماء لضمان الترتيب
+    ColumnsValues,
     PointId: pointId,
-  });
+  };
+  if (dataToken != null) body.DataToken = dataToken;
 
-  return analyzeExecution(res);
+  const tx = await doTransaction(body);
+  return analyzeExecution(tx);
 }
 
-/**
- * ⚠️ لو جدولك يسمح بتحديث جزئي (مش دايمًا بيقبل)
- * مرّر أسماء الأعمدة وقيمها فقط
- */
-export async function updateOfficePartial(
-  id: number | string,
-  patch: Partial<Omit<OfficeUpdateInput, "id">>,
-  pointId: number | string = 0
-): Promise<NormalizedSummary> {
-  const names: string[] = ["Id"];
-  const values: (string | number)[] = [id];
-
-  if (patch.officeName !== undefined) {
-    names.push("OfficeName");
-    values.push(patch.officeName ?? "");
-  }
-  if (patch.latitude !== undefined) {
-    names.push("OfficeLatitude");
-    values.push(patch.latitude ?? "");
-  }
-  if (patch.longitude !== undefined) {
-    names.push("OfficeLongitude");
-    values.push(patch.longitude ?? "");
-  }
-  if (patch.cityId !== undefined) {
-    names.push("City_Id");
-    values.push(String(patch.cityId ?? ""));
-  }
-  if (patch.phone !== undefined) {
-    names.push("PhoneNum");
-    values.push(patch.phone ?? "");
-  }
-  if (patch.address !== undefined) {
-    names.push("Address");
-    values.push(patch.address ?? "");
-  }
-  if (patch.isActive !== undefined) {
-    names.push("IsActive");
-    const bit = typeof patch.isActive === "boolean" ? (patch.isActive ? 1 : 0) : patch.isActive;
-    values.push(bit ?? 0);
-  }
-  if (patch.photoName !== undefined) {
-    names.push("OfficePhotoName");
-    values.push(patch.photoName ?? "");
-  }
-
-  const res = await doTransaction({
-    TableName: PROCEDURE_NAMES.OFFICE,
-    WantedAction: 1, // Update
-    ColumnsNames: names.join("#"),
-    ColumnsValues: values.join("#"),
-    PointId: pointId,
-  });
-
-  return analyzeExecution(res);
-}
+// ✅ alias اختياري لو فيه أماكن قديمة بتستورد updateOfficeFull
+export const updateOfficeFull = updateOffice;

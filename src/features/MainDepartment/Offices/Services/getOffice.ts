@@ -26,7 +26,6 @@ function extractOffices(dec: any): AnyRec[] {
   return Array.isArray(arr) ? arr : [];
 }
 
-/** نطبع السجل لشكل الجدول */
 function normalizeOfficeRow(r: AnyRec) {
   const id        = r.Id ?? r.id ?? r.OfficeId ?? r.Office_Id ?? 0;
   const name      = r.OfficeName ?? r.CompanyName ?? r.Name ?? r.name ?? "—";
@@ -54,18 +53,17 @@ export async function getOffices(
   limit: number,
   userId?: number
 ): Promise<NormalizedSummary> {
-  // الإجراء عندكم بياخد UserId كسلسلة؛ لو المعاملات مختلفة عدّل هنا
-  const params = userId != null ? String(userId) : "";
+  // ✅ دائمًا ابعت قيمة (حتى لو 0) عشان مايبقاش ParametersValues ''
+  const params = String(userId ?? 0);
 
   const exec = await executeProcedure(
     PROCEDURE_NAMES.GET_OFFICES_LIST,
     params,
-    undefined,           // dataToken (نفس الديفولت في apiClient)
+    undefined, // dataToken
     offset,
     limit
   );
 
-  // لو نجح، هنقرأ OfficesData يدويًا من decrypted ونطبعها
   if ((exec as any)?.decrypted) {
     const officesRaw = extractOffices((exec as any).decrypted);
     const normalized = officesRaw.map(normalizeOfficeRow);
@@ -86,6 +84,5 @@ export async function getOffices(
     };
   }
 
-  // fallback لتحليل موحّد (مش هيوصل rows المطبّعة)
   return analyzeExecution(exec);
 }

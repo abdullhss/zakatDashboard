@@ -1,11 +1,15 @@
-// src/features/Offices/components/fields.ts
+// src/components/Shared/FieldControl.tsx
 import { chakra, Input, Select } from "@chakra-ui/react";
 
 export const FieldInput = chakra(Input, {
   baseStyle: {
-    h: "full",
+    h: "65px",
     w: "full",
-    border: "none",            // إحنا موصلين الـ border على الـ ControlBox
+    rounded: "10px",
+    bg: "white",
+    border: "none",                 // بلا حدود
+    px: 4,
+    textAlign: "right",
     _focusVisible: { boxShadow: "none" },
     _placeholder: { color: "gray.500" },
   },
@@ -13,9 +17,13 @@ export const FieldInput = chakra(Input, {
 
 export const FieldSelect = chakra(Select, {
   baseStyle: {
-    h: "full",
+    h: "65px",
     w: "full",
-    border: "none",
+    rounded: "10px",
+    bg: "white",
+    border: "none",                 // بلا حدود
+    px: 4,
+    textAlign: "right",
     _focusVisible: { boxShadow: "none" },
     pe: "10",
     sx: {

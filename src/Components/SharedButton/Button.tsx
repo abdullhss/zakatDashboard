@@ -24,11 +24,10 @@ const SharedButton = React.forwardRef<HTMLButtonElement, SharedButtonProps>(
   ) => {
     const content = (
       <HStack spacing="8px" justify="center">
-   
         <Text as="span" fontWeight="600">
           {children ?? label}
         </Text>
-        {rightIcon}
+        {/* ❌ ما نعرضش rightIcon هنا علشان الـ Button بيعرضه تلقائيًا */}
         {badge !== undefined && badge !== null && (
           <Badge
             rounded="full"
@@ -46,9 +45,9 @@ const SharedButton = React.forwardRef<HTMLButtonElement, SharedButtonProps>(
     const commonProps: ButtonProps = {
       ref,
       w: fullWidth ? "full" : undefined,
-      leftIcon, 
+      leftIcon,
       rightIcon,
-      ...rest,  
+      ...rest,
     };
 
     if (to) {
