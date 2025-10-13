@@ -1,4 +1,4 @@
-import { Box, HStack, Switch, Text, useColorModeValue, useToast, Badge } from "@chakra-ui/react";
+import { Box, HStack, Switch, Text, useColorModeValue, useToast } from "@chakra-ui/react";
 import { useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -6,7 +6,7 @@ import DataTable from "../../../Components/Table/DataTable";
 import SharedButton from "../../../Components/SharedButton/Button";
 
 import type { AnyRec } from "../../../api/apiClient";
-import { useGetPrivilege } from "./hooks/useGetPrivelge";
+import { useGetPrivilege } from "../../MainDepartment/Privelges/hooks/useGetPrivelge"; // نعيد استخدام نفس الهوك
 import { getSession } from "../../../session";
 
 type Row = {
@@ -19,21 +19,23 @@ type Row = {
 
 const PAGE_SIZE = 10;
 
-export default function Privileges() {
-  const navigate = useNavigate();
+export default function PrivelgesOfficeTypes() {
   const toast = useToast();
+  const navigate = useNavigate();
+  const { mainUser } = getSession(); // نقرأ مجموعة المكتب الحالية إن وجدت
+  const titleClr = useColorModeValue("gray.700", "gray.100");
 
-  // ✅ خُد الدور من الـ session
-  const { role, mainUser } = getSession();
-  const roleCode = (role || "M") as "M" | "O";
+  // الدور ثابت "O" (مكاتب)
+  const roleCode: "M" | "O" = "O";
 
   // ترقيم
   const [page, setPage] = useState(1);
+  const offset = (page - 1) * PAGE_SIZE;
 
-  // جلب الصلاحيات على حسب دور المستخدم الحالي
-  const { data, isLoading, isError, error, refetch } = useGetPrivilege(roleCode, 0, 500);
+  // جلب الصلاحيات لدور O
+  const { data, isLoading, isError, error, refetch } = useGetPrivilege(roleCode, offset, PAGE_SIZE);
 
-  // تطبيع
+  // تطبيع الصفوف
   const rows: Row[] = useMemo(() => {
     const src = (data?.rows ?? []) as AnyRec[];
     return src.map((r) => ({
@@ -52,11 +54,11 @@ export default function Privileges() {
     }));
   }, [data?.rows, roleCode]);
 
+  const pageRows = rows.slice(0, PAGE_SIZE);
   const totalRows =
     typeof data?.totalRows === "number" ? data.totalRows : (data?.rows?.length ?? rows.length);
 
-  const titleClr = useColorModeValue("gray.700", "gray.100");
-
+  // أعمدة الجدول
   const columns = useMemo(
     () => [
       {
@@ -101,19 +103,21 @@ export default function Privileges() {
     [titleClr, roleCode]
   );
 
+  // تعديل ⇒ نفس ستايل باقي الصفحات
   const onEditRow = useCallback(
     (row: AnyRec) => {
-      const id = (row as Row).id;
+      const r = row as Row;
+      const id = r.id;
       if (!id) {
         toast({ title: "لا يمكن تحديد الصلاحية للتعديل", status: "warning" });
         return;
       }
-      const to = `/maindashboard/privelges/update?groupId=${encodeURIComponent(
+      const to = `/officedashboard/privelges/update?groupId=${encodeURIComponent(
         String(id)
-      )}&featureType=${roleCode === "M" ? "1" : "2"}&role=${roleCode}`;
+      )}&featureType=2&role=O`;
       navigate(to, { state: { row } });
     },
-    [navigate, roleCode, toast]
+    [navigate, toast]
   );
 
   const onRefresh = useCallback(() => {
@@ -128,30 +132,25 @@ export default function Privileges() {
     <Box>
       <HStack justify="space-between" mb={3}>
         <HStack>
-          <Badge colorScheme={roleCode === "M" ? "purple" : "teal"} variant="subtle">
-            الدور الحالي: {roleCode === "M" ? "الإدارة" : "المكتب"}
-          </Badge>
-          {mainUser?.GroupRightName ? (
-            <Badge variant="outline" colorScheme="blue">
-              مجموعتي: {mainUser.GroupRightName}
-            </Badge>
-          ) : null}
+          {/* ممكن تضيف بادجات تعريفية بالمكتب هنا لو حابب */}
         </HStack>
 
         <HStack>
           <SharedButton variant="secondary" onClick={onRefresh}>
             تحديث
           </SharedButton>
-          {/* زر الإضافة يفتح على شاشة الإضافة (الدور يؤخذ تلقائيًا من session هناك) */}
-          <SharedButton variant="brandGradient" to={`/maindashboard/privelges/add`}>
-            إضافة
-          </SharedButton>
+
+          {/* زر الإضافة يفتح صفحة إضافة الصلاحيات بدور O
+              لو للمستخدم GroupRight_Id هنمرره كـ groupId */}
+          <SharedButton variant="brandGradient" to="/officedashboard/privelgesOffice/add">
+              إضافة صلاحية
+            </SharedButton>
         </HStack>
       </HStack>
 
       <DataTable
-        title="صلاحيات المجموعات"
-        data={(rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) as unknown) as AnyRec[]}
+        title="صلاحيات مجموعات المكتب"
+        data={pageRows as unknown as AnyRec[]}
         columns={columns}
         totalRows={totalRows}
         stickyHeader
@@ -162,9 +161,7 @@ export default function Privileges() {
         onEditRow={onEditRow}
       />
 
-      {rows.length === 0 && (
-        <Text mt={3} color="gray.500">لا توجد بيانات لصلاحيات هذا الدور.</Text>
-      )}
+      {rows.length === 0 && <Text mt={3} color="gray.500">لا توجد بيانات لدور المكاتب.</Text>}
     </Box>
   );
 }

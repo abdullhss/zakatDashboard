@@ -6,20 +6,22 @@ import {
   PROCEDURE_NAMES,
 } from "../../../../api/apiClient";
 import { AES256Encryption } from "../../../../utils/encryption";
+import { scopeEncSQLToOffice } from "../../../../session";
 
-/** تشفير @EncSQL إن وُجدت */
+/** تشفير @EncSQL (مع تقييد تلقائي بالأوفيس لو الدور O) */
 function buildEncSQL(rawSQL?: string): string {
-  if (!rawSQL) return "";
-  // استخدم نفس PUBLIC_KEY لديك
+  const scoped = scopeEncSQLToOffice(rawSQL || "");
+  if (!scoped) return "";
+  // استخدم نفس الـ KEY المستخدم عندك
   return AES256Encryption.encrypt(
-    rawSQL,
+    scoped,
     "SL@C$@rd2023$$AlMedad$Soft$2022$"
   ) as string;
 }
 
-/** استدعاء 109-GetWorkUsersData (مع 1-based StartNum) */
+/** استدعاء 109-GetWorkUsersData (StartNum 1-based) */
 export async function getWorkUsersData(
-  startNum: number = 1,  // ← 1-based
+  startNum: number = 1,   // 1-based
   count: number = 50,
   encSQLRaw?: string,
   dataToken?: string
@@ -27,7 +29,7 @@ export async function getWorkUsersData(
   const s = Number.isFinite(startNum) ? Math.trunc(startNum) : 1;
   const c = Number.isFinite(count) ? Math.trunc(count) : 50;
 
-  const startParam = Math.max(1, s);  // أحزمة أمان
+  const startParam = Math.max(1, s);
   const countParam = Math.max(1, c);
 
   const encSQL = buildEncSQL(encSQLRaw || "");

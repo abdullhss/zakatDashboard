@@ -1,7 +1,8 @@
 import { Outlet } from "react-router-dom";
 import { chakra } from "@chakra-ui/react";
-import PageHeader from "../../../Components/HomePageHeader/PageHeader";
+import PageHeader from "../../../Components/HomePageHeader/MainDepartmentPageHeader";
 import SideBarOfficeDepartment from "../OfficeDashboardUI/SideBarOfficeDepartment";
+import OfficeDepartmentPageHeader from "../../../Components/HomePageHeader/OfficeDepartmentPageHeader";
 
 const StyledAppLayout = chakra("div", {
   baseStyle: {
@@ -25,7 +26,7 @@ const Main = chakra("main", {
   },
 });
 
-const HeaderWrap = chakra(PageHeader, {
+const HeaderWrap = chakra(OfficeDepartmentPageHeader, {
   baseStyle: { gridArea: "header" },
 });
 const SidebarWrap = chakra(SideBarOfficeDepartment, {

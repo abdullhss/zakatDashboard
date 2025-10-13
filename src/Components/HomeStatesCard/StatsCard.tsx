@@ -1,10 +1,8 @@
 // src/components/StatsCard.jsx
 
 import { Box, Flex, Icon, Text } from '@chakra-ui/react';
-// استخدام أيقونات مطابقة للتصميم قدر الإمكان
 import { FiUsers, FiDollarSign, FiBarChart2 } from 'react-icons/fi';
 
-// دالة لتحديد الأيقونة بناءً على النوع
 const getIcon = (type :any) => {
     switch (type) {
         case 'employees':
@@ -18,7 +16,6 @@ const getIcon = (type :any) => {
     }
 };
 
-// التدرج اللوني الذي يظهر في تصميم Figma (لون side في الثيم)
 const ICON_GRADIENT = "linear-gradient(to top, var(--chakra-colors-side-c), var(--chakra-colors-side-a))";
 
 
@@ -31,7 +28,6 @@ export default function StatsCard({ title, value, unit, type } :any) {
             borderRadius="xl" 
 
             boxShadow="md"
-            // تباعد داخلي كبير: (30px في التصميم)
             p={6} 
             flex="1" 
             minW="250px"
@@ -39,12 +35,10 @@ export default function StatsCard({ title, value, unit, type } :any) {
             <Flex 
                 justifyContent="space-between" 
                 alignItems="center" 
-                h="100px" // لضبط ارتفاع البطاقة
+                h="100px"
             >
                 
-                {/* 1. قسم الأيقونة (على اليسار في RTL) */}
                 <Flex
-                    // حجم الأيقونة: 48px
                     w="48px"
                     h="48px"
                     borderRadius="md" // حواف دائرية خفيفة
@@ -57,14 +51,13 @@ export default function StatsCard({ title, value, unit, type } :any) {
                     <Icon as={CardIcon} boxSize={5} color="white" />
                 </Flex>
 
-                {/* 2. قسم النص (على اليمين في RTL) */}
+               
                 <Flex 
                     direction="column" 
                     alignItems="flex-start" 
                     alignSelf="flex-end'"
                     textAlign="right"
 
-                    // التباعد بين النص والأيقونة
                     ml={4} 
                     mr={0}
                 >

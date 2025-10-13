@@ -18,7 +18,7 @@ import { DataTable } from "../../../Components/Table/DataTable";
 import SharedButton from "../../../Components/SharedButton/Button";
 import FormModal, { type FieldConfig } from "../../../Components/ModalAction/FormModel";
 
-// ===== عمود الإجراءات لكل صف =====
+
 function RowActions({
   row,
   onChanged,
@@ -115,7 +115,7 @@ function RowActions({
   );
 }
 
-// ===== أعمدة الجدول =====
+
 const BANKS_COLUMNS: Column[] = [
 
   {

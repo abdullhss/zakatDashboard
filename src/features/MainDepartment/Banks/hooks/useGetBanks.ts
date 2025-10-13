@@ -24,9 +24,6 @@ export function useBanksQuery(offset: number, limit: number): UseQueryResult<Ban
       };
     },
     staleTime: 60_000,
-    // ✅ بديل v5 لـ keepPreviousData
     placeholderData: keepPreviousData,
-    // (اختياري) فترة الاحتفاظ بالـ cache قبل الجمع القمامي
-    // gcTime: 5 * 60 * 1000,
   });
 }

@@ -4,6 +4,7 @@ import { FiLogOut, FiSettings } from "react-icons/fi";
 
 import Logo from "./Logo";
 import MainNavBar from "./MainNavBarMainDepartment";
+import LogoutButton from "../../../Components/LogoutButton/Logout";
 
 // زر فعل في الأسفل
 const ActionButton = chakra("button", {
@@ -94,14 +95,7 @@ export default function SideBarMainDepartment() {
         </ActionButton>
 
         {/* تسجيل الخروج */}
-        <ActionButton
-          onClick={handleLogout}
-          color="red.600"
-          _hover={{ bg: "red.50", color: "red.700" }}
-        >
-          تسجيل الخروج
-          <Icon as={FiLogOut} boxSize={5} />
-        </ActionButton>
+    <LogoutButton />
       </Box>
     </StyledSideBar>
   );

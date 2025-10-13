@@ -1,14 +1,15 @@
+// src/features/MainDepartment/GetCashCampaign/Services/updateCampaignData.ts
 import {
   doTransaction,
   analyzeExecution,
   type NormalizedSummary,
 } from "../../../../api/apiClient";
 
-const TABLE_CAMPAIGN = "D/IZgGJ8YRlhRUmX4yZa/w=="; // Campaign (encrypted)
+const TABLE_CAMPAIGN = "D/IZgGJ8YRlhRUmX4yZa/w=="; 
 
-/** يحوّل التاريخ إلى dd/MM/yyyy */
 function formatDDMMYYYY(input: string | Date): string {
   const d = typeof input === "string" ? new Date(input) : input;
+  if (isNaN(d.getTime())) throw new Error("approvedDate is invalid.");
   const day = String(d.getDate()).padStart(2, "0");
   const mon  = String(d.getMonth() + 1).padStart(2, "0");
   const yr   = d.getFullYear();
@@ -17,8 +18,8 @@ function formatDDMMYYYY(input: string | Date): string {
 
 export interface UpdateCampaignInput {
   id: number | string;
-  isApproved: boolean;           // true = موافقة, false = رفض
-  approvedDate: Date | string;   // نرسله في الحالتين
+  isApproved: boolean;          
+  approvedDate: Date | string;  
   pointId: number | string;
 
   dataToken?: string | number;
@@ -27,11 +28,6 @@ export interface UpdateCampaignInput {
   notificationParameters?: string;
 }
 
-/**
- * DoTransaction لتحديث حالة الحملة:
- * ColumnsNames = "Id#IsApproved#ApprovedDate"
- * ColumnsValues = "<id>#<1|0>#<dd/MM/yyyy>"
- */
 export async function updateCampaignData(
   input: UpdateCampaignInput
 ): Promise<NormalizedSummary> {
@@ -39,7 +35,7 @@ export async function updateCampaignData(
   if (input.id == null) throw new Error("id is required.");
   if (input.pointId == null) throw new Error("pointId is required.");
 
-  const WantedAction = 1; // Update
+  const WantedAction = 1;  
   const ColumnsNames = "Id#IsApproved#ApprovedDate";
 
   const formattedDate   = formatDDMMYYYY(input.approvedDate);
@@ -61,6 +57,7 @@ export async function updateCampaignData(
     payload.NotificationProcedure = input.notificationProcedureEncrypted;
   }
   if (input.notificationParameters) {
+    // ملاحظة: لو الـ backend كتبه بهذا الاسم (باغلاط)، خليه كما هو:
     payload.NotificationPranameters = input.notificationParameters;
   }
 

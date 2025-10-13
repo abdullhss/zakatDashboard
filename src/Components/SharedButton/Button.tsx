@@ -9,25 +9,47 @@ import {
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 
-type SharedButtonProps = ButtonProps & {
-  label?: string;
-  to?: string;
-  href?: string;
-  badge?: number | string;
-  fullWidth?: boolean;
-};
+type SharedButtonProps =
+  Omit<ButtonProps, "as" | "children" | "leftIcon" | "rightIcon"> & {
+    label?: string;
+    to?: string;
+    href?: string;
+    target?: React.HTMLAttributeAnchorTarget;
+    rel?: string;
+    badge?: number | string;
+    fullWidth?: boolean;
+    leftIcon?: React.ReactElement;
+    rightIcon?: React.ReactElement;
+    children?: React.ReactNode;
+  };
 
 const SharedButton = React.forwardRef<HTMLButtonElement, SharedButtonProps>(
   (
-    { label, to, href, badge, fullWidth, children, leftIcon, rightIcon, ...rest },
+    {
+      label,
+      to,
+      href,
+      target,
+      rel,
+      badge,
+      fullWidth,
+      children,
+      leftIcon,
+      rightIcon,
+      ...rest
+    },
     ref
   ) => {
-    const content = (
+    // زر أيقونة فقط (لو مفيش label/children وفيه أيقونة)
+    const isIconOnly = !label && !children && (leftIcon || rightIcon);
+
+    const content = isIconOnly ? (
+      <>{leftIcon ?? rightIcon}</>
+    ) : (
       <HStack spacing="8px" justify="center">
         <Text as="span" fontWeight="600">
           {children ?? label}
         </Text>
-        {/* ❌ ما نعرضش rightIcon هنا علشان الـ Button بيعرضه تلقائيًا */}
         {badge !== undefined && badge !== null && (
           <Badge
             rounded="full"
@@ -42,32 +64,42 @@ const SharedButton = React.forwardRef<HTMLButtonElement, SharedButtonProps>(
       </HStack>
     );
 
-    const commonProps: ButtonProps = {
-      ref,
+    // Props مشتركة للزر فقط (بدون ref/target/rel)
+    const commonProps = {
       w: fullWidth ? "full" : undefined,
-      leftIcon,
-      rightIcon,
+      leftIcon: isIconOnly ? undefined : leftIcon,
+      rightIcon: isIconOnly ? undefined : rightIcon,
       ...rest,
-    };
+    } satisfies ButtonProps;
 
     if (to) {
+      // زر كرابط داخلي
       return (
-        <Button as={RouterLink} to={to} {...commonProps}>
+        <Button as={RouterLink} to={to} {...commonProps} ref={ref}>
           {content}
         </Button>
       );
     }
 
     if (href) {
+      // زر كرابط خارجي
       return (
-        <Button as="a" href={href} target={rest.target} rel={rest.rel} {...commonProps}>
+        <Button
+          as="a"
+          href={href}
+          target={target}
+          rel={rel}
+          {...commonProps}
+          ref={ref}
+        >
           {content}
         </Button>
       );
     }
 
+    // زر عادي
     return (
-      <Button {...commonProps}>
+      <Button {...commonProps} ref={ref}>
         {content}
       </Button>
     );

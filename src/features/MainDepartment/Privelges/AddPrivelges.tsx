@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Box, Text, HStack, VStack, FormControl, FormLabel, Input, Select, Switch,
-  useToast, Checkbox, useColorModeValue, Badge, Spinner,
+  Box, Text, HStack, VStack, FormControl, FormLabel, Input,
+  useToast, useColorModeValue, Spinner
 } from "@chakra-ui/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -11,14 +11,9 @@ import type { AnyRec, Column } from "../../../Components/Table/TableTypes";
 
 import { useGetFeatures } from "./hooks/useGetFeaturesData";
 import { useAddGroupRightWithFeatures } from "./hooks/useAddPrivelgeMulti";
-import { getRoleFromStorage } from "../../../utils/auth";
+import { getSession } from "../../../session";
 
-type FeatureRow = {
-  id: number | string;
-  name: string;
-  code?: string | number | null;
-};
-
+type FeatureRow = { id: number | string; name: string; code?: string | number | null };
 const PAGE_SIZE = 10;
 
 export default function AddPrivelges() {
@@ -27,70 +22,47 @@ export default function AddPrivelges() {
   const [sp] = useSearchParams();
 
   const borderClr = useColorModeValue("background.border", "whiteAlpha.300");
-  const panelBg = useColorModeValue("white", "gray.800");
-  const titleClr = useColorModeValue("gray.700", "gray.100");
+  const panelBg   = useColorModeValue("white", "gray.800");
+  const titleClr  = useColorModeValue("gray.700", "gray.100");
 
-  // لو داخل بإضافة على مجموعة موجودة
+  // session
+  const { role, officeName } = getSession(); // role = "M" | "O"
+
+  // لو جاي تضيف على مجموعة موجودة
   const groupRightId = sp.get("groupId") || "";
 
-  // قراءة الدور المخزن + URL
-  const [role, setRole] = useState<string | null>(null);
-  useEffect(() => {
-    const read = () => setRole(getRoleFromStorage());
-    read();
-    window.addEventListener("storage", read);
-    window.addEventListener("focus", read);
-    return () => {
-      window.removeEventListener("storage", read);
-      window.removeEventListener("focus", read);
-    };
-  }, []);
-  const urlRole = sp.get("role");
-  const effectiveRole = useMemo(
-    () => (urlRole ?? role ?? "M").toUpperCase(),
-    [urlRole, role]
-  );
-
-  // حقول إنشاء مجموعة جديدة (تتعطّل لو بنضيف على مجموعة موجودة)
+  // اسم المجموعة (لو مكتب: بنقفل الحقل ونحط اسم المكتب)
   const [groupRightName, setGroupRightName] = useState<string>("");
-  // RoleCode كسترينج "M" أو "O"
-  const [groupRightType, setGroupRightType] = useState<string>("M");
-  const [isActive, setIsActive] = useState<boolean>(true);
+  const lockName = role === "O"; // مكتب ⇒ الاسم ثابت = اسم المكتب
 
-  // جلب الميزات حسب الدور
-  const { data, isLoading, isError, error } = useGetFeatures(effectiveRole);
+  useEffect(() => {
+    if (lockName) setGroupRightName(officeName || "");
+  }, [lockName, officeName]);
 
-  // تطبيع البيانات
+  // جلب الميزات حسب دور المستخدم الحالي فقط
+  const { data, isLoading, isError, error } = useGetFeatures(role);
+
   const allRows: FeatureRow[] = useMemo(() => {
     const src = data?.rows ?? [];
     return src.map((r: AnyRec) => ({
-      id:
-        r.Id ?? r.FeatureId ?? r.Code ?? r.code ?? r.id ??
-        Math.random().toString(36).slice(2),
+      id:   r.Id ?? r.FeatureId ?? r.Code ?? r.code ?? r.id ?? Math.random().toString(36).slice(2),
       name: r.FeatureName ?? r.Name ?? r.name ?? "",
       code: r.Code ?? r.FeatureCode ?? r.code ?? null,
     }));
   }, [data?.rows]);
 
-  // Pagination داخلي
+  // Pagination
   const [page, setPage] = useState(1);
-  const offset = (page - 1) * PAGE_SIZE;
+  const offset   = (page - 1) * PAGE_SIZE;
   const pageRows = allRows.slice(offset, offset + PAGE_SIZE);
   const totalRows = allRows.length;
 
-  // اختيار العناصر
+  // selection
   const [selected, setSelected] = useState<Record<string | number, boolean>>({});
-  const selectedIds = useMemo(
-    () => Object.keys(selected).filter((k) => selected[k]),
-    [selected]
-  );
-  const toggleOne = (id: string | number, v: boolean) =>
-    setSelected((s) => ({ ...s, [id]: v }));
-
-  const pageAllChecked =
-    pageRows.length > 0 && pageRows.every((r) => selected[r.id]);
-  const pageSomeChecked =
-    !pageAllChecked && pageRows.some((r) => selected[r.id]);
+  const selectedIds = useMemo(() => Object.keys(selected).filter((k) => selected[k]), [selected]);
+  const toggleOne = (id: string | number, v: boolean) => setSelected((s) => ({ ...s, [id]: v }));
+  const pageAllChecked  = pageRows.length > 0 && pageRows.every((r) => selected[r.id]);
+  const pageSomeChecked = !pageAllChecked && pageRows.some((r) => selected[r.id]);
   const togglePage = (value: boolean) => {
     setSelected((s) => {
       const next = { ...s };
@@ -99,19 +71,28 @@ export default function AddPrivelges() {
     });
   };
 
-  // أعمدة الجدول
+  // columns
   const columns: Column[] = useMemo(
     () => [
       {
         key: "select",
-        header: "اختيار",
-        width: "20%",
+        header: (
+          <input
+            type="checkbox"
+            aria-label="select-page"
+            checked={pageAllChecked}
+            ref={(el) => el && (el.indeterminate = pageSomeChecked)}
+            onChange={(e) => togglePage(e.target.checked)}
+          />
+        ) as unknown as string,
+        width: "16%",
         render: (row: AnyRec) => {
           const r = row as FeatureRow;
           const checked = !!selected[r.id];
           return (
-            <Checkbox
-              isChecked={checked}
+            <input
+              type="checkbox"
+              checked={checked}
               onChange={(e) => toggleOne(r.id, e.target.checked)}
             />
           );
@@ -120,28 +101,22 @@ export default function AddPrivelges() {
       {
         key: "name",
         header: "اسم الميزة",
-        width: "55%",
-        render: (row: AnyRec) => (
-          <Text fontWeight="600" color={titleClr}>
-            {(row as FeatureRow).name}
-          </Text>
-        ),
+        width: "56%",
+        render: (row: AnyRec) => <Text fontWeight="600" color={titleClr}>{(row as FeatureRow).name}</Text>,
       },
       {
         key: "code",
         header: "الكود",
-        width: "25%",
-        render: (row: AnyRec) => (
-          <Text color="gray.600">{(row as FeatureRow).code ?? "—"}</Text>
-        ),
+        width: "28%",
+        render: (row: AnyRec) => <Text color="gray.600">{(row as FeatureRow).code ?? "—"}</Text>,
       },
     ],
-    [selected, titleClr]
+    [selected, titleClr, pageAllChecked, pageSomeChecked]
   );
 
-  // ميوتاشن
-  const addMutation = useAddGroupRightWithFeatures();
-  const isSubmitting = addMutation.isPending;
+  // mutation
+  const addMutation   = useAddGroupRightWithFeatures();
+  const isSubmitting  = addMutation.isPending;
 
   const handleAdd = async () => {
     const featureIds = selectedIds;
@@ -152,109 +127,62 @@ export default function AddPrivelges() {
 
     try {
       if (groupRightId) {
-        console.log("[ADD] mode=append-details", { groupRightId, featureIds, isActive });
+        // إضافة تفاصيل لمجموعة موجودة
         await addMutation.mutateAsync({
           groupRightId,
           featureIds,
-          isActive,
+ 
           pointId: 0,
         });
-        // بعد الإضافة نرجع لقائمة الصلاحيات على الدور الحالي في الشاشة
-        nav(`/maindashboard/privelges?role=${encodeURIComponent(effectiveRole)}`);
+        nav("/officedashboard/privelgesOffice"); // أو قائمة الإدارة لو انت M
       } else {
-        if (!groupRightName.trim()) {
-          toast({
-            status: "error",
-            title: "اسم المجموعة مطلوب",
-            description: "من فضلك أدخل اسم المجموعة قبل الإضافة.",
-          });
+        // إنشاء مجموعة + تفاصيل — الدور = دور المستخدم الحالي، التفعيل دائمًا true
+        if (!lockName && !groupRightName.trim()) {
+          toast({ status: "error", title: "اسم المجموعة مطلوب" });
           return;
         }
-        console.log("[ADD] mode=create+details", {
-          groupRightName, groupRightType, featureIds, isActive
-        });
         await addMutation.mutateAsync({
-          groupRightName: groupRightName.trim(),
-          groupRightType, // "M" أو "O"
+          groupRightName: (lockName ? (officeName || "") : groupRightName.trim()),
+          groupRightType: role,   // "M" أو "O" من الـ session
           featureIds,
-          isActive,
+
           pointId: 0,
         });
-        // بعد إنشاء مجموعة جديدة نفتح القائمة على نفس الدور اللي اتضاف
-        nav(`/maindashboard/privelges?role=${encodeURIComponent(groupRightType)}`);
+        // رجّع لقائمة الصلاحيات المناسبة
+        nav(role === "O" ? "/officedashboard/privelgesOffice" : "/maindashboard/privelges");
       }
 
-      toast({
-        status: "success",
-        title: "تم إضافة الصلاحيات بنجاح",
-        description: `عدد العناصر: ${featureIds.length}`,
-      });
+      toast({ status: "success", title: "تم إضافة الصلاحيات بنجاح", description: `عدد العناصر: ${featureIds.length}` });
       setSelected({});
     } catch (e: any) {
-      toast({
-        status: "error",
-        title: "تعذّر إضافة الصلاحيات",
-        description: e?.message || "حدث خطأ غير متوقع.",
-      });
+      toast({ status: "error", title: "تعذّر إضافة الصلاحيات", description: e?.message || "حدث خطأ غير متوقع." });
     }
   };
 
   if (isLoading) return <Text color="gray.600">جارِ التحميل…</Text>;
-  if (isError) return <Text color="red.500">حدث خطأ: {(error as Error)?.message}</Text>;
+  if (isError)   return <Text color="red.500">حدث خطأ: {(error as Error)?.message}</Text>;
 
   return (
     <Box dir="rtl">
       <VStack align="stretch" spacing={4} mb={4}>
         <Box bg={panelBg} border="1px solid" borderColor={borderClr} rounded="lg" p="16px">
-          <HStack justify="space-between" flexWrap="wrap" gap={3} mb={3}>
-            <Text fontWeight="800" fontSize="lg" color={titleClr}>
-              لوحة التحكم
-            </Text>
-            <HStack gap={2}>
-              {groupRightId && (
-                <Badge colorScheme="teal" variant="subtle">
-                  إضافة إلى مجموعة (ID: {groupRightId})
-                </Badge>
-              )}
-            </HStack>
+          <HStack justify="space-between" mb={3}>
+            <Text fontWeight="800" fontSize="lg" color={titleClr}>لوحة التحكم</Text>
           </HStack>
 
-          <HStack spacing={6} flexWrap="wrap" mb={4}>
-            <FormControl w={{ base: "100%", md: "320px" }} isDisabled={!!groupRightId}>
+          <HStack spacing={6} flexWrap="wrap">
+            <FormControl w={{ base: "100%", md: "360px" }}>
               <FormLabel>اسم المجموعة</FormLabel>
               <Input
-                placeholder="اكتب اسم المجموعة"
+                placeholder={lockName ? "" : "اكتب اسم المجموعة"}
                 value={groupRightName}
                 onChange={(e) => setGroupRightName(e.target.value)}
+                isDisabled={lockName}
               />
             </FormControl>
 
-            <FormControl w={{ base: "100%", md: "220px" }} isDisabled={!!groupRightId}>
-              <FormLabel>نوع المجموعة</FormLabel>
-              <Select
-                value={groupRightType}
-                onChange={(e) => setGroupRightType(e.target.value)}
-              >
-                <option value="M">Main (M)</option>
-                <option value="O">Office (O)</option>
-              </Select>
-            </FormControl>
-
-            <FormControl w={{ base: "100%", md: "180px" }}>
-              <FormLabel>حالة التفعيل</FormLabel>
-              <HStack>
-                <Switch
-                  isChecked={isActive}
-                  onChange={(e) => setIsActive(e.target.checked)}
-                />
-                <Text color="gray.600">{isActive ? "مفعل" : "غير مفعل"}</Text>
-              </HStack>
-            </FormControl>
-
             <SharedButton onClick={handleAdd} disabled={isSubmitting}>
-              {isSubmitting ? (
-                <HStack><Spinner size="sm" /><Text>جارِ الإضافة…</Text></HStack>
-              ) : ("إضافة الصلاحيات المختارة")}
+              {isSubmitting ? (<HStack><Spinner size="sm" /><Text>جارِ الإضافة…</Text></HStack>) : ("إضافة الصلاحيات المختارة")}
             </SharedButton>
           </HStack>
         </Box>
@@ -262,7 +190,7 @@ export default function AddPrivelges() {
 
       <Box bg={panelBg} border="1px solid" borderColor={borderClr} rounded="lg" p="16px">
         <DataTable
-          title="الميزات (اختر لإضافتها كصلاحيات)"
+          title={`الميزات (${role === "O" ? "مكاتب" : "إدارة"})`}
           data={pageRows as unknown as AnyRec[]}
           columns={columns}
           startIndex={offset + 1}
@@ -272,9 +200,7 @@ export default function AddPrivelges() {
           onPageChange={setPage}
         />
         {totalRows === 0 && (
-          <Text mt={3} color="gray.500">
-            لا توجد ميزات لهذا الدور. تأكد من الدور أو جرّب تبديله عبر (?role=M).
-          </Text>
+          <Text mt={3} color="gray.500">لا توجد ميزات متاحة لهذا الدور.</Text>
         )}
       </Box>
     </Box>
