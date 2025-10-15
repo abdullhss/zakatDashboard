@@ -10,17 +10,17 @@ import {
 import { AiFillCloseSquare } from "react-icons/ai";
 import SharedButton from "../SharedButton/Button";
 
-export type FieldType = "input" | "textarea" | "switch" | "checkbox";
+export type FieldType = "input" | "textarea" | "switch" | "checkbox" | "hidden";
 
 export type FieldConfig = {
   name: string;
   label?: string;
   placeholder?: string;
   required?: boolean;
-  type?: FieldType; // default: "input"
+  type?: FieldType;
   inputProps?: React.ComponentProps<typeof Input> & { dir?: "rtl" | "ltr" };
-  colSpan?: number; // 2 = يمتد العرض كله
-  error?: string;   // اختياري لرسالة خطأ مخصصة
+  colSpan?: number;
+  error?: string;
 };
 
 type Mode = "form" | "confirm";
@@ -29,20 +29,14 @@ export type FormModalProps<TValues extends Record<string, any> = Record<string, 
   isOpen: boolean;
   onClose: () => void;
   title: string;
-
   mode?: Mode;
-
-  // form
   fields?: FieldConfig[];
   initialValues?: TValues;
   validate?: (values: TValues) => string | null;
   onSubmit?: (values: TValues) => void | Promise<void>;
-
-  // confirm
   description?: React.ReactNode;
   onConfirm?: () => void | Promise<void>;
   confirmType?: "danger" | "primary";
-
   submitLabel?: string;
   cancelLabel?: string;
   isSubmitting?: boolean;
@@ -50,7 +44,9 @@ export type FormModalProps<TValues extends Record<string, any> = Record<string, 
 };
 
 export default function FormModal<TValues extends Record<string, any> = Record<string, any>>({
-  isOpen, onClose, title,
+  isOpen,
+  onClose,
+  title,
   mode = "form",
   fields = [],
   initialValues,
@@ -66,7 +62,6 @@ export default function FormModal<TValues extends Record<string, any> = Record<s
 }: FormModalProps<TValues>) {
   const toast = useToast();
   const bodyBg = useColorModeValue("white", "gray.800");
-
   const [values, setValues] = React.useState<TValues>((initialValues || {}) as TValues);
 
   React.useEffect(() => {
@@ -90,6 +85,7 @@ export default function FormModal<TValues extends Record<string, any> = Record<s
         return;
       }
     }
+
     if (validate) {
       const msg = validate(values);
       if (msg) {
@@ -97,17 +93,18 @@ export default function FormModal<TValues extends Record<string, any> = Record<s
         return;
       }
     }
-    await onSubmit?.(values);
-  };
 
-  const handleConfirm = async () => {
-    await onConfirm?.();
+    await onSubmit?.(values);
   };
 
   const renderFormBody = () => (
     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
       {fields.map((f) => {
         const type: FieldType = f.type ?? "input";
+        if (type === "hidden") {
+          return <input key={f.name} type="hidden" value={(values as any)[f.name] ?? ""} />;
+        }
+
         const span = f.colSpan ?? 2;
 
         const textCommon =
@@ -126,7 +123,6 @@ export default function FormModal<TValues extends Record<string, any> = Record<s
           <Box key={f.name} gridColumn={span === 2 ? "1 / -1" : undefined}>
             <FormControl isRequired={f.required} isInvalid={!!f.error}>
               {f.label && <FormLabel fontWeight="600">{f.label}</FormLabel>}
-
               {type === "textarea" ? (
                 <Textarea {...(textCommon as any)} />
               ) : type === "switch" ? (
@@ -158,32 +154,12 @@ export default function FormModal<TValues extends Record<string, any> = Record<s
     </SimpleGrid>
   );
 
-  const renderConfirmBody = () => (
-    <Box>{typeof description === "string" ? <Text color="gray.700">{description}</Text> : description}</Box>
-  );
-
-  const primaryVariant =
-    mode === "confirm" && confirmType === "danger" ? "brandGradient" : "brandGradient";
-
-  const renderFooterButtons = () => (
-    <HStack spacing={4} w="100%" justify="space-around">
-      <SharedButton variant="dangerOutline" onClick={onClose} label={cancelLabel} fullWidth />
-      <SharedButton
-        variant={primaryVariant as any}
-        onClick={mode === "confirm" ? handleConfirm : handleSubmitForm}
-        isLoading={isSubmitting}
-        label={submitLabel}
-        fullWidth
-      />
-    </HStack>
-  );
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl">
       <ModalOverlay />
       <ModalContent rounded="xl" p={4} maxW={maxW} pos="relative">
-        <ModalHeader p={0}>
-          <Flex align="center" justify="space-between" px={4} pt={4}>
+        <ModalHeader>
+          <Flex align="center" justify="space-between">
             <Box as="h3" fontWeight="700" fontSize="lg">{title}</Box>
             <IconButton
               aria-label="إغلاق"
@@ -192,17 +168,26 @@ export default function FormModal<TValues extends Record<string, any> = Record<s
               w="30px" h="30px" minW="30px"
               borderRadius="md"
               bg="brand.900" color="white"
-              _hover={{ bg: "brand.800" }} _active={{ bg: "brand.700" }}
-              variant="solid"
+              _hover={{ bg: "brand.800" }}
+              _active={{ bg: "brand.700" }}
             />
           </Flex>
         </ModalHeader>
 
-        <ModalBody bg={bodyBg}>
-          {mode === "confirm" ? renderConfirmBody() : renderFormBody()}
-        </ModalBody>
+        <ModalBody bg={bodyBg}>{renderFormBody()}</ModalBody>
 
-        <ModalFooter>{renderFooterButtons()}</ModalFooter>
+        <ModalFooter>
+          <HStack spacing={4} w="100%" justify="space-around">
+            <SharedButton variant="dangerOutline" onClick={onClose} label="إلغاء" fullWidth />
+            <SharedButton
+              variant="brandGradient"
+              onClick={handleSubmitForm}
+              isLoading={isSubmitting}
+              label={submitLabel}
+              fullWidth
+            />
+          </HStack>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );

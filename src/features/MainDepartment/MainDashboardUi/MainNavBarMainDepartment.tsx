@@ -139,6 +139,10 @@ export default function MainNavBar() {
         <Icon as={RiServiceLine} boxSize={5} />
         الخدمات
       </LinkItem>
+      <LinkItem to="sacrificeDataMain">
+        <Icon as={RiServiceLine} boxSize={5} />
+        الاضحيات
+      </LinkItem>
     </NavList>
   );
 }

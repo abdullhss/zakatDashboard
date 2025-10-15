@@ -46,7 +46,14 @@ export const PROCEDURE_NAMES: Record<string, string> = {
     GET_SACRIFICES_TYPES_DATA: "BuFxFqz2qLdv8Q6E+j0XT/TUax4yIRsqrXkuc2DpOWU=",
     ADD_SACRIFICE_TYPE: "yjhWQPC+X9N5+2FVbLegdw==",
     GET_DASH_ASSISTANCES_DATA: "BRS3bAAF18bzUTsgdRNLAc0qkwzHQQSl45LE0afsSfc=", // مراجعة طلب الإعانات
-    GET_DASH_CAMPAIGNS_DATA: "W1+18V1NJ8jOLNpNXd3t8zcC//3vLKdAYFTUmyBOIGo="
+    GET_DASH_CAMPAIGNS_DATA: "W1+18V1NJ8jOLNpNXd3t8zcC//3vLKdAYFTUmyBOIGo=",
+
+    // FOR OFFICES
+    GetDashBoardOfficeProjectsData: "D1gxIpW0jvHPzz2gPx4IHqN4at88/6GP4fdm/xzsQXg=",
+    ADD_UPDATE_PROJECTS: "w8GZW8O/lAQVG6R99L1C/w==",
+    GET_SACRIFICES_DASH_DATA : "BuFxFqz2qLdv8Q6E+j0XTxOo0qAoVzk713Cv64+LkYk=",
+    GET_DASH_PAYMENT_DATA: "L3a0q9MFH3v/HTZoKRF4KTUAuRfsH+PlpkNfOd9+U+E=",
+     PAYMENT_APPROVAL_TABLE: "i2uNerMmNgbb7CAgjyifheN/MX9KgcurTRI6fmGAwKw=",
 };
 
 /* ===================================
