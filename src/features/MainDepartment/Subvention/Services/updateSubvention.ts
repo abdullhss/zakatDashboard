@@ -1,4 +1,3 @@
-// src/features/SubventionTypes/services/updateStatus.ts
 import {
   doTransaction,
   analyzeExecution,
@@ -6,25 +5,52 @@ import {
   type NormalizedSummary,
 } from "../../../../api/apiClient";
 
-export type UpdateStatusPayload = {
+/**
+ * ميوتشن واحدة لتحديث أي مزيج من:
+ * - SubventionTypeName (name)
+ * - IsActive (isActive)
+ * - AllowZakat (allowZakat)
+ */
+export type UpdateSubventionPayload = {
   id: number | string;
-  isActive: boolean;
+  name?: string;        // SubventionTypeName
+  isActive?: boolean;   // IsActive
+  allowZakat?: boolean; // AllowZakat
   pointId?: number | string;
 };
 
-export async function updateSubventionStatus(
-  payload: UpdateStatusPayload
+export async function updateSubvention(
+  payload: UpdateSubventionPayload
 ): Promise<NormalizedSummary> {
-  const { id, isActive, pointId = 0 } = payload;
+  const { id, name, isActive, allowZakat, pointId = 0 } = payload;
 
-  // نحدّث فقط Id و IsActive
-  const columnsValues = `${id}#${isActive ? "1" : "0"}`;
+  if (id == null) {
+    throw new Error("Missing id");
+  }
+
+  const colNames: string[] = ["Id"];
+  const colValues: string[] = [String(id)];
+
+  if (typeof name !== "undefined") {
+    colNames.push("SubventionTypeName");
+    colValues.push(String(name ?? ""));
+  }
+
+  if (typeof isActive !== "undefined") {
+    colNames.push("IsActive");
+    colValues.push(isActive ? "1" : "0");
+  }
+
+  if (typeof allowZakat !== "undefined") {
+    colNames.push("AllowZakat");
+    colValues.push(allowZakat ? "1" : "0");
+  }
 
   const result = await doTransaction({
-    TableName: PROCEDURE_NAMES.SUBVENTION_TYPE_TABLE_NAME, // تأكّد من وجوده في apiClient
+    TableName: PROCEDURE_NAMES.SUBVENTION_TYPE_TABLE_NAME,
     WantedAction: 1, // Update
-    ColumnsValues: columnsValues,
-    ColumnsNames: "Id#IsActive",
+    ColumnsNames: colNames.join("#"),
+    ColumnsValues: colValues.join("#"),
     PointId: pointId,
   });
 

@@ -25,12 +25,13 @@ type SacrificeRow = {
 
 const PAGE_SIZE = 25;
 
-function formatEGP(n: number | null | undefined) {
+/** تنسيق السعر بالليبي */
+function formatLYD(n: number | null | undefined) {
   if (n == null || Number.isNaN(Number(n))) return "—";
   try {
-    return Number(n).toLocaleString("ar-EG", { maximumFractionDigits: 0 }) + " ج.م";
+    return Number(n).toLocaleString("ar-LY", { maximumFractionDigits: 0 }) + " د.ل";
   } catch {
-    return `${n} ج.م`;
+    return `${n} د.ل`;
   }
 }
 
@@ -196,7 +197,7 @@ export default function SacrificeDataTypes() {
         width: "20%",
         align: "center",
         render: (r: AnyRec) => (
-          <Text color="gray.700">{formatEGP((r as SacrificeRow).Price)}</Text>
+          <Text color="gray.700">{formatLYD((r as SacrificeRow).Price)}</Text>
         ),
       },
       {
@@ -291,10 +292,12 @@ export default function SacrificeDataTypes() {
         pageSize={PAGE_SIZE}
         onPageChange={setPage}
         headerAction={
- 
-            <SharedButton variant="brandGradient" onClick={addModal.onOpen} leftIcon={
-                <Box 
-                         bg="white"
+          <SharedButton
+            variant="brandGradient"
+            onClick={addModal.onOpen}
+            leftIcon={
+              <Box
+                bg="white"
                 color="brand.900"
                 w="22px"
                 h="22px"
@@ -304,13 +307,14 @@ export default function SacrificeDataTypes() {
                 fontWeight="700"
                 lineHeight="1"
                 fontSize="18px"
-                rounded="sm">
-                    +
-                </Box>
-            } >
-              إضافة نوع
-            </SharedButton>
-
+                rounded="sm"
+              >
+                +
+              </Box>
+            }
+          >
+            إضافة نوع
+          </SharedButton>
         }
       />
 

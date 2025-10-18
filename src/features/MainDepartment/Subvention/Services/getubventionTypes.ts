@@ -5,7 +5,6 @@ export async function getSubventionTypes(
   offset: number = 0,
   limit: number = 10
 ): Promise<NormalizedSummary> {
-  // ✅ الإجراء متوقع StartNum يبدأ من 1
   const startNum = Math.max(1, offset + 1);
 
   const exec = await executeProcedure(

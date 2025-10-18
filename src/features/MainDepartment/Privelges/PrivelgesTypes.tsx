@@ -1,4 +1,5 @@
-import { Box, HStack, Switch, Text, useColorModeValue, useToast, Badge } from "@chakra-ui/react";
+// src/features/MainDepartment/Privelges/Privileges.tsx
+import { Box, HStack, Text, useColorModeValue, useToast, Badge } from "@chakra-ui/react";
 import { useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -23,17 +24,16 @@ export default function Privileges() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  // ✅ خُد الدور من الـ session
+  // الدور من السيشن
   const { role, mainUser } = getSession();
   const roleCode = (role || "M") as "M" | "O";
 
-  // ترقيم
   const [page, setPage] = useState(1);
 
-  // جلب الصلاحيات على حسب دور المستخدم الحالي
+  // جلب الصلاحيات
   const { data, isLoading, isError, error, refetch } = useGetPrivilege(roleCode, 0, 500);
 
-  // تطبيع
+  // تطبيع الداتا
   const rows: Row[] = useMemo(() => {
     const src = (data?.rows ?? []) as AnyRec[];
     return src.map((r) => ({
@@ -45,7 +45,7 @@ export default function Privileges() {
         r.Code ??
         r.id ??
         `${Math.random()}`,
-      name: r.GroupRight_Name ?? r.GroupRightName ?? r.RightName ?? r.Name ?? r.name ?? "",
+      name: r.GroupRightName ?? r.GroupRight_Name ?? r.RightName ?? r.Name ?? r.name ?? "",
       isActive: Boolean(r.IsActive ?? r.Active ?? r.isActive ?? true),
       code: r.Code ?? r.RightCode ?? r.code ?? null,
       type: r.GroupRightType ?? r.Type ?? roleCode,
@@ -57,50 +57,13 @@ export default function Privileges() {
 
   const titleClr = useColorModeValue("gray.700", "gray.100");
 
-  const columns = useMemo(
-    () => [
-      {
-        key: "code",
-        header: "الكود",
-        width: "16%",
-        render: (row: AnyRec) => <Text color="gray.600">{(row as Row).code ?? "—"}</Text>,
-      },
-      {
-        key: "isActive",
-        header: "الحالة",
-        width: "18%",
-        render: (row: AnyRec) => {
-          const r = row as Row;
-          return (
-            <>
-              <Switch isChecked={r.isActive} isReadOnly mr={3} />
-              <Text as="span" color="gray.600">
-                {r.isActive ? "مفعل" : "غير مفعل"}
-              </Text>
-            </>
-          );
-        },
-      },
-      {
-        key: "name",
-        header: "اسم الصلاحية",
-        width: "46%",
-        render: (row: AnyRec) => (
-          <Text fontWeight="600" color={titleClr}>
-            {(row as Row).name}
-          </Text>
-        ),
-      },
-      {
-        key: "type",
-        header: "الدور",
-        width: "20%",
-        render: (row: AnyRec) => <Text color="gray.600">{(row as Row).type ?? roleCode}</Text>,
-      },
-    ],
-    [titleClr, roleCode]
-  );
+  // بناء رابط صفحة التعديل
+  const buildUpdateUrl = (id: string | number, rc: "M" | "O") =>
+    `/maindashboard/privelges/update?groupId=${encodeURIComponent(String(id))}&featureType=${
+      rc === "M" ? "1" : "2"
+    }&role=${rc}`;
 
+  // فتح شاشة التعديل
   const onEditRow = useCallback(
     (row: AnyRec) => {
       const id = (row as Row).id;
@@ -108,12 +71,37 @@ export default function Privileges() {
         toast({ title: "لا يمكن تحديد الصلاحية للتعديل", status: "warning" });
         return;
       }
-      const to = `/maindashboard/privelges/update?groupId=${encodeURIComponent(
-        String(id)
-      )}&featureType=${roleCode === "M" ? "1" : "2"}&role=${roleCode}`;
-      navigate(to, { state: { row } });
+      navigate(buildUpdateUrl(id, roleCode), { state: { row } });
     },
     [navigate, roleCode, toast]
+  );
+
+  // أعمدة الجدول: اسم + إجراءات فقط
+  const columns = useMemo(
+    () => [
+      {
+        key: "name",
+        header: "اسم الصلاحية",
+        width: "70%",
+        render: (row: AnyRec) => (
+          <Text fontWeight="600" color={titleClr}>
+            {(row as Row).name}
+          </Text>
+        ),
+      },
+      {
+        key: "__actions",
+        header: "الإجراءات",
+        width: "30%",
+        align: "center",
+        render: (row: AnyRec) => (
+          <SharedButton size="sm" variant="secondary" onClick={() => onEditRow(row)}>
+            تعديل
+          </SharedButton>
+        ),
+      },
+    ],
+    [onEditRow, titleClr]
   );
 
   const onRefresh = useCallback(() => {
@@ -128,9 +116,6 @@ export default function Privileges() {
     <Box>
       <HStack justify="space-between" mb={3}>
         <HStack>
-          <Badge colorScheme={roleCode === "M" ? "purple" : "teal"} variant="subtle">
-            الدور الحالي: {roleCode === "M" ? "الإدارة" : "المكتب"}
-          </Badge>
           {mainUser?.GroupRightName ? (
             <Badge variant="outline" colorScheme="blue">
               مجموعتي: {mainUser.GroupRightName}
@@ -139,10 +124,7 @@ export default function Privileges() {
         </HStack>
 
         <HStack>
-          <SharedButton variant="secondary" onClick={onRefresh}>
-            تحديث
-          </SharedButton>
-          {/* زر الإضافة يفتح على شاشة الإضافة (الدور يؤخذ تلقائيًا من session هناك) */}
+          {/* <SharedButton variant="secondary" onClick={onRefresh}>تحديث</SharedButton> */}
           <SharedButton variant="brandGradient" to={`/maindashboard/privelges/add`}>
             إضافة
           </SharedButton>

@@ -3,7 +3,7 @@ import type { ExecutionResult, NormalizedSummary } from "../../../../api/apiClie
 
 // هذه الدالة تجلب البيانات باستخدام الـ Procedure
 export async function getDashPaymentData(
-    officeId: number | string, // ID المكتب الذي يتم التصفية بناءً عليه
+    officeId: number | string, 
     startNum: number = 0, 
     count: number = 10,   
 ): Promise<NormalizedSummary> {

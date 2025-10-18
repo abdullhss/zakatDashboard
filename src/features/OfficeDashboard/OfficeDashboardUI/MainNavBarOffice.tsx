@@ -82,6 +82,11 @@ export default function MainNavBarOfficeDepartment() {
       </LinkItem>
 
       {/* المشاريع */}
+      <LinkItem to="newsdata">
+        <Icon as={TbCategory2} boxSize={5} />
+        الاخبار
+      </LinkItem>
+      {/* المشاريع */}
       <LinkItem to="projects">
         <Icon as={TbCategory2} boxSize={5} />
         المشاريع

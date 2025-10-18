@@ -1,36 +1,46 @@
-// src/features/SubventionTypes/hooks/useUpdateSubvention.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateSubventionStatus } from "../Services/updateSubvention"; // دالة الـ DoTransaction بتاعتك
-
-type Vars = { id: number | string; isActive: boolean; pointId?: number };
+import { updateSubvention, type UpdateSubventionPayload } from "../Services/updateSubvention";
 
 export function useUpdateSubventionStatus() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (vars: Vars) => updateSubventionStatus(vars),
+    mutationFn: (vars: UpdateSubventionPayload) => updateSubvention(vars),
     onSuccess: (_data, vars) => {
-      // حدّث الكاش لجميع الاستعلامات اللي مفتاحها subventionTypes
-      qc.setQueriesData(
-        { queryKey: ["subventionTypes"] },
-        (old: any) => {
-          if (!old) return old;
-          const nextRows = (old.rows ?? old?.data?.rows ?? []).map((r: any) => {
-            const id = r.id ?? r.Id;
-            if (String(id) === String(vars.id)) {
-              // غيّر الحقلين اللي بتستخدمهم في الواجهة
-              return {
-                ...r,
-                isActive: vars.isActive,
-                IsActive: vars.isActive, // لو في أماكن تانية معتمدة على الكابيتال
-              };
-            }
-            return r;
-          });
-          return { ...old, rows: nextRows };
-        }
-      );
-      // مفيش invalidateQueries عشان ما نفلترش تاني من السيرفر
+      // تحديث الكاش محليًا لكل استعلامات subventionTypes
+      qc.setQueriesData({ queryKey: ["subventionTypes"] }, (old: any) => {
+        if (!old) return old;
+
+        const rows = (old.rows ?? old?.data?.rows ?? []).map((r: any) => {
+          const id = r.id ?? r.Id;
+          if (String(id) !== String(vars.id)) return r;
+
+          const next: any = { ...r };
+
+          if (typeof vars.isActive !== "undefined") {
+            next.isActive = vars.isActive;
+            next.IsActive = vars.isActive;
+          }
+
+          if (typeof vars.name !== "undefined") {
+            next.name = vars.name;
+            next.SubventionTypeName = vars.name;
+          }
+
+          if (typeof vars.allowZakat !== "undefined") {
+            const v = !!vars.allowZakat;
+            next.acceptZakat = v;
+            next.AllowZakat = v;
+            next.acceptZakat = v;   // دعم أسماء مختلفة محتملة
+            next.AcceptZakat = v;
+            next.IsZakat = v;
+          }
+
+          return next;
+        });
+
+        return { ...old, rows };
+      });
     },
   });
 }

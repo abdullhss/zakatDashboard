@@ -1,18 +1,8 @@
 import { useMemo, useRef, useState } from "react";
 import {
-  Box,
-  Text,
-  Switch,
-  HStack,
-  Button,
-  useDisclosure,
-  useToast,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
+  Box, Text, Switch, HStack, Button, useDisclosure, useToast,
+  AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogContent, AlertDialogOverlay,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -52,18 +42,15 @@ export default function Office() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  // pagination
   const [page, setPage] = useState(1);
   const offset = (page - 1) * PAGE_SIZE;
 
-  // fetch
   const userId = getCurrentUserId();
   const { data, isLoading, isError, error } = useGetOffices(offset, PAGE_SIZE, userId);
 
   const rows = (data?.rows as OfficeRow[]) ?? [];
   const totalRows = data?.totalRows ?? rows.length;
 
-  // delete confirm dialog
   const dialog = useDisclosure();
   const cancelRef = useRef<HTMLButtonElement>(null);
   const [targetRow, setTargetRow] = useState<OfficeRow | null>(null);
@@ -153,7 +140,9 @@ export default function Office() {
                 variant="ghost"
                 leftIcon={<EditIcon />}
                 onClick={() =>
-                  navigate(`/maindashboard/offices/edit/${r.id}`, { state: { row: r } })
+                  navigate(`/maindashboard/offices/add?edit=${r.id}`, {
+                    state: { mode: "edit", row: r },
+                  })
                 }
               >
                 تعديل
@@ -196,7 +185,6 @@ export default function Office() {
         onPageChange={setPage}
       />
 
-      {/* حوار تأكيد الحذف */}
       <AlertDialog isOpen={dialog.isOpen} leastDestructiveRef={cancelRef} onClose={dialog.onClose} isCentered>
         <AlertDialogOverlay />
         <AlertDialogContent>
@@ -207,9 +195,7 @@ export default function Office() {
             هل تريد حذف هذا المكتب؟ لو توجد علاقات مرتبطة قد يتم تعطيله بدلًا من حذفه.
           </AlertDialogBody>
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={dialog.onClose}>
-              إلغاء
-            </Button>
+            <Button ref={cancelRef} onClick={dialog.onClose}>إلغاء</Button>
             <Button
               colorScheme="red"
               onClick={doDelete}

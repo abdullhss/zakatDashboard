@@ -1,4 +1,3 @@
-// src/features/MainDepartment/Offices/hooks/useUpdateOffice.ts
 import { useMutation } from "@tanstack/react-query";
 import { updateOffice, type UpdateOfficePayload } from "../Services/updateOffice";
 

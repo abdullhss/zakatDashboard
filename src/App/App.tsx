@@ -18,7 +18,7 @@ import KafaraValues from "../features/MainDepartment/Kafara/KafaraValues";
 import ZakahTypes from "../features/MainDepartment/Zakah/ZakahTypes";
 import Privileges from "../features/MainDepartment/Privelges/PrivelgesTypes";
 import AddPrivelges from "../features/MainDepartment/Privelges/AddPrivelges";
-import UpdatePrivileges from "../features/MainDepartment/Privelges/updatePrivelgesPage";
+// import UpdatePrivileges from "../features/MainDepartment/Privelges/updatePrivelgesPage";
 import Users from "../features/MainDepartment/Users/Users";
 import UserCreated from "../features/MainDepartment/Users/userCreated";
 import AddUserPage from "../features/MainDepartment/Users/AddUserForm";
@@ -37,6 +37,9 @@ import SacrificeDashData from "../features/OfficeDashboard/SacrificesData/getSac
 import GetSacrificeDataMain from "../features/MainDepartment/GetDashSacrificesData/getDashSacrificesMain";
 import GetDashPaymentData from "../features/OfficeDashboard/PaymentData/getDashPaymentData";
 import PaymentDetails from "../features/OfficeDashboard/PaymentData/PaymentDetails";
+import GetNewsData from "../features/OfficeDashboard/NewsData/getNewsData";
+import NewsTypesPage from "../features/OfficeDashboard/NewsData/getNewsTypes";
+import UpdatePrivileges from "../features/MainDepartment/Privelges/PrivelgesTypes";
 
 export default function App() {
   return (
@@ -55,13 +58,13 @@ export default function App() {
             <Route path="offices" element={<Office />} />
             <Route path="offices/add" element={<AddOffice />} />
             <Route path="offices/created" element={<OfficeDetailsView />} />
-            <Route path="offices/edit/:id" element={<EditOffice />} />
+            <Route path="offices/edit/:id" element={<AddOffice />} />
             <Route path="subventionTypes" element={<SubventionTypes />} />
             <Route path="kafara" element={<KafaraValues />} />
             <Route path="zakah" element={<ZakahTypes />} />
             <Route path="privelges" element={<Privileges />} />
             <Route path="privelges/add" element={<AddPrivelges />} />
-            <Route path="privelges/update" element={<UpdatePrivileges />} />
+           <Route path="/maindashboard/privelges/update" element={<UpdatePrivileges />} />
             <Route path="users" element={<Users />} />
             <Route path="users/add" element={<AddUserPage />} />
             <Route path="users/edit/:id" element={<AddUserPage />} />
@@ -90,7 +93,10 @@ export default function App() {
             <Route path="sacrificesDashData" element={<SacrificeDashData />} />
             <Route path="paymentData" element={<GetDashPaymentData />} />
 
+  <Route path="newsdata" element={<GetNewsData />} />
+   <Route path="news-types" element={<NewsTypesPage />} />
   <Route path="payment-details/:paymentId" element={<PaymentDetails />} />          </Route>
+
         </Route>
 
         {/* 404 */}

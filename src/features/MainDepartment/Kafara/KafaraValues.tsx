@@ -1,4 +1,3 @@
-// src/features/Kafara/Kafara.tsx
 import {
   Box,
   VStack,
@@ -45,17 +44,17 @@ export default function Kafara() {
     [data?.currentValue]
   );
 
-  // الخانة التانية: بتفضل فاضية لحد ما المستخدم يكتب
+  // الخانة التانية: فاضية لحد ما المستخدم يكتب
   const [pendingValue, setPendingValue] = useState<string>("");
 
-  // لو اتغيرت قيمة السيرفر من الريفريش بعد التحديث، مش بنملا الخانة التانية — بنسيبها فاضية
+  // فضّي خانة الإدخال بعد تحديث السيرفر
   useEffect(() => {
-    setPendingValue(""); // تبقى فاضية دايمًا
+    setPendingValue("");
   }, [serverValue]);
 
   const commitUpdate = async () => {
     const txt = pendingValue.trim();
-    if (txt === "") return; // مفيش إدخال
+    if (txt === "") return;
 
     const newNum = Number(txt);
     const oldNum = Number(serverValue);
@@ -69,7 +68,6 @@ export default function Kafara() {
       return;
     }
     if (serverValue != null && newNum === oldNum) {
-      // نفس القيمة — مفيش داعي للتحديث
       setPendingValue("");
       return;
     }
@@ -77,8 +75,7 @@ export default function Kafara() {
     try {
       await updateMutation.mutateAsync({ id: 1, value: newNum, pointId: 0 });
       toast({ status: "success", title: "تم تحديث قيمة الكفّارة." });
-      setPendingValue(""); // فضّي الخانة بعد النجاح
-      // hook التحديث مفروض بيعمل invalidate للكواري فتتحدّث الخانة اللي فوق تلقائيًا
+      setPendingValue("");
     } catch (e: any) {
       toast({
         status: "error",
@@ -89,7 +86,7 @@ export default function Kafara() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      (e.target as HTMLInputElement).blur(); // يعمل onBlur الأول
+      (e.target as HTMLInputElement).blur();
       commitUpdate();
     }
   };
@@ -98,7 +95,19 @@ export default function Kafara() {
   if (isError) return <Text color="red.500">حدث خطأ: {(error as Error)?.message}</Text>;
 
   return (
-    <Box dir="ltr">
+    // ✅ غلاف يوسّط المحتوى أفقيًا وعموديًا
+    <Box
+  dir="rtl"
+  w="100%"
+  minH="calc(100vh - 120px)"    // الارتفاع الكامل ناقص الهيدر
+  display="flex"
+  alignItems="flex-start"        // بدل center عشان يكون فوق شويه
+  justifyContent="center"
+  px={{ base: 3, md: 6 }}
+  pt={{ base: "80px", md: "50px" }}   // المسافة من فوق (تقدر تزود أو تقلل)
+  pb={{ base: 6, md: 10 }}             // توازن المسافات تحت
+    >
+      {/* ✅ البوكس نفسه متوسّط، مع حد أقصى للعرض */}
       <Box
         bg={panelBg}
         border="1px solid"
@@ -107,6 +116,7 @@ export default function Kafara() {
         p="30px"
         w="100%"
         maxW="1060px"
+        mx="auto"                
       >
         <VStack spacing="20px" align="stretch">
           {/* الصف الأول: عرض القيمة الحالية (قراءة فقط) */}
@@ -132,7 +142,7 @@ export default function Kafara() {
             </Text>
           </HStack>
 
-          {/* الصف الثاني: كتابة قيمة جديدة (فاضي دايمًا) */}
+          {/* الصف الثاني: كتابة قيمة جديدة */}
           <HStack
             border="1px solid"
             borderColor={borderClr}
@@ -144,8 +154,8 @@ export default function Kafara() {
             <Input
               value={pendingValue}
               onChange={(e) => setPendingValue(e.target.value)}
-              onBlur={commitUpdate}            // يحدث القيمة أول ما تخرج من الخانة
-              onKeyDown={handleKeyDown}        // أو لما تدوس Enter
+              onBlur={commitUpdate}
+              onKeyDown={handleKeyDown}
               isDisabled={updateMutation.isPending}
               type="number"
               step="0.01"
@@ -153,14 +163,14 @@ export default function Kafara() {
               variant="unstyled"
               textAlign="left"
               pe="4"
-              placeholder="برجاء تحديد قيمة الكفارة" // فاضي لحد ما تكتب
+              placeholder="برجاء تحديد قيمة الكفارة"
             />
             <Text color={hintClr} width="15%" fontWeight="600">
               تحديد قيمة الكفارة
             </Text>
           </HStack>
 
-          {/* زر شكلي في نفس المكان/الستايل (غير مطلوب للتحديث لكن موجود زي التصميم) */}
+          {/* زر شكلي */}
           <Box mt="10px" display="flex" justifyContent="flex-start">
             <SharedButton
               w="180px"

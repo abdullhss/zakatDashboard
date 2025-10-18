@@ -54,6 +54,8 @@ export const PROCEDURE_NAMES: Record<string, string> = {
     GET_SACRIFICES_DASH_DATA : "BuFxFqz2qLdv8Q6E+j0XTxOo0qAoVzk713Cv64+LkYk=",
     GET_DASH_PAYMENT_DATA: "L3a0q9MFH3v/HTZoKRF4KTUAuRfsH+PlpkNfOd9+U+E=",
      PAYMENT_APPROVAL_TABLE: "i2uNerMmNgbb7CAgjyifheN/MX9KgcurTRI6fmGAwKw=",
+     GET_DASH_NEWS_DATA: "D1gxIpW0jvHPzz2gPx4IHsMenSKRzg6GpMH2gJxxN8g=",
+     GET_TYPES_NEW_DATA: "4VqIN2QLEsIVgrrrZ9+QTf47UlCZzoc1uZeOQx5MsEI=",
 };
 
 /* ===================================

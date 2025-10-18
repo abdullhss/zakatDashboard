@@ -1,3 +1,4 @@
+// src/features/MainDepartment/Offices/OfficeDetailsSection.tsx
 import {
   Box, Grid, GridItem, VStack, HStack, FormControl, FormLabel, FormErrorMessage,
   Input, Select, Switch, Text, Divider, chakra, useToast, Spinner,
@@ -10,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import SectionCard from "./SectionCard";
 import { useCitiesQuery } from "../Cities/hooks/useCities";
 import UploadField from "../../../Components/UploadFiles/uploadFile";
+import MapPicker, { type LatLng as MapLatLng } from "../../../Components/Map/MapPicker";
 
 const FieldInput = chakra(Input, { baseStyle: { h: "50px", rounded: "lg", w: "100%" } });
 const FieldSelect = chakra(Select, {
@@ -40,30 +42,12 @@ const OfficeSchema = z.object({
 
 export type OfficeDetailsValues = z.infer<typeof OfficeSchema>;
 export type OfficeDetailsHandle = { submit: () => Promise<OfficeDetailsValues | null> };
-type Props = { defaultValues?: Partial<OfficeDetailsValues> };
+type Props = { defaultValues?: Partial<OfficeDetailsValues> & { cityId?: string | number } };
 
-type LatLng = { lat: number; lng: number };
-
-function useDynamicLeaflet() {
-  const [loaded, setLoaded] = useState(false);
-  const [components, setComponents] = useState<any>(null);
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const RL = await import("react-leaflet");
-        if (mounted) { setComponents(RL); setLoaded(true); }
-      } catch { if (mounted) setLoaded(false); }
-    })();
-    return () => { mounted = false; };
-  }, []);
-  return { loaded, components };
-}
-
-const OfficeDetailsSection = forwardRef<OfficeDetailsHandle, Props>(({ defaultValues }, ref) => {
+export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSection({ defaultValues }, ref) {
   const toast = useToast();
   const {
-    register, formState: { errors }, trigger, getValues, setValue, watch,
+    register, formState: { errors }, trigger, getValues, setValue, watch, reset,
   } = useForm<OfficeDetailsValues>({
     resolver: zodResolver(OfficeSchema),
     defaultValues: {
@@ -74,10 +58,18 @@ const OfficeDetailsSection = forwardRef<OfficeDetailsHandle, Props>(({ defaultVa
     mode: "onBlur",
   });
 
+  // إعادة تهيئة نموذج التعديل
+  useEffect(() => {
+    if (defaultValues && Object.keys(defaultValues).length > 0) {
+      reset((prev) => ({ ...prev, ...defaultValues }));
+    }
+  }, [defaultValues, reset]);
+
   useImperativeHandle(ref, () => ({
     submit: async () => (await trigger() ? (getValues() as OfficeDetailsValues) : null),
   }));
 
+  // المدن
   const { data: citiesData, isLoading: citiesLoading, isError: citiesError, error: citiesErr } = useCitiesQuery(0, 200);
   const cityOptions = useMemo(() => {
     const rows = citiesData?.rows ?? [];
@@ -91,43 +83,80 @@ const OfficeDetailsSection = forwardRef<OfficeDetailsHandle, Props>(({ defaultVa
       .filter(Boolean) as { id: string; name: string }[];
   }, [citiesData]);
 
-  const isActive = watch("isActive");
+  // تثبيت قيمة المدينة في الـSelect عند التعديل
+  useEffect(() => {
+    if (cityOptions.length > 0 && defaultValues?.cityId) {
+      const currentValue = getValues("cityId");
+      if (currentValue !== String(defaultValues.cityId)) {
+        setValue("cityId", String(defaultValues.cityId), { shouldDirty: false });
+      }
+    }
+    if (citiesError && citiesErr) {
+      toast({ title: "خطأ في تحميل المدن", description: citiesErr instanceof Error ? citiesErr.message : "", status: "error" });
+    }
+  }, [cityOptions, defaultValues, setValue, citiesError, citiesErr, toast, getValues]);
+
+  // اسم المدينة الحالية (قراءة فقط)
+  const cityIdCurrent = watch("cityId");
+  const selectedCityLabel = useMemo(() => {
+    const match = cityOptions.find(o => o.id === String(cityIdCurrent));
+    if (match) return match.name;
+    if (defaultValues?.cityId && !/^\d+$/.test(String(defaultValues.cityId))) {
+      return String(defaultValues.cityId); // fallback لو جالك اسم بدل ID
+    }
+    return "";
+  }, [cityOptions, cityIdCurrent, defaultValues?.cityId]);
+
+  // إحداثيات + تزامن مع MapPicker
   const latStr = watch("officeLatitude");
   const lngStr = watch("officeLongitude");
 
-  const { loaded, components } = useDynamicLeaflet();
-  const [center, setCenter] = useState<LatLng | null>(null);
-
-  useEffect(() => {
-    const lat = Number(latStr), lng = Number(lngStr);
-    if (!Number.isNaN(lat) && !Number.isNaN(lng) && latStr !== "" && lngStr !== "") {
-      setCenter({ lat, lng }); return;
+  // موضع الخريطة الداخلي (رقمي)
+  const [mapPos, setMapPos] = useState<MapLatLng>(() => {
+    const lat = Number(defaultValues?.officeLatitude);
+    const lng = Number(defaultValues?.officeLongitude);
+    if (!Number.isNaN(lat) && !Number.isNaN(lng) && defaultValues?.officeLatitude && defaultValues?.officeLongitude) {
+      return { lat, lng };
     }
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        ()   => setCenter({ lat: 24.7136, lng: 46.6753 })
-      );
-    } else { setCenter({ lat: 24.7136, lng: 46.6753 }); }
+    // fallback: موقع الجهاز أو (طرابلس) سيتم تحديثه لاحقًا
+    return { lat: 32.885353, lng: 13.180161 };
+  });
+
+  // أول ما نلاقي الحقول فاضية، جرّب نجيب موقع الجهاز مرّة واحدة
+  useEffect(() => {
+    const noLat = !latStr || Number.isNaN(Number(latStr));
+    const noLng = !lngStr || Number.isNaN(Number(lngStr));
+    if (noLat || noLng) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            setMapPos(next);
+            setValue("officeLatitude", String(next.lat.toFixed(6)), { shouldDirty: true });
+            setValue("officeLongitude", String(next.lng.toFixed(6)), { shouldDirty: true });
+          },
+          () => {}
+        );
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleMapClick = (e: any) => {
-    try {
-      const { lat, lng } = e.latlng;
-      setValue("officeLatitude", String(lat.toFixed(6)), { shouldDirty: true });
-      setValue("officeLongitude", String(lng.toFixed(6)), { shouldDirty: true });
-      toast({ title: `تم تحديد: ${lat.toFixed(6)}, ${lng.toFixed(6)}`, status: "info", duration: 1500 });
-    } catch {}
-  };
+  // لو المستخدم عدّل الحقول يدويًا، حدّث الخريطة
+  useEffect(() => {
+    const lat = Number(latStr);
+    const lng = Number(lngStr);
+    if (!Number.isNaN(lat) && !Number.isNaN(lng) && latStr !== "" && lngStr !== "") {
+      setMapPos({ lat, lng });
+    }
+  }, [latStr, lngStr]);
 
-  // TODO: بدّل الـ SessionID ده من السياق/الستيت الحقيقي عندك
   const SESSION_ID = "SESSION-PLACEHOLDER-123";
 
   return (
     <VStack align="stretch" spacing={5}>
       <SectionCard title="بيانات المكتب">
         <Grid templateColumns={{ base: "repeat(12, 1fr)", lg: "repeat(12, 1fr)" }} gap={4}>
-
           {/* صف 1: اسم المكتب + الهاتف + المدينة */}
           <GridItem colSpan={{ base: 12, lg: 4 }}>
             <FormControl isInvalid={!!errors.officeName}>
@@ -148,6 +177,7 @@ const OfficeDetailsSection = forwardRef<OfficeDetailsHandle, Props>(({ defaultVa
           <GridItem colSpan={{ base: 12, lg: 4 }}>
             <FormControl isInvalid={!!errors.cityId}>
               <FormLabel>المدينة</FormLabel>
+
               <FieldSelect
                 placeholder={citiesLoading ? "جارِ تحميل المدن…" : "برجاء اختيار المدينة"}
                 icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px"
@@ -160,6 +190,14 @@ const OfficeDetailsSection = forwardRef<OfficeDetailsHandle, Props>(({ defaultVa
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </FieldSelect>
+
+              {/* اسم المدينة الحالية (قراءة فقط) */}
+              {selectedCityLabel && (
+                <Text mt={2} fontSize="sm" color="gray.600">
+                  المدينة الحالية: <Text as="span" fontWeight="600">{selectedCityLabel}</Text>
+                </Text>
+              )}
+
               <FormErrorMessage>{errors.cityId?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
@@ -168,7 +206,7 @@ const OfficeDetailsSection = forwardRef<OfficeDetailsHandle, Props>(({ defaultVa
           <GridItem colSpan={{ base: 12, lg: 6 }}>
             <FormControl isInvalid={!!errors.officeLatitude}>
               <FormLabel>Latitude (دوّنًا)</FormLabel>
-              <FieldInput placeholder="مثال: 24.7136" inputMode="decimal" {...register("officeLatitude")} />
+              <FieldInput placeholder="مثال: 30.0444" inputMode="decimal" {...register("officeLatitude")} />
               <FormErrorMessage>{errors.officeLatitude?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
@@ -176,12 +214,12 @@ const OfficeDetailsSection = forwardRef<OfficeDetailsHandle, Props>(({ defaultVa
           <GridItem colSpan={{ base: 12, lg: 6 }}>
             <FormControl isInvalid={!!errors.officeLongitude}>
               <FormLabel>Longitude (خط طول)</FormLabel>
-              <FieldInput placeholder="مثال: 46.6753" inputMode="decimal" {...register("officeLongitude")} />
+              <FieldInput placeholder="مثال: 31.2357" inputMode="decimal" {...register("officeLongitude")} />
               <FormErrorMessage>{errors.officeLongitude?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
 
-          {/* صف 3: العنوان + الخريطة */}
+          {/* صف 3: العنوان + الخريطة (نفس الستايل) */}
           <GridItem colSpan={{ base: 12, lg: 4 }}>
             <FormControl isInvalid={!!errors.address}>
               <FormLabel>العنوان</FormLabel>
@@ -194,26 +232,17 @@ const OfficeDetailsSection = forwardRef<OfficeDetailsHandle, Props>(({ defaultVa
             <FormControl>
               <FormLabel>حدد موقعك على الخريطة</FormLabel>
               <MapPlaceholder>
-                {!loaded ? (
-                  <Box h="full" display="flex" alignItems="center" justifyContent="center" gap={3}>
-                    <Spinner />
-                    <Text color="gray.500">سيتم عرض الخريطة لو react-leaflet مثبتة</Text>
-                  </Box>
-                ) : !center ? (
-                  <Box h="full" display="flex" alignItems="center" justifyContent="center">
-                    <Spinner />
-                  </Box>
-                ) : (
-                  <DynamicLeafletMap
-                    components={components}
-                    center={center}
-                    value={{
-                      lat: Number(latStr) || center.lat,
-                      lng: Number(lngStr) || center.lng,
-                    }}
-                    onClick={handleMapClick}
-                  />
-                )}
+                {/* بنستخدم MapPicker بنفس مكان وديزاين الخريطة القديمة */}
+                <MapPicker
+                  value={mapPos}
+                  onChange={(next) => {
+                    setMapPos(next);
+                    setValue("officeLatitude", String(next.lat.toFixed(6)), { shouldDirty: true });
+                    setValue("officeLongitude", String(next.lng.toFixed(6)), { shouldDirty: true });
+                  }}
+                  height={320}   // بيشتغل داخل MapPlaceholder اللي محدد الارتفاع برضه
+                  zoom={13}
+                />
               </MapPlaceholder>
             </FormControl>
           </GridItem>
@@ -222,7 +251,7 @@ const OfficeDetailsSection = forwardRef<OfficeDetailsHandle, Props>(({ defaultVa
           <GridItem colSpan={{ base: 12, lg: 6 }}>
             <HStack spacing={4} h="50px" alignItems="center">
               <Text>تفعيل ظهوره في التطبيق</Text>
-              <Switch {...register("isActive")} isChecked={isActive} />
+              <Switch {...register("isActive")} isChecked={watch("isActive")} />
             </HStack>
           </GridItem>
 
@@ -230,7 +259,7 @@ const OfficeDetailsSection = forwardRef<OfficeDetailsHandle, Props>(({ defaultVa
             <FormControl>
               <FormLabel>صورة المكتب</FormLabel>
               <UploadField
-                sessionId={SESSION_ID}
+                sessionId={"SESSION-PLACEHOLDER-123"}
                 onUploaded={(fileId) => setValue("officePhotoName", fileId, { shouldDirty: true })}
                 onDeleted={() => setValue("officePhotoName", "", { shouldDirty: true })}
               />
@@ -243,46 +272,3 @@ const OfficeDetailsSection = forwardRef<OfficeDetailsHandle, Props>(({ defaultVa
     </VStack>
   );
 });
-
-export default OfficeDetailsSection;
-
-/* ===== Dynamic Leaflet Map ===== */
-function DynamicLeafletMap({
-  components, center, value, onClick,
-}: { components: any; center: LatLng; value: LatLng; onClick: (e: any) => void }) {
-  const { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } = components;
-  const [pos, setPos] = useState<LatLng>(value);
-
-  function ClickHandler() {
-    useMapEvents({
-      click: (e: any) => {
-        onClick(e);
-        const { lat, lng } = e.latlng;
-        setPos({ lat, lng });
-      },
-    });
-    return null;
-  }
-
-  function ResizeFix() {
-    const map = useMap();
-    useEffect(() => {
-      const t = setTimeout(() => map.invalidateSize(), 150);
-      return () => clearTimeout(t);
-    }, [map]);
-    return null;
-  }
-
-  useEffect(() => { setPos(value); }, [value.lat, value.lng]);
-
-  return (
-    <MapContainer center={[center.lat, center.lng]} zoom={13} style={{ height: "100%", width: "100%" }} scrollWheelZoom>
-      <ResizeFix />
-      <TileLayer attribution="&copy; OpenStreetMap" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <ClickHandler />
-      <Marker position={[pos.lat, pos.lng]}>
-        <Popup>المختار: {pos.lat.toFixed(6)}, {pos.lng.toFixed(6)}</Popup>
-      </Marker>
-    </MapContainer>
-  );
-}
