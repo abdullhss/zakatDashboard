@@ -1,23 +1,22 @@
+// src/features/OfficeDashboard/Projects/Services/addProject.ts
 import { doTransaction } from "../../../../api/apiClient";
 import { getOfficeIdForPayload } from "../../../../session";
 
-// TableName (encrypted) جاي لك من الـ Spec
+// من الـ Spec
 const PROJECTS_TABLE_NAME = "w8GZW8O/lAQVG6R99L1C/w==";
-
-// ممكن تخليها ثابتة عامة لو عندكم PointId على مستوى النظام
 const POINT_ID = 0;
 
 export type AddProjectInput = {
   projectName: string;
   projectDesc?: string;
-  subventionTypeId?: number | string;      // تصنيف المشروع (لو عندك ID لها)
-  wantedAmount?: number | string;          // ProjectWantedAmount
-  openingBalance?: number | string;        // ProjectOpeningBalance
-  remainingAmount?: number | string;       // ProjectRemainingAmount
-  allowZakat?: boolean;                    // AllowZakat → 1/0
-  importanceId?: number | string;          // حالياً 0
-  isActive?: boolean;                      // default true
-  photoName?: string;                      // اسم ملف الصورة (اختياري)
+  subventionTypeId?: number | string;
+  wantedAmount?: number | string;
+  openingBalance?: number | string;
+  remainingAmount?: number | string;
+  allowZakat?: boolean;
+  importanceId?: number | string;
+  isActive?: boolean;
+  projectPhotoName?: string; // ← هنرسل الـ id هنا (لو موجود)
 };
 
 export async function addProject(input: AddProjectInput) {
@@ -27,33 +26,31 @@ export async function addProject(input: AddProjectInput) {
     const n = Number(v);
     return Number.isFinite(n) ? n : fallback;
   };
-
   const to01 = (b: any) => (b ? 1 : 0);
 
+  // ترتيب الأعمدة مطابق للنص:
+  // Id#ProjectName#ProjectDesc#SubventionType_Id#ProjectWantedAmount#ProjectOpeningBalance#ProjectRemainingAmount#AllowZakat#Importance_Id#Office_Id#IsActive#ProjectPhotoName
   const cols = [
-    0, // Id عند الإضافة
-    (input.projectName ?? "").trim(),
-    (input.projectDesc ?? "").trim(),
-    int(input.subventionTypeId, 0),
-    int(input.wantedAmount, 0),
-    int(input.openingBalance, 0),
-    int(input.remainingAmount, 0),
-    to01(input.allowZakat ?? true),
-    int(input.importanceId ?? 0, 0), // حالياً 0
-    int(officeId, 0),
-    to01(input.isActive ?? true),
-    (input.photoName ?? "").trim(),
+    0,                                           // Id بإضافة = 0
+    (input.projectName ?? "").trim(),            // ProjectName
+    (input.projectDesc ?? "").trim(),            // ProjectDesc
+    int(input.subventionTypeId, 0),              // SubventionType_Id
+    int(input.wantedAmount, 0),                  // ProjectWantedAmount
+    int(input.openingBalance, 0),                // ProjectOpeningBalance
+    int(input.remainingAmount, 0),               // ProjectRemainingAmount
+    to01(input.allowZakat ?? true),              // AllowZakat
+    int(input.importanceId ?? 0, 0),             // Importance_Id
+    int(officeId, 0),                            // Office_Id
+    to01(input.isActive ?? true),                // IsActive
+    (input.projectPhotoName ?? "").trim(),       // ProjectPhotoName ← هنا بنبعت الـ id
   ];
 
-  // نكوّن ColumnsValues مفصولة بـ #
   const ColumnsValues = cols.join("#");
 
-  const tx = await doTransaction({
+  return doTransaction({
     TableName: PROJECTS_TABLE_NAME,
-    WantedAction: 0,               // 0 = Insert
+    WantedAction: 0,
     ColumnsValues,
     PointId: POINT_ID,
   });
-
-  return tx;
 }

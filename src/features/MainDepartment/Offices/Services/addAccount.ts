@@ -66,7 +66,7 @@ export async function createBankAccount(input: BankAccountInput) {
     WantedAction: 0, // Insert
     ColumnsValues,
     ColumnsNames: COLUMNS_NAMES, // نديه الأسامي برضه (سلامة)
-    PointId: Date.now(),
+    PointId: 0,
   });
 
   return res;
@@ -87,7 +87,7 @@ export async function updateBankAccount(
     WantedAction: 1, // Update
     ColumnsValues,
     ColumnsNames: COLUMNS_NAMES, // مهم جدًا في الـ Update علشان أول عمود Id
-    PointId: Date.now(),
+    PointId:0,
   });
 
   return res;
@@ -116,7 +116,7 @@ export async function deleteBankAccount(id: string | number) {
     WantedAction: 2, // Delete
     ColumnsValues,
     ColumnsNames: COLUMNS_NAMES,
-    PointId: Date.now(),
+    PointId: 0,
   });
 
   return res;

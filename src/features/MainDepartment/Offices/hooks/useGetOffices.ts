@@ -1,32 +1,16 @@
-import { useQuery, keepPreviousData, type UseQueryResult } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getOffices } from "../Services/getOffice";
-import type { NormalizedSummary, AnyRec } from "../../../../api/apiClient";
 
-export interface OfficesData {
-  rows: AnyRec[];
-  totalRows: number | null;
-}
-
-export function useGetOffices(
-  offset: number,
-  limit: number,
-  userId?: number
-): UseQueryResult<OfficesData, Error> {
-  return useQuery<OfficesData, Error>({
-    queryKey: ["offices", offset, limit, userId ?? "auto"],
+export function useGetOffices(offset: number, limit: number) {
+  return useQuery({
+    queryKey: ["offices", offset, limit],
     queryFn: async () => {
-      const summary: NormalizedSummary = await getOffices(offset, limit, userId);
-
-      if (summary.flags.FAILURE || summary.flags.INTERNAL_ERROR) {
-        throw new Error(summary.message || "فشل غير معروف في جلب بيانات المكاتب.");
-      }
-
+      const res = await getOffices(offset, limit);
       return {
-        rows: summary.rows,           // ← مطبّعة بالفعل
-        totalRows: summary.totalRows, // ← عدد السجلات
+        rows: res.rows ?? [],
+        totalRows: res.totalRows ?? 0,
       };
     },
-    staleTime: 60_000,
     placeholderData: keepPreviousData,
   });
 }

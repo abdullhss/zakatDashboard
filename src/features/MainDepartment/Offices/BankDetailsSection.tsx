@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import SwitchComp from "../../../Components/SwitchComp/Switch";
 import { useMemo, forwardRef, useImperativeHandle } from "react";
 import { useBanksQuery } from "../../MainDepartment/Banks/hooks/useGetBanks";
+import { useGetAccountTypes } from "./hooks/useGetAccountTypes";
 
 const FIELD_HEIGHT = "65px";
 const FIELD_RADIUS = "10px";
@@ -38,19 +39,19 @@ const BankSchema = z.object({
 });
 
 export type BankDetailsValues = z.infer<typeof BankSchema>;
-
-export type BankDetailsHandle = { submit: () => Promise<BankDetailsValues | null>; };
+export type BankDetailsHandle = { submit: () => Promise<BankDetailsValues | null> };
 
 type Props = {
   index?: number | string;
   defaultValues?: Partial<BankDetailsValues>;
-  accountTypes: Option[];
+  /** اختياري كـ fallback؛ لو مبعِتّش حاجة هنا، هنجلب من الـ API */
+  accountTypes?: Option[];
   serviceTypes: Option[];
 };
 
 const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
-  ({ index = 1, defaultValues, accountTypes, serviceTypes }, ref) => {
-    const { register, handleSubmit, formState: { errors }, watch, trigger, getValues } =
+  ({ index = 1, defaultValues, accountTypes: accountTypesProp, serviceTypes }, ref) => {
+    const { register, formState: { errors }, watch, trigger, getValues } =
       useForm<BankDetailsValues>({
         resolver: zodResolver(BankSchema),
         defaultValues: {
@@ -64,7 +65,9 @@ const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
       submit: async () => (await trigger() ? (getValues() as BankDetailsValues) : null),
     }));
 
-    const { data: banksData, isLoading: banksLoading, isError: banksError, error: banksErr } = useBanksQuery(0, 200);
+    /* البنوك */
+    const { data: banksData, isLoading: banksLoading, isError: banksError, error: banksErr } =
+      useBanksQuery(0, 200);
 
     const bankOptions = useMemo(() => {
       const rows = banksData?.rows ?? [];
@@ -76,17 +79,28 @@ const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
       }).filter(Boolean) as Option[];
     }, [banksData]);
 
+    /* أنواع الحسابات — من الـ API */
+    const { data: accTypesData, isLoading: accTypesLoading, isError: accTypesError, error: accTypesErr } =
+      useGetAccountTypes(0, 200);
+
+    const accountTypeOptions = useMemo<Option[]>(() => {
+      if (accountTypesProp?.length) return accountTypesProp; // fallback لو بعت من الأب
+      const rows = accTypesData?.rows ?? [];
+      return rows.map((r) => ({ value: String(r.id), label: r.name }));
+    }, [accTypesData?.rows, accountTypesProp]);
+
     const hasCard = watch("hasCard");
     const isEnabled = watch("isEnabled");
 
     return (
       <VStack align="stretch" spacing={4}>
         <Grid templateColumns="repeat(12, 1fr)" gap={4}>
+          {/* البنك */}
           <GridItem colSpan={[12, 4]}>
             <FormControl isInvalid={!!errors.bankId}>
               <FormLabel>اسم البنك</FormLabel>
               <FieldSelect
-                placeholder={banksLoading ? "جارٍ تحميل البنوك…" : "برجاء كتابة اسم البنك"}
+                placeholder={banksLoading ? "جارٍ تحميل البنوك…" : "اختر البنك"}
                 icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px"
                 disabled={banksLoading || banksError} {...register("bankId")}
               >
@@ -103,6 +117,7 @@ const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
             </FormControl>
           </GridItem>
 
+          {/* رقم الحساب */}
           <GridItem colSpan={[12, 4]}>
             <FormControl isInvalid={!!errors.accountNumber}>
               <FormLabel>رقم الحساب</FormLabel>
@@ -111,6 +126,7 @@ const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
             </FormControl>
           </GridItem>
 
+          {/* رصيد افتتاحي */}
           <GridItem colSpan={[12, 4]}>
             <FormControl isInvalid={!!errors.openingBalance}>
               <FormLabel>رصيد افتتاحي</FormLabel>
@@ -119,35 +135,50 @@ const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
             </FormControl>
           </GridItem>
 
+          {/* نوع الحساب — ديناميك */}
           <GridItem colSpan={[12, 4]}>
             <FormControl isInvalid={!!errors.accountTypeId}>
               <FormLabel>نوع الحساب</FormLabel>
-              <FieldSelect placeholder="برجاء اختيار نوع الحساب" icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px" {...register("accountTypeId")}>
-                {accountTypes.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              <FieldSelect
+                placeholder={accTypesLoading ? "جارٍ تحميل أنواع الحساب…" : "اختر نوع الحساب"}
+                icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px"
+                disabled={accTypesLoading || accTypesError}
+                {...register("accountTypeId")}
+              >
+                {accTypesError && (
+                  <option value="" disabled>
+                    {accTypesErr instanceof Error ? accTypesErr.message : "تعذر جلب أنواع الحساب"}
+                  </option>
+                )}
+                {!accTypesLoading && !accTypesError &&
+                  accountTypeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)
+                }
               </FieldSelect>
               <FormErrorMessage>{errors.accountTypeId?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
 
+          {/* نوع الخدمة */}
           <GridItem colSpan={[12, 4]}>
             <FormControl isInvalid={!!errors.serviceTypeId}>
               <FormLabel>نوع الخدمة</FormLabel>
-              <FieldSelect placeholder="برجاء اختيار نوع الخدمة" icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px" {...register("serviceTypeId")}>
+              <FieldSelect placeholder="اختر نوع الخدمة" icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px" {...register("serviceTypeId")}>
                 {serviceTypes.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </FieldSelect>
               <FormErrorMessage>{errors.serviceTypeId?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
 
+          {/* سويتشات */}
           <GridItem marginTop="30px" colSpan={[12, 4]}>
             <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={3}>
               <HStack justify="space-between" h={FIELD_HEIGHT} px={3} rounded={FIELD_RADIUS} borderColor={FIELD_BORDER} bg={FIELD_BG}>
-                <Text>بطاقة مصرفية</Text>
                 <SwitchComp {...register("hasCard")} isChecked={hasCard} />
+                <Text>بطاقة مصرفية</Text>
               </HStack>
               <HStack justify="space-between" h={FIELD_HEIGHT} px={3} rounded={FIELD_RADIUS} borderColor={FIELD_BORDER} bg={FIELD_BG}>
-                <Text>تفعيل الحساب</Text>
                 <SwitchComp {...register("isEnabled")} isChecked={isEnabled} />
+                <Text>تفعيل الحساب</Text>
               </HStack>
             </Grid>
           </GridItem>

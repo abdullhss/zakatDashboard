@@ -6,83 +6,42 @@ import {
   type NormalizedSummary,
 } from "../../../../api/apiClient";
 
-/** JSON بييجي كنص و أحيانًا ملفوف ( ... ) */
-function parseWeirdJson<T = any>(v: unknown): T | [] {
-  if (typeof v !== "string") return ([] as unknown) as T;
-  let s = v.trim();
-  if (s.startsWith("(") && s.endsWith(")")) s = s.slice(1, -1).trim();
-  try {
-    return JSON.parse(s) as T;
-  } catch {
-    return ([] as unknown) as T;
-  }
-}
-
-function extractOffices(dec: any): AnyRec[] {
-  const result0 = Array.isArray(dec?.data?.Result) ? dec.data.Result[0] : null;
-  const officesStr = result0?.OfficesData ?? result0?.OfficeData ?? null;
-  if (!officesStr) return [];
-  const arr = parseWeirdJson<AnyRec[]>(officesStr);
-  return Array.isArray(arr) ? arr : [];
-}
-
-function normalizeOfficeRow(r: AnyRec) {
-  const id        = r.Id ?? r.id ?? r.OfficeId ?? r.Office_Id ?? 0;
-  const name      = r.OfficeName ?? r.CompanyName ?? r.Name ?? r.name ?? "—";
-  const phone     = r.PhoneNum ?? r.Phone ?? r.phone ?? "";
-  const city      = r.CityName ?? r.City ?? r.city ?? "—";
-  const isActive0 = r.IsActive ?? r.Active ?? r.isActive ?? false;
-
-  const isActive =
-    typeof isActive0 === "string"
-      ? ["t", "true", "1", "y", "yes"].includes(isActive0.toLowerCase())
-      : !!Number(isActive0) || !!isActive0;
-
-  return {
-    id: Number(id) || 0,
-    companyName: String(name),
-    phone: String(phone),
-    city: String(city),
-    isActive,
-  };
-}
-
-/** API: جلب المكاتب مع التطبيع */
 export async function getOffices(
   offset: number,
-  limit: number,
-  userId?: number
+  limit: number
 ): Promise<NormalizedSummary> {
-  // ✅ دائمًا ابعت قيمة (حتى لو 0) عشان مايبقاش ParametersValues ''
-  const params = String(userId ?? 0);
+  // الإجراء بياخد @StartNum#@Count وبيبدأ العد من 1
+  const sqlStartNum = (offset ?? 0) + 1;
+  const sqlCount = Math.max(1, Number(limit) || 1);
+  const params = `${sqlStartNum}#${sqlCount}`;
 
-  const exec = await executeProcedure(
+  const result = await executeProcedure(
     PROCEDURE_NAMES.GET_OFFICES_LIST,
     params,
-    undefined, // dataToken
+    undefined,
     offset,
     limit
   );
 
-  if ((exec as any)?.decrypted) {
-    const officesRaw = extractOffices((exec as any).decrypted);
-    const normalized = officesRaw.map(normalizeOfficeRow);
+  const dec = (result as any)?.decrypted?.data;
+  if (!dec?.Result?.[0]) return analyzeExecution(result);
 
-    return {
-      flags: {
-        OK: normalized.length > 0,
-        OK_BUT_EMPTY: normalized.length === 0,
-        INTERNAL_ERROR: false,
-        FAILURE: false,
-      },
-      code: exec.success ? exec.code ?? 200 : exec.code ?? null,
-      message: exec.success ? "" : (exec as any)?.decrypted?.error || "Execution failed.",
-      totalRows: normalized.length,
-      row: normalized[0] ?? null,
-      rows: normalized,
-      serverTime: (exec as any)?.decrypted?.serverTime,
-    };
-  }
+  const row = dec.Result[0];
+  const officesCount = Number(row.OfficesCount ?? 0);
+  const officesData = row.OfficesData ? JSON.parse(row.OfficesData) : [];
 
-  return analyzeExecution(exec);
+  return {
+    flags: {
+      OK: true,
+      OK_BUT_EMPTY: officesData.length === 0,
+      INTERNAL_ERROR: false,
+      FAILURE: false,
+    },
+    code: 200,
+    message: "",
+    totalRows: officesCount,
+    rows: officesData,
+    row: officesData[0] ?? null,
+    serverTime: (result as any)?.decrypted?.servertime,
+  };
 }

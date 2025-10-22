@@ -40,6 +40,7 @@ import PaymentDetails from "../features/OfficeDashboard/PaymentData/PaymentDetai
 import GetNewsData from "../features/OfficeDashboard/NewsData/getNewsData";
 import NewsTypesPage from "../features/OfficeDashboard/NewsData/getNewsTypes";
 import UpdatePrivileges from "../features/MainDepartment/Privelges/PrivelgesTypes";
+import AddNewsData from "../features/OfficeDashboard/NewsData/AddNewsData";
 
 export default function App() {
   return (
@@ -94,6 +95,7 @@ export default function App() {
             <Route path="paymentData" element={<GetDashPaymentData />} />
 
   <Route path="newsdata" element={<GetNewsData />} />
+  <Route path="newsdata/add" element={<AddNewsData />} />
    <Route path="news-types" element={<NewsTypesPage />} />
   <Route path="payment-details/:paymentId" element={<PaymentDetails />} />          </Route>
 

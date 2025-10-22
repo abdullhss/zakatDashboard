@@ -1,78 +1,212 @@
-import React, { useRef, useState } from "react";
+// src/features/OfficeDashboard/Projects/AddProjectForm.tsx
+import React, { useRef, useState, useMemo, useEffect } from "react";
 import {
   Box, Grid, GridItem, FormControl, FormLabel, Input, Select, Textarea,
-  Checkbox, AspectRatio, Icon, Image, VStack, HStack, Text, useToast, Spinner, Alert, AlertIcon
+  Checkbox, AspectRatio, Icon, Image, VStack, HStack, Text, useToast,
+  Spinner, Alert, AlertIcon, Button, Flex
 } from "@chakra-ui/react";
 import { MdImage } from "react-icons/md";
 import SharedButton from "../../../Components/SharedButton/Button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAddProject } from "./hooks/useAddProject";
-// تأكد من المسار الصحيح لهذا الـ hook
-import { useGetSubventionTypes } from "../../MainDepartment/Subvention/hooks/useGetubventionTypes"; 
+import { useUpdateProject } from "./hooks/useUpdateProject";
+import { useGetSubventionTypes } from "../../MainDepartment/Subvention/hooks/useGetubventionTypes";
+import { HandelFile } from "../../../HandleFile.js";
+import { getSession } from "../../../session";
+
+// 🔗 نفس الدومين اللي بتعرض منه الصور
+const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
+const buildPhotoUrl = (id?: string | number, ext = ".jpg") =>
+  id ? `${ZAKAT_IMAGES_BASE}/${id}${ext}` : "";
+
+type FormShape = {
+  id?: number;               // موجود في التعديل فقط
+  name: string;
+  category: string;
+  initialValue: string;
+  remainingValue: string;
+  requestedValue: string;
+  acceptZakah: boolean;
+  isActive: boolean;
+  description: string;
+};
 
 export default function AddProjectForm() {
   const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation() as any; // location.state?.project لو رايح من الجدول
   const addProject = useAddProject();
+  const updateProject = useUpdateProject();
+  const hf = useMemo(() => new HandelFile(), []);
 
-  // تحديد الحالة للـ form
-  const [form, setForm] = useState({
+  // --- هل احنا تعديل ولا إضافة؟ ---
+  const incoming = location?.state?.project ?? null; // توقعنا من الجدول: navigate('/.../add', { state: { project: row } })
+  const isEdit = !!incoming;
+
+  // صورة المشروع الحالية بالـ ID
+  const [currentPhotoId, setCurrentPhotoId] = useState<string>("");
+
+  // فورم موحّد
+  const [form, setForm] = useState<FormShape>({
+    id: undefined,
     name: "",
-    category: "", // ID الفئة
+    category: "",
     initialValue: "",
     remainingValue: "",
     requestedValue: "",
-    importance: "", 
-    acceptZakah: true, // قبول الزكاة فقط
-    isActive: true, // الحالة (نشط/غير نشط)
+    acceptZakah: true,
+    isActive: true,
     description: "",
   });
 
+  // صورة مرفوعة جديد (اختيارية)
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const inputFileRef = useRef<HTMLInputElement>(null);  
+  const [lastPhotoId, setLastPhotoId] = useState<string>(""); // debug
+  const [lastPhotoName, setLastPhotoName] = useState<string>("");
+  const [lastPhotoExt, setLastPhotoExt] = useState<string>("");
 
-  const update = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
+  const inputFileRef = useRef<HTMLInputElement>(null);
   const onChooseImage = () => inputFileRef.current?.click();
-  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0] || null;
-    setImageFile(f);
+  const onFile = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setImageFile(e.target.files?.[0] || null);
+
+  const update = (k: keyof FormShape, v: any) =>
+    setForm((s) => ({ ...s, [k]: v }));
+
+  // جلب التصنيفات
+  const { data, isLoading, isError, error } = useGetSubventionTypes(0, 50);
+  const subventionRows = data?.rows ?? [];
+
+  // helper: تفكيك الاسم والامتداد
+  const splitName = (f: File | null) => {
+    if (!f?.name) return { base: "", ext: "" };
+    const i = f.name.lastIndexOf(".");
+    if (i === -1) return { base: f.name, ext: "" };
+    return { base: f.name.slice(0, i), ext: f.name.slice(i) }; // ext with dot: ".jpg"
   };
 
-  // جلب بيانات التصنيفات
-  const { data, isLoading, isError, error } = useGetSubventionTypes(0, 50); // زدنا الحد لضمان جلب كل التصنيفات
+  // ✅ عند الدخول في وضع تعديل: نعبي الفورم + نقرأ Photo ID من الصف
+  useEffect(() => {
+    if (!incoming) return;
+    setForm({
+      id: Number(incoming.Id ?? incoming.ProjectId ?? incoming.id),
+      name: incoming.Name ?? incoming.ProjectName ?? "",
+      category: String(incoming.SubventionType_Id ?? ""),
+      initialValue: String(incoming.OpeningBalance ?? incoming.ProjectOpeningBalance ?? ""),
+      remainingValue: String(incoming.RemainingAmount ?? incoming.ProjectRemainingAmount ?? ""),
+      requestedValue: String(incoming.WantedAmount ?? incoming.ProjectWantedAmount ?? ""),
+      acceptZakah: !!(incoming.AllowZakat ?? true),
+      isActive: !!(incoming.IsActive ?? true),
+      description: incoming.Description ?? incoming.ProjectDesc ?? "",
+    });
 
-  // === التعديل هنا لاستخلاص البيانات بشكل صحيح ===
-  const subventionRows = data?.rows ?? [];
-  // ===============================================
+    const pid = String(incoming.PhotoName ?? incoming.ProjectPhotoName ?? "");
+    setCurrentPhotoId(pid && pid !== "undefined" ? pid : "");
+  }, [incoming]);
 
   const onSubmit = async () => {
+    // فحص أساسي
+    if (!form.name.trim() || !form.category || !form.requestedValue.trim()) {
+      toast({
+        status: "warning",
+        title: "بيانات ناقصة",
+        description: "برجاء إدخال الاسم، التصنيف، والقيمة المطلوبة.",
+      });
+      return;
+    }
+
+    let photoId = currentPhotoId;
     try {
-      // تجهيز الحمولة للإرسال
-      const payload = {
-        projectName: form.name,
-        projectDesc: form.description,
-        subventionTypeId: form.category ? Number(form.category) : 0, // ID من الفئة المختارة
-        wantedAmount: form.requestedValue,
-        openingBalance: form.initialValue,
-        remainingAmount: form.remainingValue,
-        allowZakat: !!form.acceptZakah, // قبول الزكاة فقط
-        importanceId: 0, 
-        isActive: form.isActive, // تحديد الحالة
-        photoName: imageFile?.name || "",
-      };
+      const session = getSession();
+      const sessionId =
+        (session as any)?.SessionID ||
+        (session as any)?.sessionId ||
+        (session as any)?.token ||
+        "";
 
-      await addProject.mutateAsync(payload);
+      if (imageFile) {
+        const { base, ext } = splitName(imageFile);
+        setLastPhotoName(base);
+        setLastPhotoExt(ext || ".jpg");
 
-      toast({ status: "success", title: "تم الحفظ", description: "تم إضافة المشروع بنجاح" });
-      // navigate("/officedashboard/projects");   
+        const up = await hf.UploadFileWebSite({
+          action: "Add",          // نفس الأخبار
+          file: imageFile,
+          fileId: "",
+          SessionID: sessionId,
+          onProgress: (p: number) => console.log(`Project photo progress: ${p}%`),
+        });
+
+        console.log("Upload project photo response:", up);
+        if (!up?.id || up.id === "0") {
+          throw new Error(up?.error || "فشل رفع الصورة");
+        }
+
+        photoId = String(up.id);
+        setLastPhotoId(photoId);
+        setCurrentPhotoId(photoId);
+      }
+
+      if (!isEdit) {
+        // ----- إضافة -----
+        const payload = {
+          projectName: form.name,
+          projectDesc: form.description,
+          subventionTypeId: Number(form.category) || 0,
+          wantedAmount: form.requestedValue,
+          openingBalance: form.initialValue,
+          remainingAmount: form.remainingValue,
+          allowZakat: !!form.acceptZakah,
+          importanceId: 0,
+          isActive: !!form.isActive,
+          projectPhotoName: photoId, // ← نخزن ID الصورة (لو فيه)
+        };
+        await addProject.mutateAsync(payload);
+        toast({
+          status: "success",
+          title: "تم الحفظ",
+          description: photoId
+            ? `تم رفع الصورة (ID: ${photoId}) وحفظ المشروع.`
+            : "تم حفظ المشروع.",
+        });
+      } else {
+        // ----- تعديل -----
+        const payload = {
+          id: Number(form.id),
+          projectName: form.name,
+          projectDesc: form.description,
+          subventionTypeId: Number(form.category) || 0,
+          wantedAmount: form.requestedValue,
+          openingBalance: form.initialValue,
+          remainingAmount: form.remainingValue,
+          allowZakat: !!form.acceptZakah,
+          importanceId: 0,
+          isActive: !!form.isActive,
+          photoName: photoId, // ← مهم: ده اسم الحقل في خدمة التحديث
+        };
+        const res = await updateProject.mutateAsync(payload);
+        if ((res as any)?.success === false) {
+          throw new Error((res as any)?.error || "فشل التعديل");
+        }
+        toast({
+          status: "success",
+          title: "تم تعديل المشروع بنجاح.",
+          description: photoId ? `Image ID: ${photoId}` : undefined,
+        });
+      }
+
+      // navigate("/officedashboard/projects");
     } catch (e: any) {
-      toast({ status: "error", title: "فشل الإضافة", description: e?.message || "حدث خطأ غير متوقع" });
+      console.error(isEdit ? "Update project failed:" : "Add project failed:", e);
+      toast({
+        status: "error",
+        title: isEdit ? "فشل التعديل" : "فشل الإضافة",
+        description: e?.message || "حدث خطأ غير متوقع",
+      });
     }
   };
 
-  if (isLoading) {
-    return <Spinner size="xl" />;
-  }
+  if (isLoading) return <Spinner size="xl" />;
 
   if (isError) {
     return (
@@ -86,10 +220,18 @@ export default function AddProjectForm() {
   return (
     <Box p={6}>
       <Box borderWidth="1px" borderRadius="lg" p={6} bg="white" _dark={{ bg: "gray.800" }}>
-        <Text fontSize="lg" fontWeight="700" mb={4}>بيانات المشروع</Text>
+        <HStack justify="space-between" mb={4}>
+          <Text fontSize="lg" fontWeight="700">
+            {isEdit ? "تعديل مشروع" : "بيانات المشروع"}
+          </Text>
+
+          {/* زرّ اختياري للرجوع */}
+          <Button variant="ghost" onClick={() => navigate(-1)}>
+            رجوع
+          </Button>
+        </HStack>
 
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr 300px" }} gap={4}>
-          {/* العمود الأيسر - يحتوي على التصنيفات */}
           <GridItem>
             <FormControl mb={4} isRequired>
               <FormLabel>اسم المشروع</FormLabel>
@@ -106,18 +248,17 @@ export default function AddProjectForm() {
                 placeholder="برجاء اختيار تصنيف المشروع"
                 value={form.category}
                 onChange={(e) => update("category", e.target.value)}
-                isDisabled={subventionRows.length === 0} // تعطيل إذا لم تتوفر بيانات
+                isDisabled={subventionRows.length === 0}
               >
                 {subventionRows.map((row: any) => (
                   <option key={row.Id} value={row.Id}>
-                    {row.SubventionTypeName} 
+                    {row.SubventionTypeName}
                   </option>
                 ))}
               </Select>
             </FormControl>
           </GridItem>
 
-          {/* العمود الأوسط */}
           <GridItem>
             <FormControl mb={4}>
               <FormLabel>القيمة الابتدائية</FormLabel>
@@ -138,6 +279,13 @@ export default function AddProjectForm() {
                   placeholder="برجاء كتابة القيمة المتبقية"
                   value={form.remainingValue}
                   onChange={(e) => update("remainingValue", e.target.value)}
+                  // لو راجع من السيرفر مش صفر نقفله (اختياري)
+                  disabled={
+                    isEdit &&
+                    Number(
+                      (incoming?.RemainingAmount ?? incoming?.ProjectRemainingAmount ?? 0)
+                    ) !== 0
+                  }
                 />
                 <Box minW="60px" textAlign="center" bg="gray.50" borderRadius="md" p={2}>د.ل.</Box>
               </HStack>
@@ -162,25 +310,20 @@ export default function AddProjectForm() {
               >
                 يقبل الزكاة
               </Checkbox>
-            </HStack>
 
-            <FormControl mb={4}>
-              <FormLabel>الحالة</FormLabel>
-              <Select
-                placeholder="برجاء اختيار الحالة"
-                value={form.isActive ? "active" : "inactive"}
-                onChange={(e) => update("isActive", e.target.value === "active")}
+              <Checkbox
+                isChecked={form.isActive}
+                onChange={(e) => update("isActive", e.target.checked)}
               >
-                <option value="active">نشط</option>
-                <option value="inactive">غير نشط</option>
-              </Select>
-            </FormControl>
+                نشط
+              </Checkbox>
+            </HStack>
           </GridItem>
 
           {/* عمود الصورة */}
           <GridItem>
             <FormLabel>صورة المشروع</FormLabel>
-            <VStack>
+            <VStack align="start">
               <AspectRatio
                 ratio={4 / 3}
                 w="full"
@@ -195,6 +338,14 @@ export default function AddProjectForm() {
                   {imageFile ? (
                     <Image
                       src={URL.createObjectURL(imageFile)}
+                      alt="Project"
+                      objectFit="cover"
+                      w="100%"
+                      h="100%"
+                    />
+                  ) : currentPhotoId ? (
+                    <Image
+                      src={buildPhotoUrl(currentPhotoId, ".jpg")}
                       alt="Project"
                       objectFit="cover"
                       w="100%"
@@ -216,6 +367,14 @@ export default function AddProjectForm() {
                 hidden
                 onChange={onFile}
               />
+
+              {/* Debug label اختياري */}
+              {(lastPhotoId || currentPhotoId) && (
+                <Text fontSize="xs" color="gray.500">
+                  Image ID: {lastPhotoId || currentPhotoId}
+                  {lastPhotoName && ` | name: ${lastPhotoName}${lastPhotoExt}`}
+                </Text>
+              )}
             </VStack>
           </GridItem>
         </Grid>
@@ -234,9 +393,9 @@ export default function AddProjectForm() {
           <SharedButton
             variant="brandGradient"
             onClick={onSubmit}
-            isLoading={addProject.isPending}
+            isLoading={addProject.isPending || updateProject.isPending}
           >
-            إضافة
+            {isEdit ? "حفظ التعديلات" : "إضافة"}
           </SharedButton>
           <SharedButton variant="dangerOutline" onClick={() => navigate(-1)}>
             إلغاء

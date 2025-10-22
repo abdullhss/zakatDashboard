@@ -1,10 +1,13 @@
+// src/features/MainDepartment/Offices/Office.tsx
 import { useMemo, useRef, useState } from "react";
 import {
-  Box, Text, Switch, HStack, Button, useDisclosure, useToast,
+  Box, Text, Switch, HStack, useDisclosure, useToast,
   AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader,
-  AlertDialogContent, AlertDialogOverlay,
+  AlertDialogContent, AlertDialogOverlay, IconButton, Menu,
+  MenuButton, MenuList, MenuItem, Portal, Flex, Spinner, Alert, AlertIcon, Button
 } from "@chakra-ui/react";
-import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { AddIcon } from "@chakra-ui/icons";
+import { BsThreeDotsVertical } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 
 import { DataTable } from "../../../Components/Table/DataTable";
@@ -14,16 +17,19 @@ import SharedButton from "../../../Components/SharedButton/Button";
 import { useGetOffices } from "./hooks/useGetOffices";
 import { useDeleteOffice } from "./hooks/useDeleteOffice";
 
+/* ---------------- types ---------------- */
 type OfficeRow = {
   id: number;
   companyName: string;
   phone: string;
   city: string;
   isActive: boolean;
+  photoName?: string | number;
 };
 
 const PAGE_SIZE = 8;
 
+/* --------------- utils --------------- */
 function getCurrentUserId(): number {
   try {
     const keys = ["mainUser", "MainUser", "user", "auth", "login"];
@@ -38,6 +44,93 @@ function getCurrentUserId(): number {
   return 1;
 }
 
+/* -------- Row actions (3-dots menu) -------- */
+function RowActions({
+  row,
+  onDeleted,
+  onEdited,
+}: {
+  row: OfficeRow;
+  onDeleted: () => void;
+  onEdited: (row: OfficeRow) => void;
+}) {
+  const toast = useToast();
+  const confirm = useDisclosure();
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const { hardDelete, softDeactivate } = useDeleteOffice();
+
+  const handleDelete = async () => {
+    try {
+      const res = await hardDelete.mutateAsync(row.id);
+      if (res.flags.FAILURE || res.flags.INTERNAL_ERROR) {
+        // fallback -> soft deactivate
+        toast({
+          title: res.message || "تعذّر الحذف بسبب وجود علاقات مرتبطة.",
+          description: "سنحاول تعطيل السجل بدلًا من حذفه.",
+          status: "warning",
+          duration: 2500,
+          isClosable: true,
+        });
+        const soft = await softDeactivate.mutateAsync(row.id);
+        if (soft.flags.FAILURE || soft.flags.INTERNAL_ERROR) {
+          throw new Error(soft.message || "فشل التعطيل.");
+        }
+        toast({ title: "تم تعطيل المكتب بدلًا من حذفه.", status: "success" });
+      } else {
+        toast({ title: "تم حذف المكتب.", status: "success" });
+      }
+      confirm.onClose();
+      onDeleted();
+    } catch (e: any) {
+      toast({
+        title: "حدث خطأ أثناء العملية.",
+        description: e?.message,
+        status: "error",
+      });
+    }
+  };
+
+  return (
+    <>
+      <Menu placement="bottom-start" isLazy strategy="fixed">
+        <MenuButton
+          as={IconButton}
+          aria-label="إجراءات"
+          icon={<BsThreeDotsVertical />}
+          size="sm"
+          variant="brandOutline"
+          onClick={(e) => e.stopPropagation()}
+        />
+        <Portal>
+          <MenuList>
+            <MenuItem onClick={() => onEdited(row)}>تعديل</MenuItem>
+            <MenuItem color="red.600" onClick={confirm.onOpen}>حذف</MenuItem>
+          </MenuList>
+        </Portal>
+      </Menu>
+
+      <AlertDialog isOpen={confirm.isOpen} leastDestructiveRef={cancelRef} onClose={confirm.onClose} isCentered>
+        <AlertDialogOverlay />
+        <AlertDialogContent>
+          <AlertDialogHeader fontWeight="700">حذف المكتب</AlertDialogHeader>
+          <AlertDialogBody>
+            هل أنت متأكد من حذف “{row.companyName}”؟ قد يتم التعطيل بدلًا من الحذف إذا كانت هناك علاقات مرتبطة.
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <HStack w="100%" spacing={3} justify="space-around">
+              <Button ref={cancelRef} onClick={confirm.onClose} variant="outline">إلغاء</Button>
+              <Button colorScheme="red" onClick={handleDelete} isLoading={hardDelete.isPending || softDeactivate.isPending}>
+                حذف
+              </Button>
+            </HStack>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+/* --------------- main component --------------- */
 export default function Office() {
   const navigate = useNavigate();
   const toast = useToast();
@@ -46,60 +139,28 @@ export default function Office() {
   const offset = (page - 1) * PAGE_SIZE;
 
   const userId = getCurrentUserId();
-  const { data, isLoading, isError, error } = useGetOffices(offset, PAGE_SIZE, userId);
+  const { data, isLoading, isError, error, isFetching, refetch } = useGetOffices(offset, PAGE_SIZE, userId);
 
-  const rows = (data?.rows as OfficeRow[]) ?? [];
-  const totalRows = data?.totalRows ?? rows.length;
+  const rows = useMemo<OfficeRow[]>(() => {
+    const src = (data?.rows as AnyRec[]) ?? [];
+    return src.map((r) => ({
+      id: Number(r.Id ?? r.OfficeId ?? r.id ?? 0),
+      companyName: String(r.OfficeName ?? r.CompanyName ?? r.Name ?? "—"),
+      phone: String(r.PhoneNum ?? r.Phone ?? r.phone ?? ""),
+      city: String(r.CityName ?? r.City ?? r.city ?? "—"),
+      isActive: Boolean(r.IsActive ?? r.Active ?? r.isActive ?? false),
+      photoName: String(r.OfficePhotoName ?? r.OfficePhotoName_Id ?? r.photoName ?? ""),
+    }));
+  }, [data?.rows]);
 
-  const dialog = useDisclosure();
-  const cancelRef = useRef<HTMLButtonElement>(null);
-  const [targetRow, setTargetRow] = useState<OfficeRow | null>(null);
-
-  const { hardDelete, softDeactivate } = useDeleteOffice();
-
-  const confirmDelete = (row: OfficeRow) => {
-    setTargetRow(row);
-    dialog.onOpen();
-  };
-
-  const doDelete = async () => {
-    if (!targetRow) return;
-    try {
-      const res = await hardDelete.mutateAsync(targetRow.id);
-      if (res.flags.FAILURE || res.flags.INTERNAL_ERROR) {
-        toast({
-          title: res.message || "تعذّر الحذف بسبب وجود علاقات مرتبطة.",
-          description: "سنحاول تعطيل السجل بدلًا من حذفه.",
-          status: "warning",
-          duration: 2500,
-          isClosable: true,
-        });
-        const soft = await softDeactivate.mutateAsync(targetRow.id);
-        if (soft.flags.FAILURE || soft.flags.INTERNAL_ERROR) {
-          throw new Error(soft.message || "فشل التعطيل.");
-        }
-        toast({ title: "تم تعطيل المكتب بدلًا من حذفه.", status: "success" });
-      } else {
-        toast({ title: "تم حذف المكتب.", status: "success" });
-      }
-    } catch (e: any) {
-      toast({
-        title: "حدث خطأ أثناء العملية.",
-        description: e?.message,
-        status: "error",
-      });
-    } finally {
-      dialog.onClose();
-      setTargetRow(null);
-    }
-  };
+  const totalRows = data?.totalRows ?? 0;
 
   const columns: Column[] = useMemo(
     () => [
       {
         key: "officeName",
         header: "اسم المكتب",
-        width: "28%",
+        width: "32%",
         render: (row: AnyRec) => (
           <Text fontWeight="600" color="gray.700">
             {(row as OfficeRow).companyName}
@@ -109,14 +170,14 @@ export default function Office() {
       {
         key: "phone",
         header: "رقم الهاتف",
-        width: "22%",
+        width: "24%",
         render: (row: AnyRec) => <Text dir="ltr">{(row as OfficeRow).phone}</Text>,
       },
-      { key: "city", header: "المدينة", width: "18%" },
+      { key: "city", header: "المدينة", width: "22%" },
       {
         key: "isActive",
         header: "الحالة",
-        width: "16%",
+        width: "22%",
         render: (row: AnyRec) => {
           const r = row as OfficeRow;
           return (
@@ -127,45 +188,25 @@ export default function Office() {
           );
         },
       },
-      {
-        key: "actions",
-        header: "",
-        width: "16%",
-        render: (row: AnyRec) => {
-          const r = row as OfficeRow;
-          return (
-            <HStack justify="flex-end" spacing={2}>
-              <Button
-                size="sm"
-                variant="ghost"
-                leftIcon={<EditIcon />}
-                onClick={() =>
-                  navigate(`/maindashboard/offices/add?edit=${r.id}`, {
-                    state: { mode: "edit", row: r },
-                  })
-                }
-              >
-                تعديل
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                colorScheme="red"
-                leftIcon={<DeleteIcon />}
-                onClick={() => confirmDelete(r)}
-              >
-                حذف
-              </Button>
-            </HStack>
-          );
-        },
-      },
+      // 👇 لا نضيف عمود للأزرار، هنستخدم renderActions بتاع الـ DataTable
     ],
-    [navigate]
+    []
   );
 
-  if (isLoading) return <Text color="gray.600">جارِ التحميل…</Text>;
-  if (isError) return <Text color="red.500">حدث خطأ: {(error as Error)?.message}</Text>;
+  if (isLoading && !isFetching) {
+    return (
+      <Flex justify="center" p={10}><Spinner size="xl" /></Flex>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Alert status="error" m={6}>
+        <AlertIcon />
+        حدث خطأ أثناء جلب بيانات المكاتب: {(error as Error)?.message}
+      </Alert>
+    );
+  }
 
   return (
     <Box>
@@ -174,7 +215,12 @@ export default function Office() {
         data={rows as unknown as AnyRec[]}
         columns={columns}
         headerAction={
-          <SharedButton size="sm" leftIcon={<AddIcon />} to="/maindashboard/offices/add">
+          <SharedButton
+            size="sm"
+            leftIcon={<AddIcon />}
+            to="/maindashboard/offices/add"
+            isLoading={isFetching}
+          >
             إضافة مكتب
           </SharedButton>
         }
@@ -183,30 +229,20 @@ export default function Office() {
         pageSize={PAGE_SIZE}
         totalRows={totalRows}
         onPageChange={setPage}
+        serverSide
+        /* ✅ نخلي الإجراءات في عمود actions الافتراضي الخاص بالـ DataTable */
+        renderActions={(row) => (
+          <RowActions
+            row={row as OfficeRow}
+            onDeleted={() => refetch()}
+            onEdited={(r) =>
+              navigate(`/maindashboard/offices/add?edit=${r.id}`, {
+                state: { mode: "edit", row: r }, // r يحتوي photoName
+              })
+            }
+          />
+        )}
       />
-
-      <AlertDialog isOpen={dialog.isOpen} leastDestructiveRef={cancelRef} onClose={dialog.onClose} isCentered>
-        <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader fontSize="lg" fontWeight="bold">
-            تأكيد الحذف
-          </AlertDialogHeader>
-          <AlertDialogBody>
-            هل تريد حذف هذا المكتب؟ لو توجد علاقات مرتبطة قد يتم تعطيله بدلًا من حذفه.
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={dialog.onClose}>إلغاء</Button>
-            <Button
-              colorScheme="red"
-              onClick={doDelete}
-              ml={3}
-              isLoading={hardDelete.isPending || softDeactivate.isPending}
-            >
-              حذف
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </Box>
   );
 }

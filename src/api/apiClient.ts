@@ -27,8 +27,10 @@ export const PROCEDURE_NAMES: Record<string, string> = {
   GET_BANKS_LIST: "D9Ivfj9RKABRqAjFR2qD5w==",
   BANK_TABLE_NAME: "OeTsezXwKwLlGRD40pLLHg==",
   CITIES_TABLE_NAME: "0MomPyA4q+4ZMI8avKbfUg==",
-  GET_OFFICES_LIST: "mdemtAbueh2oz+k6MjjaFaOfTRzNK4XQQy0TBhCaV0Y=",
+  GET_OFFICES_LIST: "eTcJ/vnBezzSD18bWEaw1PQzCrDtz1E9ZsA2hLVgjhU=",
   OFFICE: "msDmpDYZ2wcHBSmvMDczrg==",
+  ACCOUNT_TYPES: "GQIZZERj0S9ZOfY1hfnllyAjhmG5JhWEQf8hMuGilWA=",
+   GET_DASH_OFFICE_BANKS: "jO0qkiQGe4UNVcwh8EDVtF0HtNvwkx6o94a+i6+lf5k=",
   GET_SUBVENTION_TYPES: "CjSj0j5kAa/aqk9LMpWvCavGukOw8WsDmvfzbXkXVaI=",
   SUBVENTION_TYPE_TABLE_NAME: "l+3chSRUz867HysB0r4EWQ==", // For ADDING & DELETING & UPDATING 
  GET_KAFARA_VALUES: "T8mEvmQC2AYQQYTmdNYTU/U5ngsTOI/NJy4+CGMFmAM=",
@@ -56,6 +58,7 @@ export const PROCEDURE_NAMES: Record<string, string> = {
      PAYMENT_APPROVAL_TABLE: "i2uNerMmNgbb7CAgjyifheN/MX9KgcurTRI6fmGAwKw=",
      GET_DASH_NEWS_DATA: "D1gxIpW0jvHPzz2gPx4IHsMenSKRzg6GpMH2gJxxN8g=",
      GET_TYPES_NEW_DATA: "4VqIN2QLEsIVgrrrZ9+QTf47UlCZzoc1uZeOQx5MsEI=",
+     NEWS_TABLE_NAME: "M3zRwxiJknLboYsWUx3adg==",
 };
 
 /* ===================================
@@ -289,7 +292,64 @@ export function analyzeExecution(result: ExecutionResult): NormalizedSummary {
     serverTime,
   };
 }
+// **************************
+// export const getBase64 = (file) => {
+//   return new Promise((resolve, reject) => {
+//     const reader = new FileReader();
+//     reader.readAsDataURL(file);
+//     reader.onload = () => resolve(reader.result);
+//     reader.onerror = (error) => reject(error);
+//   });
+// };
+//  export async function  UploadFileWebSite({ action , file, fileId = "", SessionID, onProgress, controller }) {
+//     console.log('test');
+    
+//     if (!file && action !== "Delete") return console.error("No file provided");
 
+//    const convertedFile = {
+//       MainId:0,
+//       SubId:0,
+//       DetailId:0,
+//       FileType:`.${file?.name.split('.').pop()}`,
+//       Description:"",
+//       Name:file?.name||" "
+//     }
+    
+//     let jsonData = {
+//       ApiToken: API_CONFIG.API_TOKEN,
+//       Data: AES256Encryption.encrypt({
+//         ActionType: action,
+//         FileId: fileId,
+//         ...convertedFile,
+//         DataToken: API_CONFIG.DATA_TOKEN,
+//         SessionID,
+//       }),
+      
+//       encode_plc1: file?((await getBase64(file))?.split(',')[1]):"",
+//     };
+//     console.log(jsonData)
+    
+//     let { data } = await axios.post(
+      
+//       "/UploadFileWebSite", 
+//       jsonData,
+//       {
+//         signal: controller?.signal,
+//         onUploadProgress: (progressEvent) => {
+//           if (onProgress && progressEvent.total) {
+//             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+//             onProgress(progress);
+//           }
+//         },
+//       }
+//     );
+//     console.log(AES256Encryption.decrypt(data.FileId))
+//     return {
+//       status: AES256Encryption.decrypt(data.Result),
+//       id: AES256Encryption.decrypt(data.FileId),
+//       error: AES256Encryption.decrypt(data.Error),
+//     };
+//   }
 /* ===================================
  * 5) ExecuteProcedure
  * =================================== */
