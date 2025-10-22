@@ -49,31 +49,15 @@ export default function BankAccountSection({
         <HStack spacing={2}>
           <Text color="gray.600">{String(index)}</Text>
           <Text fontWeight="700" color="gray.800">
-            الحساب البنكي
+            الحساب البنكي :  {accountNumber || "—"}
           </Text>
 
           {/* ✅ زرار إضافة صغير قدام العنوان */}
-          <IconButton
-            aria-label="إضافة حساب"
-            icon={<AddIcon />}
-            size="xs"
-            rounded="md"
-            bg="#13312C"
-            color="white"
-            _hover={{ bg: "#0f2622" }}
-            onClick={onAdd}
-          />
+
         </HStack>
 
         {/* يسار: أيقونات التعديل/الحذف */}
         <HStack spacing={2}>
-          <IconButton
-            aria-label="تعديل"
-            icon={<EditIcon />}
-            size="sm"
-            variant="ghost"
-            onClick={onEdit}
-          />
           <IconButton
             aria-label="حذف"
             icon={<DeleteIcon />}
@@ -137,7 +121,7 @@ export default function BankAccountSection({
 
         <Divider my={3} borderColor={INNER_BORDER} />
 
-        <Grid templateColumns="repeat(12, 1fr)" gap={4}>
+        <Grid templateColumns="repeat(18, 1fr)" gap={4}>
           <GridItem colSpan={[12, 6, 4, 3]}>
             <VStack spacing={1}>
               <Text color="gray.700">بطاقة مصرفية</Text>

@@ -174,20 +174,22 @@ export default function Office() {
         render: (row: AnyRec) => <Text dir="ltr">{(row as OfficeRow).phone}</Text>,
       },
       { key: "city", header: "المدينة", width: "22%" },
-      {
-        key: "isActive",
-        header: "الحالة",
-        width: "22%",
-        render: (row: AnyRec) => {
-          const r = row as OfficeRow;
-          return (
-            <HStack>
-              <Switch isChecked={r.isActive} isReadOnly mr={2} />
-              <Text color="gray.600">{r.isActive ? "مفعل" : "غير مفعل"}</Text>
-            </HStack>
-          );
-        },
-      },
+{
+  key: "isActive",
+  // خلي العنوان ReactNode ووسّطه
+  header: <Box w="full" textAlign="center">الحالة</Box>,
+  width: "18%", // اختياري: قلّلها شوية لو حابب
+  render: (row: AnyRec) => {
+    const r = row as OfficeRow;
+    return (
+      <HStack justify="center" spacing={2}> {/* توسيط محتوى الخلية */}
+        <Switch isChecked={r.isActive} isReadOnly />
+        <Text color="gray.600">{r.isActive ? "مفعل" : "غير مفعل"}</Text>
+      </HStack>
+    );
+  },
+},
+
       // 👇 لا نضيف عمود للأزرار، هنستخدم renderActions بتاع الـ DataTable
     ],
     []

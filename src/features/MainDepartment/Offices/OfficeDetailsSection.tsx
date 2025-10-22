@@ -12,7 +12,6 @@ import { useCitiesQuery } from "../Cities/hooks/useCities";
 import MapPicker, { type LatLng as MapLatLng } from "../../../Components/Map/MapPicker";
 import { HandelFile } from "../../../HandleFile.js";
 
-// 🔗 مسار الصور (نفس المشاريع)
 const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
 const buildPhotoUrl = (id?: string | number, ext = ".jpg") =>
   id && id !== "0" && id !== "undefined" ? `${ZAKAT_IMAGES_BASE}/${id}${ext}` : "";
@@ -47,7 +46,7 @@ const OfficeSchema = z.object({
   officeLatitude: z.string().refine((v) => v === "" || !Number.isNaN(Number(v)), "Latitude يجب أن يكون رقمًا").default(""),
   officeLongitude: z.string().refine((v) => v === "" || !Number.isNaN(Number(v)), "Longitude يجب أن يكون رقمًا").default(""),
   isActive: z.boolean().default(true),
-  officePhotoName: z.string().optional().default(""), // ← نخزّن FileId
+  officePhotoName: z.string().optional().default(""),
 });
 
 export type OfficeDetailsValues = z.infer<typeof OfficeSchema>;
@@ -73,59 +72,40 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
   ref
 ) {
   const toast = useToast();
-
   const {
-    register,
-    formState: { errors },
-    trigger,
-    getValues,
-    setValue,
-    watch,
-    reset,
+    register, formState: { errors }, trigger, getValues, setValue, watch, reset,
   } = useForm<OfficeDetailsValues>({
     resolver: zodResolver(OfficeSchema),
     defaultValues: {
-      officeName: "",
-      phoneNum: "",
-      cityId: "",
-      address: "",
-      officeLatitude: "",
-      officeLongitude: "",
-      isActive: true,
-      officePhotoName: "",
+      officeName: "", phoneNum: "", cityId: "", address: "",
+      officeLatitude: "", officeLongitude: "", isActive: true, officePhotoName: "",
       ...defaultValues,
     },
     mode: "onBlur",
   });
 
-  // ===== معاينة الصورة الحالية / الجديدة =====
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // عند الدخول تعديل: ابني رابط الصورة من الـ id الممرَّر في defaultValues.officePhotoName
   useEffect(() => {
     const fileId = String(defaultValues?.officePhotoName ?? "");
     setValue("officePhotoName", fileId, { shouldDirty: false, shouldValidate: false });
     setPreviewUrl(buildPhotoUrl(fileId));
   }, [defaultValues?.officePhotoName, setValue]);
 
-  // إعادة ملء باقي القيم عند التعديل
   useEffect(() => {
     if (defaultValues && Object.keys(defaultValues).length > 0) {
       reset((prev) => ({ ...prev, ...defaultValues }));
     }
   }, [defaultValues, reset]);
 
-  // رفع صورة جديدة (تخزين الـ id فقط)
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     try {
       setUploading(true);
       setProgress(0);
-
       const hf = new HandelFile();
       const up = await hf.UploadFileWebSite({
         action: "Add",
@@ -134,9 +114,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
         SessionID: getSessionId(),
         onProgress: (p: number) => setProgress(p),
       });
-
       if (up?.error) throw new Error(String(up.error));
-
       setValue("officePhotoName", String(up.id ?? ""), { shouldDirty: true, shouldValidate: true });
       setPreviewUrl(buildPhotoUrl(up.id));
       await trigger("officePhotoName");
@@ -146,7 +124,6 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
     } finally {
       setUploading(false);
       setProgress(0);
-      // السماح باختيار نفس الملف ثانية
       (e.target as HTMLInputElement).value = "";
     }
   };
@@ -155,7 +132,6 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
     submit: async () => ((await trigger()) ? (getValues() as OfficeDetailsValues) : null),
   }));
 
-  // ===== الخريطة =====
   const [mapPos, setMapPos] = useState<MapLatLng>(() => {
     const lat = Number(defaultValues?.officeLatitude);
     const lng = Number(defaultValues?.officeLongitude);
@@ -173,7 +149,6 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
     }
   }, [watch("officeLatitude"), watch("officeLongitude")]);
 
-  // ===== المدن =====
   const { data: citiesData, isLoading: citiesLoading, isError: citiesError, error: citiesErr } =
     useCitiesQuery(0, 200);
 
@@ -218,6 +193,10 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
   return (
     <VStack align="stretch" spacing={5}>
       <SectionCard title="بيانات المكتب">
+        {/* ✅ سطر تحت العنوان مباشرة يحتوي على سويتش التفعيل */}
+   
+
+        {/* باقي الفورم */}
         <Grid templateColumns={{ base: "repeat(12, 1fr)", lg: "repeat(12, 1fr)" }} gap={4}>
           {/* اسم/هاتف/مدينة */}
           <GridItem colSpan={{ base: 12, lg: 4 }}>
@@ -241,9 +220,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
               <FormLabel>المدينة</FormLabel>
               <FieldSelect
                 placeholder={citiesLoading ? "جارِ تحميل المدن…" : "برجاء اختيار المدينة"}
-                icon={<ChevronDownIcon />}
-                iconColor="gray.500"
-                iconSize="20px"
+                icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px"
                 disabled={citiesLoading || citiesError}
                 {...register("cityId")}
               >
@@ -255,7 +232,8 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
                 {!citiesLoading && !citiesError &&
                   cityOptions.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
+                  ))
+                }
               </FieldSelect>
 
               {selectedCityLabel && (
@@ -276,7 +254,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
               <FormErrorMessage>{errors.officeLatitude?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
-
+          
           <GridItem colSpan={{ base: 12, lg: 6 }}>
             <FormControl isInvalid={!!errors.officeLongitude}>
               <FormLabel>Longitude</FormLabel>
@@ -290,8 +268,16 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
             <FormControl isInvalid={!!errors.address}>
               <FormLabel>العنوان</FormLabel>
               <FieldInput placeholder="برجاء كتابة العنوان" {...register("address")} />
+              
               <FormErrorMessage>{errors.address?.message}</FormErrorMessage>
+              
             </FormControl>
+                 <HStack justify="flex-start" mb={3}>
+          <HStack spacing={4} h="40px" alignItems="center">
+            <Switch {...register("isActive")} isChecked={watch("isActive")} />
+            <Text>تفعيل ظهوره في التطبيق</Text>
+          </HStack>
+        </HStack>
           </GridItem>
 
           <GridItem colSpan={{ base: 12, lg: 8 }}>
@@ -312,15 +298,8 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
             </FormControl>
           </GridItem>
 
-          {/* الحالة + الصورة */}
-          <GridItem colSpan={{ base: 12, lg: 6 }}>
-            <HStack spacing={4} h="50px" alignItems="center">
-              <Text>تفعيل ظهوره في التطبيق</Text>
-              <Switch {...register("isActive")} isChecked={watch("isActive")} />
-            </HStack>
-          </GridItem>
-
-          <GridItem colSpan={{ base: 12, lg: 6 }}>
+          {/* ✅ صورة المكتب بعرض الخريطة وبداية نفس العمود */}
+          <GridItem colSpan={{ base: 12, lg: 8 }}>
             <FormControl>
               <FormLabel>صورة المكتب</FormLabel>
 
@@ -351,7 +330,6 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
                 sx={{ h: "auto", py: 2 }}
               />
 
-              {/* نخزن FileId */}
               <input type="hidden" {...register("officePhotoName")} />
 
               {uploading && (
