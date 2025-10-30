@@ -5,10 +5,9 @@ export interface UpdateSacrificeInput {
   id: number | string;
   name: string;
   price: number;
-  isActive: boolean; // هنمرّر الحالة الحالية بدون تغيير
+  isActive: boolean;
 }
 
-/** UPDATE: WantedAction=1 — ColumnsValues: Id#SacrificeTypeName#SacrificeTypePrice#IsActive */
 export async function updateSacrificeType(
   input: UpdateSacrificeInput,
   pointId: number | string = 1
@@ -17,12 +16,11 @@ export async function updateSacrificeType(
     `${input.id}#${(input.name ?? "").trim()}#${Number(input.price) || 0}#${input.isActive ? 1 : 0}`;
 
   const result = await doTransaction({
-    TableName: PROCEDURE_NAMES.ADD_SACRIFICE_TYPE, // نفس TableName (جدول الأضاحي)
+    TableName: PROCEDURE_NAMES.ADD_SACRIFICE_TYPE, 
     WantedAction: 1, // Update
     ColumnsValues: values,
     ColumnsNames: "Id#SacrificeTypeName#SacrificeTypePrice#IsActive",
     PointId: pointId,
-    // لو بتحتاج DataToken صراحة: DataToken: "Zakat",
   });
 
   return analyzeExecution(result);

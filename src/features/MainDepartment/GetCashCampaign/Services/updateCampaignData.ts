@@ -22,7 +22,6 @@ export interface UpdateCampaignInput {
   approvedDate: Date | string;  
   pointId: number | string;
 
-  dataToken?: string | number;
   sendNotification?: boolean;
   notificationProcedureEncrypted?: string;
   notificationParameters?: string;
@@ -33,7 +32,6 @@ export async function updateCampaignData(
 ): Promise<NormalizedSummary> {
   if (input == null) throw new Error("No input provided to updateCampaignData.");
   if (input.id == null) throw new Error("id is required.");
-  if (input.pointId == null) throw new Error("pointId is required.");
 
   const WantedAction = 1;  
   const ColumnsNames = "Id#IsApproved#ApprovedDate";
@@ -46,10 +44,9 @@ export async function updateCampaignData(
     WantedAction,
     ColumnsNames,
     ColumnsValues: `${input.id}#${isApprovedValue}#${formattedDate}`,
-    PointId: input.pointId,
+    PointId: 0,
   };
 
-  if (input.dataToken != null) payload.DataToken = input.dataToken;
   if (typeof input.sendNotification === "boolean") {
     payload.SendNotification = input.sendNotification ? "T" : "F";
   }

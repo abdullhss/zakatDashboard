@@ -6,62 +6,69 @@ import {
   PROCEDURE_NAMES,
 } from "../../../../api/apiClient";
 
-// نفس ترتيب الأعمدة المطلوب من الـ API
-const COLS_NAMES =
-  "Id#OfficeName#OfficeLatitude#OfficeLongitude#City_Id#PhoneNum#Address#IsActive#OfficePhotoName";
+const COLS_NAMES_BASE =
+  "Id#OfficeName#OfficeLatitude#OfficeLongitude#City_Id#PhoneNum#Address#IsActive"; // ← بدون الصورة
+
+const COLS_WITH_PHOTO =
+  COLS_NAMES_BASE + "#OfficePhotoName"; // ← لما يكون عندنا PhotoId
 
 export type UpdateOfficePayload = {
-  id: number | string;              // Id (لازم أول عمود)
+  id: number | string;
   officeName: string;
   cityId: string | number;
   phone: string;
   address: string;
-  isActive: boolean | 0 | 1;        // بنحوّلها لـ "T"/"F" أو "1"/"0" حسب نظامك
+  isActive: boolean | 0 | 1;
   latitude?: string | number | null;
   longitude?: string | number | null;
-  photoName?: string | null;        // هنا بنبعت FileId
-  pointId?: number | string;        // عادة 0 عندكم
-  dataToken?: string;               // لو محتاج تبعتها
+  photoId?: string | number | null;   // ← بنبعته لو موجود بس
+  pointId?: number | string;
+  dataToken?: string;
 };
 
 const scrub = (v: unknown) => String(v ?? "").replace(/#/g, "");
+const normalizePhotoId = (v: unknown) => {
+  const s = String(v ?? "").trim();
+  // اعتبر القيم دي = مفيش صورة
+  if (!s || s === "0" || s.toLowerCase() === "undefined" || s.toLowerCase() === "null") return "";
+  return s;
+};
 
 export async function updateOffice(payload: UpdateOfficePayload): Promise<NormalizedSummary> {
   const {
     id, officeName, cityId, phone, address, isActive,
-    latitude, longitude, photoName, pointId = 0, dataToken,
+    latitude, longitude, photoId, pointId = 0, dataToken,
   } = payload;
 
-  // City_Id كرقم صريح
   const city = Number(cityId) || 0;
+  const isActiveStr =
+    (typeof isActive === "boolean" ? isActive : Number(isActive) === 1) ? "1" : "0";
 
-  // بعض الجداول تفضّل "T"/"F" — لو نظامك يشتغل بـ 1/0 غيّر للسطر اللي بعده
-  const isActiveStr = (typeof isActive === "boolean" ? isActive : Number(isActive) === 1) ? "1" : "0";
-  // const isActiveStr = (typeof isActive === "boolean" ? isActive : Number(isActive) === 1) ? "T" : "F";
+  const baseValues = [
+    String(id),            // 1) Id
+    scrub(officeName),     // 2) OfficeName
+    scrub(latitude ?? ""), // 3) OfficeLatitude
+    scrub(longitude ?? ""),// 4) OfficeLongitude
+    String(city),          // 5) City_Id
+    scrub(phone),          // 6) PhoneNum
+    scrub(address),        // 7) Address
+    isActiveStr,           // 8) IsActive
+  ];
 
-  const ColumnsValues = [
-    String(id),                 // 1) Id
-    scrub(officeName),          // 2) OfficeName
-    scrub(latitude ?? ""),      // 3) OfficeLatitude
-    scrub(longitude ?? ""),     // 4) OfficeLongitude
-    String(city),               // 5) City_Id
-    scrub(phone),               // 6) PhoneNum
-    scrub(address),             // 7) Address
-    isActiveStr,                // 8) IsActive
-    scrub(photoName ?? ""),     // 9) OfficePhotoName (FileId)
-  ].join("#");
+  const photo = normalizePhotoId(photoId);
+
+  // لو عندنا PhotoId → ضيف العمود والقيمة
+  const ColumnsNames  = photo ? COLS_WITH_PHOTO : COLS_NAMES_BASE;
+  const ColumnsValues = (photo ? [...baseValues, scrub(photo)] : baseValues).join("#");
 
   const tx = await doTransaction({
-    TableName:     PROCEDURE_NAMES.OFFICE, // أو "msDmpDYZ2wcHBSmvMDczrg=="
-    WantedAction:  1,                      // Update
-    ColumnsNames:  COLS_NAMES,
+    TableName:     PROCEDURE_NAMES.OFFICE,
+    WantedAction:  1,               // Update
+    ColumnsNames,                   // ← أحيانًا بدون OfficePhotoName
     ColumnsValues,
-    PointId:       pointId,                // 0 حسب نظامك
-    DataToken:     dataToken,              // اختياري
+    PointId:       pointId,
+    DataToken:     dataToken,
   });
-
-  // لو عايز تشوف رسالة السيرفر:
-  // console.log("[ERP decrypted]:", (tx as any)?.decrypted);
 
   return analyzeExecution(tx);
 }

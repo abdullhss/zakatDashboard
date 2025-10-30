@@ -1,17 +1,23 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Box, Switch, Text, useDisclosure, useToast,
-  Menu, MenuButton, MenuList, MenuItem, IconButton, Flex
+  Menu, MenuButton, MenuList, MenuItem, IconButton, Flex,
+  AlertDialog, AlertDialogOverlay, AlertDialogContent,
+  AlertDialogHeader, AlertDialogBody, AlertDialogFooter,
+  HStack, Portal, Button,
 } from "@chakra-ui/react";
+import { BsThreeDotsVertical } from "react-icons/bs";
+
 import { DataTable } from "../../../Components/Table/DataTable";
 import type { AnyRec, Column } from "../../../Components/Table/TableTypes";
 import SharedButton from "../../../Components/SharedButton/Button";
 import FormModal from "../../../Components/ModalAction/FormModel";
-
 import { useGetSubventionTypes } from "./hooks/useGetubventionTypes";
 import { useAddSubventionType } from "./hooks/useAddSubvention";
-import { useDeleteSubventionType } from "./hooks/useDeleteSubvention";
 import { useUpdateSubventionStatus } from "./hooks/useUpdateSubvention";
+
+// ✅ استيراد خدمة المشاريع (عدّل المسار لو مختلف عندك)
+import { fetchProjects } from "../../OfficeDashboard/Projects/Services/getProjects";
 
 type Row = {
   id: number | string;
@@ -32,6 +38,121 @@ function boolish(v: any): boolean {
   return !!v;
 }
 
+/* =======================
+   Helpers: مشروع مرتبط؟
+   ======================= */
+
+// بنحاول نقرأ معرّف التصنيف من صف المشروع
+function pickSubventionTypeIdFromProjectRow(r: AnyRec): string | number | null {
+  const keys = [
+    "SubventionTypeId",
+    "SubventionType_Id",
+    "TypeId",
+    "AidTypeId",
+    "SubTypeId",
+    "subventionTypeId",
+    "subvention_type_id",
+  ];
+  for (const k of keys) {
+    const v = r?.[k];
+    if (v != null && String(v).trim() !== "") return v;
+  }
+  return null;
+}
+
+// شيك لو التصنيف مرتبط بأي مشروع (N/C/S)
+async function isSubventionTypeLinkedToAnyProject(subventionTypeId: number | string): Promise<boolean> {
+  const COUNT = 500; // غطّي عدد كافي
+  const types: Array<"N" | "C" | "S"> = ["N", "C", "S"];
+
+  for (const t of types) {
+    const res = await fetchProjects(t, 0, COUNT);
+    const rows = (res?.rows ?? []) as AnyRec[];
+    const found = rows.some((pr) => String(pickSubventionTypeIdFromProjectRow(pr)) === String(subventionTypeId));
+    if (found) return true;
+  }
+  return false;
+}
+
+/** 🚨 المكون: إجراءات الصف (مع تأكيد) 🚨 */
+function SubventionRowActions({
+  row, onDeleted, onEdited, onStatusToggle,
+}: {
+  row: Row;
+  onDeleted: () => void;
+  onEdited: (row: Row) => void;
+  onStatusToggle: (row: Row, forceDeactivateFromMenu?: boolean) => Promise<void>;
+}) {
+  const toast = useToast();
+  const confirm = useDisclosure();
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const updateStatus = useUpdateSubventionStatus(); // لعرض حالة التحميل
+
+  // في منيو "حذف" = إلغاء تفعيل مع فحص الارتباط
+  const handleDelete = async () => {
+    try {
+      await onStatusToggle(row, true); // true => جاي من الحذف (إلغاء تفعيل)
+      toast({
+        status: "success",
+        title: "تم تنفيذ الإجراء",
+        description: `تم إلغاء تفعيل التصنيف "${row.name}" (إن لم يكن مرتبطًا بمشروعات).`,
+      });
+      confirm.onClose();
+    } catch (e: any) {
+      // onStatusToggle بيتولى عرض التوست المناسب في حال الارتباط
+      confirm.onClose();
+    }
+  };
+
+  const isHandlingStatus = updateStatus.isPending && updateStatus.variables?.id === row.id;
+
+  return (
+    <>
+      <Menu placement="bottom-end" isLazy>
+        <MenuButton
+          as={IconButton}
+          aria-label="إجراءات"
+          icon={<BsThreeDotsVertical />}
+          size="sm"
+          variant="ghost"
+          rounded="md"
+          onClick={(e) => e.stopPropagation()}
+        />
+        <Portal>
+          <MenuList zIndex={10}>
+            <MenuItem onClick={() => onEdited(row)}>تعديل</MenuItem>
+            <MenuItem color="red.500" onClick={confirm.onOpen}>حذف</MenuItem>
+          </MenuList>
+        </Portal>
+      </Menu>
+
+      <AlertDialog isOpen={confirm.isOpen} leastDestructiveRef={cancelRef} onClose={confirm.onClose} isCentered>
+        <AlertDialogOverlay />
+        <AlertDialogContent>
+          <AlertDialogHeader fontWeight="700">تأكيد الإجراء</AlertDialogHeader>
+          <AlertDialogBody>
+            هل أنت متأكد من إلغاء تفعيل “{row.name}”؟ سيتم التحقق أولًا أنه غير مرتبط بمشروعات.
+          </AlertDialogBody>
+          <AlertDialogFooter w="100%">
+            <HStack w="100%" spacing={4} justify="space-around">
+              <SharedButton label="إلغاء" variant="dangerOutline" onClick={confirm.onClose} ref={cancelRef as any} fullWidth />
+              <SharedButton
+                label="إلغاء التفعيل"
+                variant="brandGradient"
+                onClick={handleDelete}
+                isLoading={isHandlingStatus}
+                fullWidth
+              />
+            </HStack>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+// --------------------------------------------------------------------------
+
 export default function SubventionTypes() {
   const [page, setPage] = useState(1);
   const offset = (page - 1) * PAGE_SIZE;
@@ -41,41 +162,132 @@ export default function SubventionTypes() {
   const addModal = useDisclosure();
   const addMutation = useAddSubventionType();
 
-  // إدارة (تعديل) — هنستخدم نفس الهوك الموحد
+  // إدارة (تعديل)
   const manageModal = useDisclosure();
   const manageMutation = useUpdateSubventionStatus();
   const [editRow, setEditRow] = useState<Row | null>(null);
 
-  // حذف
-  const deleteModal = useDisclosure();
-  const deleteMutation = useDeleteSubventionType();
-  const [toDelete, setToDelete] = useState<Row | null>(null);
-
-  // تحديث الحالة عبر السويتش داخل الصف (ممكن تستخدم نفس الهوك مرتين)
+  // تحديث الحالة
   const updateStatus = useUpdateSubventionStatus();
 
   // البيانات
-  const { data, isLoading, isError, error } = useGetSubventionTypes(offset, PAGE_SIZE);
+  const { data, isLoading, isError, error, refetch } = useGetSubventionTypes(offset, PAGE_SIZE);
 
   const rows: Row[] = (data?.rows ?? []).map((r: AnyRec) => ({
     id: r.Id ?? r.id,
     name: r.SubventionTypeName ?? r.name ?? "",
     isActive: !!(r.IsActive ?? r.isActive),
     acceptZakat: boolish(
-      r.AllowZakat ??
-      r.allowZakat ??
-      r.AcceptZakat ??
-      r.acceptZakat ??
-      r.IsZakat ??
-      r.isZakat ??
-      false
+      r.AllowZakat ?? r.allowZakat ?? r.AcceptZakat ?? r.acceptZakat ?? r.IsZakat ?? r.isZakat ?? false
     ),
   }));
   const totalRows = data?.totalRows ?? rows.length;
 
   const openAdd = () => addModal.onOpen();
   const openEdit = (row: Row) => { setEditRow(row); manageModal.onOpen(); };
-  const openDelete = (row: Row) => { setToDelete(row); deleteModal.onOpen(); };
+
+  // ✅ وظيفة موحدة لتفعيل/إلغاء التفعيل مع فحص الارتباط عند الإلغاء
+  const handleStatusToggle = async (row: Row, forceDeactivateFromMenu = false) => {
+    try {
+      const next = forceDeactivateFromMenu ? false : !row.isActive;
+
+      // لو هنلغي التفعيل → شيّك الارتباط بالمشروعات
+      if (row.isActive && !next) {
+        const linked = await isSubventionTypeLinkedToAnyProject(row.id);
+        if (linked) {
+          toast({
+            status: "warning",
+            title: "لا يمكن إلغاء التفعيل",
+            description: "هذا التصنيف مرتبط بمشروعات قائمة (N/C/S). قم بفك الارتباط أولًا.",
+            duration: 4500,
+            isClosable: true,
+          });
+          throw new Error("Subvention type is linked to projects.");
+        }
+      }
+
+      await updateStatus.mutateAsync({ id: row.id, isActive: next, pointId: 0 });
+      toast({
+        status: "success",
+        title: next ? "تم تفعيل الخدمة" : "تم إلغاء التفعيل",
+      });
+      refetch();
+    } catch (err: any) {
+      if (!/linked to projects/i.test(err?.message || "")) {
+        toast({
+          status: "error",
+          title: err?.message || "تعذّر تحديث الحالة.",
+        });
+      }
+    }
+  };
+
+  const addFields = [
+    {
+      name: "name",
+      label: "بيان التصنيف",
+      placeholder: "برجاء كتابة بيان التصنيف",
+      required: true,
+      type: "input" as const,
+      colSpan: 1,
+      inputProps: { dir: "rtl" as const },
+    },
+    {
+      name: "isActive",
+      label: "حالة الخدمة",
+      type: "switch" as const,
+      colSpan: 1,
+      defaultValue: true,
+    },
+    {
+      name: "acceptZakat",
+      label: "تقبل الزكاة",
+      type: "switch" as const,
+      colSpan: 1,
+      defaultValue: false,
+    },
+  ] as const;
+
+  const manageFields = addFields;
+
+  const handleAddSubmit = async (values: any) => {
+    try {
+      await addMutation.mutateAsync({
+        name: values?.name?.trim?.() || "",
+        isActive: !!values?.isActive,
+        desc: "",
+        limit: 0,
+        offices: "",
+        allowZakat: !!values?.acceptZakat,
+        pointId: 0 as any,
+      } as any);
+
+      toast({ status: "success", title: "تمت إضافة تصنيف الإعانة." });
+      addModal.onClose();
+      await refetch();
+    } catch (e: any) {
+      toast({ status: "error", title: e?.message || "تعذّر إضافة التصنيف." });
+    }
+  };
+
+  const handleManageSubmit = async (values: any) => {
+    if (!editRow) return;
+    try {
+      await manageMutation.mutateAsync({
+        id: editRow.id,
+        name: values?.name?.trim?.() || "",
+        isActive: !!values?.isActive,
+        allowZakat: !!values?.acceptZakat,
+        pointId: 0,
+      });
+      toast({ status: "success", title: "تم حفظ التعديلات." });
+      manageModal.onClose();
+      setEditRow(null);
+      await refetch();
+    } catch (e: any) {
+      toast({ status: "error", title: e?.message || "تعذّر حفظ التعديلات." });
+    }
+  };
 
   const columns: Column[] = useMemo(
     () => [
@@ -100,6 +312,7 @@ export default function SubventionTypes() {
             row.acceptZakat ??
             row.AcceptZakat ??
             row.IsZakat ??
+            row.isZakat ??
             false
           );
           return (
@@ -123,21 +336,7 @@ export default function SubventionTypes() {
                 isChecked={r.isActive}
                 isDisabled={loading}
                 mr={3}
-                onChange={async (e) => {
-                  const next = e.target.checked;
-                  try {
-                    await updateStatus.mutateAsync({ id: r.id, isActive: next, pointId: 0 });
-                    toast({
-                      status: "success",
-                      title: next ? "تم تفعيل الخدمة" : "تم إلغاء التفعيل",
-                    });
-                  } catch (err: any) {
-                    toast({
-                      status: "error",
-                      title: err?.message || "تعذّر تحديث الحالة.",
-                    });
-                  }
-                }}
+                onChange={() => handleStatusToggle(r)} // فيه فحص ارتباط عند الإلغاء
               />
               <Text as="span" color="gray.600">
                 {r.isActive ? "مفعل" : "غير مفعل"}
@@ -153,126 +352,18 @@ export default function SubventionTypes() {
         render: (row: AnyRec) => {
           const r = row as Row;
           return (
-            <Menu placement="bottom-end" isLazy>
-              <MenuButton
-                as={IconButton}
-                aria-label="إجراءات"
-                variant="ghost"
-                size="sm"
-                rounded="md"
-              >
-                <Box as="span" fontSize="20px" lineHeight="1">⋮</Box>
-              </MenuButton>
-              <MenuList zIndex={10}>
-                <MenuItem onClick={() => openEdit(r)}>تعديل</MenuItem>
-                <MenuItem
-                  onClick={async () => {
-                    try {
-                      await manageMutation.mutateAsync({
-                        id: r.id,
-                        isActive: !r.isActive,
-                      });
-                      toast({
-                        status: "success",
-                        title: !r.isActive ? "تم تفعيل الخدمة" : "تم إلغاء التفعيل",
-                      });
-                    } catch (e: any) {
-                      toast({ status: "error", title: e?.message || "تعذّر تحديث الحالة." });
-                    }
-                  }}
-                >
-                  {/* {r.isActive ? "إلغاء التفعيل" : "تفعيل"} */}
-                </MenuItem>
-                <MenuItem color="red.500" onClick={() => openDelete(r)}>حذف</MenuItem>
-              </MenuList>
-            </Menu>
+            <SubventionRowActions
+              row={r}
+              onDeleted={refetch}
+              onEdited={openEdit}
+              onStatusToggle={handleStatusToggle}
+            />
           );
         },
       },
     ],
-    [updateStatus.isPending, updateStatus.variables, manageMutation.isPending]
+    [updateStatus.isPending, updateStatus.variables, manageMutation.isPending, refetch]
   );
-
-  // حقول مودال "إضافة"
-  const addFields = [
-    {
-      name: "name",
-      label: "بيان التصنيف",
-      placeholder: "برجاء كتابة بيان التصنيف",
-      required: true,
-      type: "input" as const,
-      colSpan: 1,
-      inputProps: { dir: "rtl" as const },
-    },
-    {
-      name: "isActive",
-      label: "حالة الخدمة",
-      type: "switch" as const,
-      colSpan: 1,
-      defaultValue: true,
-      
-    },
-    {
-      name: "acceptZakat",
-      label: "تقبل الزكاة",
-      type: "switch" as const,
-      colSpan: 1,
-      defaultValue: false,
-    },
-  ] as const;
-
-  const handleAddSubmit = async (values: any) => {
-    try {
-      await addMutation.mutateAsync({
-        name: values?.name?.trim?.() || "",
-        isActive: !!values?.isActive,
-        desc: "",
-        limit: 0,
-        offices: "",
-        allowZakat: !!values?.acceptZakat,
-        pointId: 0 as any,
-      } as any);
-
-    toast({ status: "success", title: "تمت إضافة تصنيف الإعانة." });
-    addModal.onClose();
-    } catch (e: any) {
-      toast({ status: "error", title: e?.message || "تعذّر إضافة التصنيف." });
-    }
-  };
-
-  // مودال "تعديل" — نفس الحقول
-  const manageFields = addFields;
-
-  const handleManageSubmit = async (values: any) => {
-    if (!editRow) return;
-    try {
-      await manageMutation.mutateAsync({
-        id: editRow.id,
-        name: values?.name?.trim?.() || "",
-        isActive: !!values?.isActive,
-        allowZakat: !!values?.acceptZakat,
-        pointId: 0,
-      });
-      toast({ status: "success", title: "تم حفظ التعديلات." });
-      manageModal.onClose();
-      setEditRow(null);
-    } catch (e: any) {
-      toast({ status: "error", title: e?.message || "تعذّر حفظ التعديلات." });
-    }
-  };
-
-  // حذف
-  const handleConfirmDelete = async () => {
-    if (!toDelete) return;
-    try {
-      await deleteMutation.mutateAsync(toDelete.id);
-      toast({ status: "success", title: "تم حذف التصنيف بنجاح." });
-      deleteModal.onClose();
-      setToDelete(null);
-    } catch (e: any) {
-      toast({ status: "error", title: e?.message || "تعذّر حذف التصنيف." });
-    }
-  };
 
   if (isLoading) return <Text color="gray.600">جارِ التحميل…</Text>;
   if (isError) return <Text color="red.500">حدث خطأ: {(error as Error)?.message}</Text>;
@@ -313,7 +404,6 @@ export default function SubventionTypes() {
             إضافة تصنيف إعانة
           </SharedButton>
         }
-        // onDeleteRow={(row: AnyRec) => openDelete(row as Row)}
       />
 
       {/* مودال الإضافة */}
@@ -330,7 +420,7 @@ export default function SubventionTypes() {
         maxW="640px"
       />
 
-      {/* مودال التعديل من 3 نقاط */}
+      {/* مودال التعديل */}
       <FormModal
         isOpen={manageModal.isOpen}
         onClose={() => { manageModal.onClose(); setEditRow(null); }}
@@ -347,28 +437,6 @@ export default function SubventionTypes() {
         } : undefined}
         isSubmitting={manageMutation.isPending}
         maxW="640px"
-      />
-
-      {/* مودال تأكيد الحذف */}
-      <FormModal
-        isOpen={deleteModal.isOpen}
-        onClose={() => { deleteModal.onClose(); setToDelete(null); }}
-        title="حذف تصنيف إعانة"
-        mode="confirm"
-        description={
-          <Text>
-            سيتم حذف التصنيف:{" "}
-            <Text as="span" fontWeight="bold">
-              {toDelete?.name}
-            </Text>
-            . هل أنت متأكد؟
-          </Text>
-        }
-        onConfirm={handleConfirmDelete}
-        submitLabel="حذف"
-        cancelLabel="إلغاء"
-        isSubmitting={deleteMutation.isPending}
-        maxW="520px"
       />
     </Box>
   );

@@ -21,7 +21,6 @@ export async function fetchProjects(completeType: "N" | "C" | "S", start = 0, co
 
   if (summary.flags.FAILURE || summary.flags.INTERNAL_ERROR) {
     console.error("Error fetching projects:", summary.message);
-    // في حالة الخطأ، من الأفضل أن نرمي الخطأ ليتعامل معه React Query
     throw new Error(summary.message || "فشل غير معروف في جلب المشاريع.");
   }
 

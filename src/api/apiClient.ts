@@ -8,7 +8,7 @@ export type AnyRec = Record<string, any>;
  * 1) الإعدادات
  * =================================== */
 const API_BASE_URL =
-  "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions";
+  "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions/";
 
 const API_CONFIG = {
   API_TOKEN: "TTRgG@i$$ol@m$Wegh77",
@@ -44,11 +44,17 @@ export const PROCEDURE_NAMES: Record<string, string> = {
    GET_FEATURES_BY_GROUP: "rPZXg2bpV1n9cBmjo+xzxPuUQqoHOmQW8jTEf8pOzFo=", // FeatureFOR UPDATE PAGE
     GET_WORK_USERS_DATA: "DunhuDiDke6AaKtXnSA7y9dsXr2xJdeI/NYAUwgD4Xg=", // 109-GetWorkUsersData
     GET_GROUP_RIGHT_FEATURES_DATA: "rPZXg2bpV1n9cBmjo+xzxPuUQqoHOmQW8jTEf8pOzFo=",
+    GET_ZAKAH_GOLD_VALUE: "+gN72EWKhIINeJxnT9fpTxvlC+rWIXioQ20N7cIWsx4=",
     Zakah_GOLD_VALUE: "T+uXWr/5gc+YZsR9SZKxeQ==",
     GET_SACRIFICES_TYPES_DATA: "BuFxFqz2qLdv8Q6E+j0XT/TUax4yIRsqrXkuc2DpOWU=",
     ADD_SACRIFICE_TYPE: "yjhWQPC+X9N5+2FVbLegdw==",
     GET_DASH_ASSISTANCES_DATA: "BRS3bAAF18bzUTsgdRNLAc0qkwzHQQSl45LE0afsSfc=", // مراجعة طلب الإعانات
     GET_DASH_CAMPAIGNS_DATA: "W1+18V1NJ8jOLNpNXd3t8zcC//3vLKdAYFTUmyBOIGo=",
+    GET_PROGRAM_DATA: "Ey//Th+MOGZq8DGxl+GABA==",
+    PROGRAM_TABLE_NAME: "UzIe/sltGpJDACxP9bN4Yg==",
+    GET_ABOUT_US_DATA: "igF/cbQ6FNWc0XAZ8gncLw==",
+    GET_LAWS_DATA: "gNiwffLjwkGYrxoUNi+znQ==",
+    LAW_TABLE_NAME: "ob02/va6F3PVf474BrfWzw==",
 
     // FOR OFFICES
     GetDashBoardOfficeProjectsData: "D1gxIpW0jvHPzz2gPx4IHqN4at88/6GP4fdm/xzsQXg=",
@@ -292,64 +298,7 @@ export function analyzeExecution(result: ExecutionResult): NormalizedSummary {
     serverTime,
   };
 }
-// **************************
-// export const getBase64 = (file) => {
-//   return new Promise((resolve, reject) => {
-//     const reader = new FileReader();
-//     reader.readAsDataURL(file);
-//     reader.onload = () => resolve(reader.result);
-//     reader.onerror = (error) => reject(error);
-//   });
-// };
-//  export async function  UploadFileWebSite({ action , file, fileId = "", SessionID, onProgress, controller }) {
-//     console.log('test');
-    
-//     if (!file && action !== "Delete") return console.error("No file provided");
 
-//    const convertedFile = {
-//       MainId:0,
-//       SubId:0,
-//       DetailId:0,
-//       FileType:`.${file?.name.split('.').pop()}`,
-//       Description:"",
-//       Name:file?.name||" "
-//     }
-    
-//     let jsonData = {
-//       ApiToken: API_CONFIG.API_TOKEN,
-//       Data: AES256Encryption.encrypt({
-//         ActionType: action,
-//         FileId: fileId,
-//         ...convertedFile,
-//         DataToken: API_CONFIG.DATA_TOKEN,
-//         SessionID,
-//       }),
-      
-//       encode_plc1: file?((await getBase64(file))?.split(',')[1]):"",
-//     };
-//     console.log(jsonData)
-    
-//     let { data } = await axios.post(
-      
-//       "/UploadFileWebSite", 
-//       jsonData,
-//       {
-//         signal: controller?.signal,
-//         onUploadProgress: (progressEvent) => {
-//           if (onProgress && progressEvent.total) {
-//             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-//             onProgress(progress);
-//           }
-//         },
-//       }
-//     );
-//     console.log(AES256Encryption.decrypt(data.FileId))
-//     return {
-//       status: AES256Encryption.decrypt(data.Result),
-//       id: AES256Encryption.decrypt(data.FileId),
-//       error: AES256Encryption.decrypt(data.Error),
-//     };
-//   }
 /* ===================================
  * 5) ExecuteProcedure
  * =================================== */

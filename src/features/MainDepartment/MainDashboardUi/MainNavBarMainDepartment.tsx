@@ -143,6 +143,26 @@ export default function MainNavBar() {
         <Icon as={RiServiceLine} boxSize={5} />
         الاضحيات
       </LinkItem>
+      {/* <LinkItem to="aboutus">
+        <Icon as={RiServiceLine} boxSize={5} />
+        من نحن
+      </LinkItem> */}
+      <LinkItem to="laws">
+        <Icon as={RiServiceLine} boxSize={5} />
+       اللوائح
+      </LinkItem>
+      <LinkItem to="contactus">
+        <Icon as={RiServiceLine} boxSize={5} />
+       اتصل بنا 
+      </LinkItem>
+      <LinkItem to="conditions">
+        <Icon as={RiServiceLine} boxSize={5} />
+    الشروط
+      </LinkItem>
+      <LinkItem to="whoarewe">
+        <Icon as={RiServiceLine} boxSize={5} />
+      من نحن؟
+      </LinkItem>
     </NavList>
   );
 }

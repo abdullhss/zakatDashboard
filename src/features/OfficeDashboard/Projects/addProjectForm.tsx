@@ -1,9 +1,8 @@
-// src/features/OfficeDashboard/Projects/AddProjectForm.tsx
-import React, { useRef, useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Box, Grid, GridItem, FormControl, FormLabel, Input, Select, Textarea,
   Checkbox, AspectRatio, Icon, Image, VStack, HStack, Text, useToast,
-  Spinner, Alert, AlertIcon, Button, Flex
+  Spinner, Alert, AlertIcon, Button
 } from "@chakra-ui/react";
 import { MdImage } from "react-icons/md";
 import SharedButton from "../../../Components/SharedButton/Button";
@@ -14,13 +13,12 @@ import { useGetSubventionTypes } from "../../MainDepartment/Subvention/hooks/use
 import { HandelFile } from "../../../HandleFile.js";
 import { getSession } from "../../../session";
 
-// 🔗 نفس الدومين اللي بتعرض منه الصور
 const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
 const buildPhotoUrl = (id?: string | number, ext = ".jpg") =>
-  id ? `${ZAKAT_IMAGES_BASE}/${id}${ext}` : "";
+  id && id !== "0" && id !== "undefined" ? `${ZAKAT_IMAGES_BASE}/${id}${ext}` : "";
 
 type FormShape = {
-  id?: number;               // موجود في التعديل فقط
+  id?: number;
   name: string;
   category: string;
   initialValue: string;
@@ -34,19 +32,21 @@ type FormShape = {
 export default function AddProjectForm() {
   const toast = useToast();
   const navigate = useNavigate();
-  const location = useLocation() as any; // location.state?.project لو رايح من الجدول
+  const location = useLocation() as any;
   const addProject = useAddProject();
   const updateProject = useUpdateProject();
   const hf = useMemo(() => new HandelFile(), []);
 
-  // --- هل احنا تعديل ولا إضافة؟ ---
-  const incoming = location?.state?.project ?? null; // توقعنا من الجدول: navigate('/.../add', { state: { project: row } })
+  const incoming = location?.state?.project ?? null;
   const isEdit = !!incoming;
 
-  // صورة المشروع الحالية بالـ ID
-  const [currentPhotoId, setCurrentPhotoId] = useState<string>("");
+  // ✅ نثبت ID الصورة (اللي بيتبعت للسيرفر)
+  const photoIdRef = useRef<string>("");
 
-  // فورم موحّد
+  // للمعاينة فقط
+  const [currentPhotoId, setCurrentPhotoId] = useState<string>(""); // ID آخِر معروف
+  const [previewUrl, setPreviewUrl] = useState<string>("");          // رابط العرض
+
   const [form, setForm] = useState<FormShape>({
     id: undefined,
     name: "",
@@ -59,7 +59,6 @@ export default function AddProjectForm() {
     description: "",
   });
 
-  // صورة مرفوعة جديد (اختيارية)
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [lastPhotoId, setLastPhotoId] = useState<string>(""); // debug
   const [lastPhotoName, setLastPhotoName] = useState<string>("");
@@ -73,21 +72,20 @@ export default function AddProjectForm() {
   const update = (k: keyof FormShape, v: any) =>
     setForm((s) => ({ ...s, [k]: v }));
 
-  // جلب التصنيفات
   const { data, isLoading, isError, error } = useGetSubventionTypes(0, 50);
   const subventionRows = data?.rows ?? [];
 
-  // helper: تفكيك الاسم والامتداد
   const splitName = (f: File | null) => {
     if (!f?.name) return { base: "", ext: "" };
     const i = f.name.lastIndexOf(".");
     if (i === -1) return { base: f.name, ext: "" };
-    return { base: f.name.slice(0, i), ext: f.name.slice(i) }; // ext with dot: ".jpg"
+    return { base: f.name.slice(0, i), ext: f.name.slice(i) };
   };
 
-  // ✅ عند الدخول في وضع تعديل: نعبي الفورم + نقرأ Photo ID من الصف
+  // ✅ عند الدخول للتعديل: املأ الفورم وثبّت ID + ابني previewUrl بالـ displayName أو الـID
   useEffect(() => {
     if (!incoming) return;
+
     setForm({
       id: Number(incoming.Id ?? incoming.ProjectId ?? incoming.id),
       name: incoming.Name ?? incoming.ProjectName ?? "",
@@ -100,9 +98,33 @@ export default function AddProjectForm() {
       description: incoming.Description ?? incoming.ProjectDesc ?? "",
     });
 
-    const pid = String(incoming.PhotoName ?? incoming.ProjectPhotoName ?? "");
-    setCurrentPhotoId(pid && pid !== "undefined" ? pid : "");
+    // للعرض (الأولوية لاسم العرض لو موجود)
+    const displayForPreview = String(
+      incoming.PhotoName ?? incoming.ProjectPhotoName ?? incoming.ProjectPhotoName_Id ?? ""
+    ).trim();
+
+    // للحفظ/التحديث (ID فقط إن وُجد)
+    const idForSave = String(
+      incoming.ProjectPhotoName_Id ?? incoming.PhotoName ?? incoming.ProjectPhotoName ?? ""
+    ).trim();
+
+    const normalizedId = idForSave && idForSave !== "0" && idForSave !== "undefined" ? idForSave : "";
+
+    setCurrentPhotoId(normalizedId);
+    photoIdRef.current = normalizedId;
+
+    setPreviewUrl(buildPhotoUrl(displayForPreview));
   }, [incoming]);
+
+  // حساب القيمة المتبقية تلقائيًا
+  const handleValueChange = (field: keyof FormShape, value: string) => {
+    const newValue = Number(value) || 0;
+    update(field, value);
+    if (field === "requestedValue" || field === "initialValue") {
+      const remainingValue = (Number(form.initialValue) || 0) - (Number(form.requestedValue) || 0);
+      update("remainingValue", String(remainingValue));
+    }
+  };
 
   const onSubmit = async () => {
     // فحص أساسي
@@ -115,7 +137,9 @@ export default function AddProjectForm() {
       return;
     }
 
-    let photoId = currentPhotoId;
+    // نبدأ بالـID المثبّت
+    let photoIdToSend = photoIdRef.current;
+
     try {
       const session = getSession();
       const sessionId =
@@ -124,13 +148,14 @@ export default function AddProjectForm() {
         (session as any)?.token ||
         "";
 
+      // لو فيه ملف جديد، نرفعه ونبدّل الـID + المعاينة
       if (imageFile) {
         const { base, ext } = splitName(imageFile);
         setLastPhotoName(base);
         setLastPhotoExt(ext || ".jpg");
 
         const up = await hf.UploadFileWebSite({
-          action: "Add",          // نفس الأخبار
+          action: "Add",
           file: imageFile,
           fileId: "",
           SessionID: sessionId,
@@ -142,9 +167,13 @@ export default function AddProjectForm() {
           throw new Error(up?.error || "فشل رفع الصورة");
         }
 
-        photoId = String(up.id);
-        setLastPhotoId(photoId);
-        setCurrentPhotoId(photoId);
+        photoIdToSend = String(up.id);
+
+        // ✅ نحدّث المعاينة برقم الرفع الجديد (السيرفر بيقدّم بالـID برضو)
+        setLastPhotoId(photoIdToSend);
+        setCurrentPhotoId(photoIdToSend);
+        photoIdRef.current = photoIdToSend;
+        setPreviewUrl(buildPhotoUrl(photoIdToSend));
       }
 
       if (!isEdit) {
@@ -159,18 +188,29 @@ export default function AddProjectForm() {
           allowZakat: !!form.acceptZakah,
           importanceId: 0,
           isActive: !!form.isActive,
-          projectPhotoName: photoId, // ← نخزن ID الصورة (لو فيه)
+          projectPhotoName: photoIdToSend || "",
         };
         await addProject.mutateAsync(payload);
         toast({
           status: "success",
           title: "تم الحفظ",
-          description: photoId
-            ? `تم رفع الصورة (ID: ${photoId}) وحفظ المشروع.`
+          description: photoIdToSend
+            ? `تم رفع الصورة (ID: ${photoIdToSend}) وحفظ المشروع.`
             : "تم حفظ المشروع.",
         });
       } else {
         // ----- تعديل -----
+        if (!photoIdToSend) {
+          photoIdToSend =
+            currentPhotoId ||
+            String(
+              (incoming?.ProjectPhotoName_Id ??
+                incoming?.PhotoName ?? 
+                incoming?.ProjectPhotoName ?? 
+                "") as any
+            ).trim();
+        }
+
         const payload = {
           id: Number(form.id),
           projectName: form.name,
@@ -182,7 +222,7 @@ export default function AddProjectForm() {
           allowZakat: !!form.acceptZakah,
           importanceId: 0,
           isActive: !!form.isActive,
-          photoName: photoId, // ← مهم: ده اسم الحقل في خدمة التحديث
+          photoName: photoIdToSend || "", // ← دايمًا ID
         };
         const res = await updateProject.mutateAsync(payload);
         if ((res as any)?.success === false) {
@@ -191,7 +231,7 @@ export default function AddProjectForm() {
         toast({
           status: "success",
           title: "تم تعديل المشروع بنجاح.",
-          description: photoId ? `Image ID: ${photoId}` : undefined,
+          description: photoIdToSend ? `Image ID: ${photoIdToSend}` : undefined,
         });
       }
 
@@ -224,11 +264,7 @@ export default function AddProjectForm() {
           <Text fontSize="lg" fontWeight="700">
             {isEdit ? "تعديل مشروع" : "بيانات المشروع"}
           </Text>
-
-          {/* زرّ اختياري للرجوع */}
-          <Button variant="ghost" onClick={() => navigate(-1)}>
-            رجوع
-          </Button>
+          <Button variant="ghost" onClick={() => navigate(-1)}>رجوع</Button>
         </HStack>
 
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr 300px" }} gap={4}>
@@ -266,7 +302,7 @@ export default function AddProjectForm() {
                 <Input
                   placeholder="القيمة الابتدائية"
                   value={form.initialValue}
-                  onChange={(e) => update("initialValue", e.target.value)}
+                  onChange={(e) => handleValueChange("initialValue", e.target.value)}
                 />
                 <Box minW="60px" textAlign="center" bg="gray.50" borderRadius="md" p={2}>د.ل.</Box>
               </HStack>
@@ -279,12 +315,8 @@ export default function AddProjectForm() {
                   placeholder="برجاء كتابة القيمة المتبقية"
                   value={form.remainingValue}
                   onChange={(e) => update("remainingValue", e.target.value)}
-                  // لو راجع من السيرفر مش صفر نقفله (اختياري)
                   disabled={
-                    isEdit &&
-                    Number(
-                      (incoming?.RemainingAmount ?? incoming?.ProjectRemainingAmount ?? 0)
-                    ) !== 0
+                    Number(form.remainingValue) !== 0
                   }
                 />
                 <Box minW="60px" textAlign="center" bg="gray.50" borderRadius="md" p={2}>د.ل.</Box>
@@ -297,7 +329,7 @@ export default function AddProjectForm() {
                 <Input
                   placeholder="برجاء كتابة القيمة المطلوبة"
                   value={form.requestedValue}
-                  onChange={(e) => update("requestedValue", e.target.value)}
+                  onChange={(e) => handleValueChange("requestedValue", e.target.value)}
                 />
                 <Box minW="60px" textAlign="center" bg="gray.50" borderRadius="md" p={2}>د.ل.</Box>
               </HStack>
@@ -343,9 +375,9 @@ export default function AddProjectForm() {
                       w="100%"
                       h="100%"
                     />
-                  ) : currentPhotoId ? (
+                  ) : previewUrl ? (
                     <Image
-                      src={buildPhotoUrl(currentPhotoId, ".jpg")}
+                      src={previewUrl}       
                       alt="Project"
                       objectFit="cover"
                       w="100%"
@@ -368,13 +400,7 @@ export default function AddProjectForm() {
                 onChange={onFile}
               />
 
-              {/* Debug label اختياري */}
-              {(lastPhotoId || currentPhotoId) && (
-                <Text fontSize="xs" color="gray.500">
-                  Image ID: {lastPhotoId || currentPhotoId}
-                  {lastPhotoName && ` | name: ${lastPhotoName}${lastPhotoExt}`}
-                </Text>
-              )}
+
             </VStack>
           </GridItem>
         </Grid>
@@ -397,7 +423,7 @@ export default function AddProjectForm() {
           >
             {isEdit ? "حفظ التعديلات" : "إضافة"}
           </SharedButton>
-          <SharedButton variant="dangerOutline" onClick={() => navigate(-1)}>
+          <SharedButton variant="dangerOutline" onClick={() => navigate(-1)} >
             إلغاء
           </SharedButton>
         </HStack>

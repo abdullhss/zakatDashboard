@@ -38,20 +38,31 @@ const MapPlaceholder = chakra(Box, {
   },
 });
 
+// 👈 التعبير القياسي للرقم الليبي (091/092/094 وتكون 10 أرقام)
+const LIBYAN_PHONE_REGEX = /^(091|092|094)\d{7}$/;
+
 const OfficeSchema = z.object({
   officeName: z.string().min(1, "اسم المكتب مطلوب"),
-  phoneNum: z.string().min(3, "رقم غير صالح"),
+  phoneNum: z.string()
+    .trim()
+    .regex(LIBYAN_PHONE_REGEX, "يجب أن يكون مكون من 10 أرقام"), // 👈 التعديل
   cityId: z.string().min(1, "اختر المدينة"),
   address: z.string().min(1, "العنوان مطلوب"),
   officeLatitude: z.string().refine((v) => v === "" || !Number.isNaN(Number(v)), "Latitude يجب أن يكون رقمًا").default(""),
   officeLongitude: z.string().refine((v) => v === "" || !Number.isNaN(Number(v)), "Longitude يجب أن يكون رقمًا").default(""),
   isActive: z.boolean().default(true),
+  // دايمًا هنخزن الـID
   officePhotoName: z.string().optional().default(""),
 });
 
 export type OfficeDetailsValues = z.infer<typeof OfficeSchema>;
 export type OfficeDetailsHandle = { submit: () => Promise<OfficeDetailsValues | null> };
-type Props = { defaultValues?: Partial<OfficeDetailsValues> & { cityId?: string | number } };
+
+// 👇 أضفنا الـ prop اللي هتبلغ الأب بأي ID للصورة
+type Props = {
+  defaultValues?: Partial<OfficeDetailsValues> & { cityId?: string | number; officePhotoDisplayName?: string };
+  onPhotoIdChange?: (id: string) => void;
+};
 
 function getSessionId(): string {
   try {
@@ -63,12 +74,12 @@ function getSessionId(): string {
       const sid = obj?.SessionID ?? obj?.sessionId ?? obj?.session ?? obj?.sid;
       if (sid) return String(sid);
     }
-  } catch {}
+  } catch { }
   return "0";
 }
 
 export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSection(
-  { defaultValues },
+  { defaultValues, onPhotoIdChange },
   ref
 ) {
   const toast = useToast();
@@ -88,11 +99,21 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  // في وضع التعديل: نحط الـID في الحقل المخفي ونبني المعاينة
   useEffect(() => {
+    const displayNameOrId = String(
+      (defaultValues as any)?.officePhotoDisplayName ??
+      defaultValues?.officePhotoName ??
+      ""
+    );
     const fileId = String(defaultValues?.officePhotoName ?? "");
+
     setValue("officePhotoName", fileId, { shouldDirty: false, shouldValidate: false });
-    setPreviewUrl(buildPhotoUrl(fileId));
-  }, [defaultValues?.officePhotoName, setValue]);
+    setPreviewUrl(buildPhotoUrl(displayNameOrId));
+
+    // 👇 بلغ الأب بالـID الحالي (مهم جدًا عشان fallback في وضع التعديل)
+    if (fileId && onPhotoIdChange) onPhotoIdChange(fileId);
+  }, [defaultValues?.officePhotoName, (defaultValues as any)?.officePhotoDisplayName, setValue, onPhotoIdChange]);
 
   useEffect(() => {
     if (defaultValues && Object.keys(defaultValues).length > 0) {
@@ -115,9 +136,15 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
         onProgress: (p: number) => setProgress(p),
       });
       if (up?.error) throw new Error(String(up.error));
-      setValue("officePhotoName", String(up.id ?? ""), { shouldDirty: true, shouldValidate: true });
-      setPreviewUrl(buildPhotoUrl(up.id));
+
+      const newId = String(up.id ?? "");
+      setValue("officePhotoName", newId, { shouldDirty: true, shouldValidate: true });
+      setPreviewUrl(buildPhotoUrl(newId));
       await trigger("officePhotoName");
+
+      // 👇 أهم خطوة: نبلغ الأب فورًا بالـID الجديد
+      if (onPhotoIdChange) onPhotoIdChange(newId);
+
       toast({ title: "تم رفع الصورة بنجاح.", status: "success" });
     } catch (err: any) {
       toast({ title: "فشل رفع الصورة", description: err?.message || "Upload failed", status: "error" });
@@ -184,8 +211,8 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
   const selectedCityLabel = useMemo(() => {
     const match = cityOptions.find((o) => o.id === String(cityIdCurrent));
     if (match) return match.name;
-    if (defaultValues?.cityId && !/^\d+$/.test(String(defaultValues.cityId))) {
-      return String(defaultValues.cityId);
+    if (defaultValues?.cityId && !/^\d+$/.test(String(defaultValues?.cityId))) {
+      return String(defaultValues?.cityId);
     }
     return "";
   }, [cityOptions, cityIdCurrent, defaultValues?.cityId]);
@@ -193,10 +220,6 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
   return (
     <VStack align="stretch" spacing={5}>
       <SectionCard title="بيانات المكتب">
-        {/* ✅ سطر تحت العنوان مباشرة يحتوي على سويتش التفعيل */}
-   
-
-        {/* باقي الفورم */}
         <Grid templateColumns={{ base: "repeat(12, 1fr)", lg: "repeat(12, 1fr)" }} gap={4}>
           {/* اسم/هاتف/مدينة */}
           <GridItem colSpan={{ base: 12, lg: 4 }}>
@@ -210,7 +233,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
           <GridItem colSpan={{ base: 12, lg: 4 }}>
             <FormControl isInvalid={!!errors.phoneNum}>
               <FormLabel>رقم الهاتف</FormLabel>
-              <FieldInput dir="rtl" placeholder="برجاء كتابة رقم الهاتف" {...register("phoneNum")} />
+              <FieldInput dir="rtl" placeholder="برجاء كتابة رقم الهاتف (09X)" {...register("phoneNum")} />
               <FormErrorMessage>{errors.phoneNum?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
@@ -254,7 +277,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
               <FormErrorMessage>{errors.officeLatitude?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
-          
+
           <GridItem colSpan={{ base: 12, lg: 6 }}>
             <FormControl isInvalid={!!errors.officeLongitude}>
               <FormLabel>Longitude</FormLabel>
@@ -268,16 +291,14 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
             <FormControl isInvalid={!!errors.address}>
               <FormLabel>العنوان</FormLabel>
               <FieldInput placeholder="برجاء كتابة العنوان" {...register("address")} />
-              
               <FormErrorMessage>{errors.address?.message}</FormErrorMessage>
-              
             </FormControl>
-                 <HStack justify="flex-start" mb={3}>
-          <HStack spacing={4} h="40px" alignItems="center">
-            <Switch {...register("isActive")} isChecked={watch("isActive")} />
-            <Text>تفعيل ظهوره في التطبيق</Text>
-          </HStack>
-        </HStack>
+            <HStack justify="flex-start" mb={3}>
+              <HStack spacing={4} h="40px" alignItems="center">
+                <Switch {...register("isActive")} isChecked={watch("isActive")} />
+                <Text>تفعيل ظهوره في التطبيق</Text>
+              </HStack>
+            </HStack>
           </GridItem>
 
           <GridItem colSpan={{ base: 12, lg: 8 }}>
@@ -298,7 +319,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
             </FormControl>
           </GridItem>
 
-          {/* ✅ صورة المكتب بعرض الخريطة وبداية نفس العمود */}
+          {/* صورة المكتب */}
           <GridItem colSpan={{ base: 12, lg: 8 }}>
             <FormControl>
               <FormLabel>صورة المكتب</FormLabel>

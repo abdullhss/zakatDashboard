@@ -1,4 +1,3 @@
-// src/features/MainDepartment/Privelges/hooks/useGetFeatures.ts
 import { useQuery } from "@tanstack/react-query";
 import { getFeatures } from "../Services/getFeaturesData";
 

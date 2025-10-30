@@ -1,4 +1,3 @@
-// src/features/OfficeDashboard/Projects/Services/updateProject.ts
 import { doTransaction, analyzeExecution, PROCEDURE_NAMES } from "../../../../api/apiClient";
 import type { NormalizedSummary } from "../../../../api/apiClient";
 import { getSession } from "../../../../session";
@@ -14,8 +13,10 @@ export interface UpdatePayload {
   allowZakat: boolean;
   importanceId: number;
   isActive: boolean;
-  photoName: string;
+  photoName: string; // ← هنا بنبعت الـID
 }
+
+const scrub = (v: unknown) => String(v ?? "").replace(/#/g, "");
 
 export async function updateProject(payload: UpdatePayload): Promise<NormalizedSummary> {
   const { userId, officeId } = getSession();
@@ -27,17 +28,17 @@ export async function updateProject(payload: UpdatePayload): Promise<NormalizedS
 
   const columnsValues =
     `${payload.id}#` +
-    `${payload.projectName}#` +
-    `${payload.projectDesc || ""}#` +
+    `${scrub(payload.projectName)}#` +
+    `${scrub(payload.projectDesc) || ""}#` +
     `${payload.subventionTypeId}#` +
-    `${payload.wantedAmount}#` +
-    `${payload.openingBalance}#` +
-    `${payload.remainingAmount}#` +
+    `${scrub(payload.wantedAmount)}#` +
+    `${scrub(payload.openingBalance)}#` +
+    `${scrub(payload.remainingAmount)}#` +
     `${payload.allowZakat ? 1 : 0}#` +
     `${payload.importanceId}#` +
     `${currentOfficeId}#` +
     `${payload.isActive ? 1 : 0}#` +
-    `${payload.photoName}`;
+    `${scrub(payload.photoName)}`;
 
   console.log("🧩 ColumnsValues for update:", columnsValues);
 

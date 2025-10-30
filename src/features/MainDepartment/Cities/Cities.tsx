@@ -18,6 +18,32 @@ import { useDeleteCity } from "./hooks/useDeleteCities";
 import { useUpdateCities } from "./hooks/useUpdateCities";
 import FormModal, { type FieldConfig } from "../../../Components/ModalAction/FormModel";
 
+// ⚠️ تأكد من المسار حسب مشروعك (قد يكون: "../Offices/Services/getOffice")
+import { getOffices } from "../Offices/Services/getOffice";
+
+/** دالة مساعدة: هل هناك مكاتب مرتبطة بهذه المدينة؟ */
+async function hasOfficesInCity(cityId: number | string): Promise<boolean> {
+  const PAGE = 200;
+  let offset = 0;
+
+  // نجلب على صفحات لحدّ ما نخلص أو نلاقي مكتب مرتبط
+  // نفترض أن getOffices(offset, limit) يرجّع { rows, totalRows }
+  while (true) {
+    const res = await getOffices(offset, PAGE);
+    const rows = res?.rows ?? [];
+    if (!rows.length) return false;
+
+    const found = rows.some((r: AnyRec) => {
+      const rid = r.CityId ?? r.cityId ?? r.City_Id ?? r.city_id ?? r.CityID;
+      return Number(rid) === Number(cityId);
+    });
+    if (found) return true;
+
+    offset += rows.length;
+    if (rows.length < PAGE) return false; // آخر صفحة
+  }
+}
+
 /** قائمة الإجراءات لكل صف */
 function RowActions({
   row, onDeleted, onEdited,
@@ -29,13 +55,55 @@ function RowActions({
 
   const handleDelete = async () => {
     const id = row.Id ?? row.id ?? row.CityId ?? row.city_id;
+
     try {
+      // ✅ فحص الارتباط قبل محاولة الحذف
+      const linked = await hasOfficesInCity(id);
+      if (linked) {
+        toast({
+          status: "warning",
+          title: "لا يمكن الحذف",
+          description: "لا يمكن حذف هذه المدينة لأنها مرتبطة بمكتب.",
+          duration: 6000,
+          isClosable: true,
+        });
+        confirm.onClose();
+        return;
+      }
+
+      // لا يوجد ارتباط ⇒ نكمل الحذف
       await del.mutateAsync(id);
       toast({ status: "success", title: "تم الحذف", description: "تم حذف المدينة بنجاح" });
       confirm.onClose();
       onDeleted();
     } catch (e: any) {
-      toast({ status: "error", title: "فشل الحذف", description: e?.message || "حدث خطأ أثناء الحذف" });
+      // fallback: في حال الـAPI رجّع رفض بسبب قيود FK
+      const code = e?.code ?? e?.sqlState ?? e?.number;
+      const msg: string = String(e?.message || e?.data?.message || e?.error || "");
+
+      const fkBlocked =
+        code === 547 ||
+        /foreign key|constraint|reference|is referenced|violates/i.test(msg) ||
+        /مرتبطة|ارتباط|مربوط/i.test(msg);
+
+      if (fkBlocked) {
+        toast({
+          status: "warning",
+          title: "لا يمكن الحذف",
+          description: "لا يمكن حذف هذه المدينة لأنها مرتبطة بمكتب.",
+          duration: 6000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          status: "error",
+          title: "فشل الحذف",
+          description: msg || "حدث خطأ أثناء الحذف",
+          duration: 6000,
+          isClosable: true,
+        });
+      }
+      confirm.onClose();
     }
   };
 
@@ -103,34 +171,85 @@ export default function Cities() {
 
   // إضافة
   const handleAddSubmit = async (vals: { cityName: string }) => {
-    await addCity.mutateAsync({ cityName: vals.cityName });
-    toast({ status: "success", title: "تمت الإضافة", description: "تمت إضافة المدينة بنجاح" });
-    addModal.onClose();
-    refetch();
+    const newCityName = vals.cityName.trim();
+    const isDuplicate = citiesData.some(
+      (city) =>
+        (city.CityName ?? city.name ?? city.title)?.toLowerCase() === newCityName.toLowerCase(),
+    );
+
+    if (isDuplicate) {
+      toast({
+        status: "warning",
+        title: "فشل الإضافة",
+        description: `المدينة ${newCityName} موجودة بالفعل. لا يمكن إضافة اسم مكرر.`,
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      await addCity.mutateAsync({ cityName: newCityName });
+      toast({ status: "success", title: "تمت الإضافة", description: "تمت إضافة المدينة بنجاح" });
+      addModal.onClose();
+      refetch();
+    } catch (e: any) {
+      toast({
+        status: "error",
+        title: "فشل الإضافة",
+        description: e?.message || "حدث خطأ أثناء إضافة المدينة",
+      });
+    }
   };
 
   // تعديل
   const handleEditSubmit = async (vals: { cityName: string }) => {
     if (!editingRow) return;
     const id = editingRow.Id ?? editingRow.id ?? editingRow.CityId ?? editingRow.city_id;
-    await updateCity.mutateAsync({ id, cityName: vals.cityName });
-    toast({ status: "success", title: "تم التعديل", description: "تم تحديث المدينة بنجاح" });
-    editModal.onClose();
-    setEditingRow(null);
-    refetch();
+
+    const newCityName = vals.cityName.trim();
+    const isDuplicate = citiesData.some(
+      (city) =>
+        (city.Id ?? city.id ?? city.CityId ?? city.city_id) !== id &&
+        (city.CityName ?? city.name ?? city.title)?.toLowerCase() === newCityName.toLowerCase(),
+    );
+
+    if (isDuplicate) {
+      toast({
+        status: "warning",
+        title: "فشل التعديل",
+        description: `المدينة ${newCityName} موجودة بالفعل لمدينة أخرى.`,
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      await updateCity.mutateAsync({ id, cityName: newCityName });
+      toast({ status: "success", title: "تم التعديل", description: "تم تحديث المدينة بنجاح" });
+      editModal.onClose();
+      setEditingRow(null);
+      refetch();
+    } catch (e: any) {
+      toast({
+        status: "error",
+        title: "فشل التعديل",
+        description: e?.message || "حدث خطأ أثناء تحديث المدينة",
+      });
+    }
   };
 
-  /** أعمدة الجدول — أضفنا عمود فاضي قبل اسم المدينة */
+  /** أعمدة الجدول */
   const CITIES_COLUMNS: Column[] = useMemo(
     () => [
-      
       {
         key: "CityName",
         header: "اسم المدينة",
         width: "auto",
         render: (row: AnyRec) => row.CityName ?? row.name ?? "-",
       },
-      { key: "__spacer", header: "", width: "35%", render: () => null }, // 👈 عمود فاضي
+      { key: "__spacer", header: "", width: "35%", render: () => null },
     ],
     []
   );
@@ -140,12 +259,11 @@ export default function Cities() {
   }
 
   if (isError) {
-    return <Alert status="error" m={6}><AlertIcon />حدث خطأ أثناء جلب المدن: {error.message}</Alert>;
+    return <Alert status="error" m={6}><AlertIcon />حدث خطأ أثناء جلب المدن: {(error as Error)?.message}</Alert>;
   }
 
   return (
     <Box p={6}>
-      {/* مودال إضافة مدينة */}
       <FormModal
         isOpen={addModal.isOpen}
         onClose={addModal.onClose}
@@ -157,7 +275,6 @@ export default function Cities() {
         onSubmit={handleAddSubmit}
       />
 
-      {/* مودال تعديل مدينة */}
       <FormModal
         isOpen={editModal.isOpen}
         onClose={() => { editModal.onClose(); setEditingRow(null); }}

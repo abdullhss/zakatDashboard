@@ -95,7 +95,6 @@ export default function Kafara() {
   if (isError) return <Text color="red.500">حدث خطأ: {(error as Error)?.message}</Text>;
 
   return (
-    // ✅ غلاف يوسّط المحتوى أفقيًا وعموديًا
     <Box
   dir="rtl"
   w="100%"

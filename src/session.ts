@@ -13,11 +13,17 @@ type RawUser = {
 };
 
 export function getSession() {
+  // جلب الدور (Role) من localStorage، الافتراضي "M" (Main)
   const role = ((localStorage.getItem("role") || "M").toUpperCase() as Role);
+  
+  // جلب بيانات المستخدم الأساسية (mainUser) من localStorage
   let mainUser: RawUser | null = null;
   try { mainUser = JSON.parse(localStorage.getItem("mainUser") || "null"); } catch {}
 
+  // استخلاص Office_Id. القيمة الافتراضية هي 0 إذا لم توجد.
   const officeId  = Number(mainUser?.Office_Id ?? 0) || 0;
+  
+  // استخلاص باقي البيانات
   const userId    = Number(mainUser?.UserId ?? mainUser?.Id ?? 0) || 0;
   const userName  = mainUser?.UserName || localStorage.getItem("username") || "";
   const officeName =
@@ -27,10 +33,9 @@ export function getSession() {
   return { role, userId, userName, officeId, officeName, mainUser };
 }
 
-export const isMain   = () => getSession().role === "M";
-export const isOffice = () => getSession().role === "O";
+export const isMain = () => getSession().role === "M"; // إدارة
+export const isOffice = () => getSession().role === "O"; // مكتب
 
-/** ضيف شرط Office_Id تلقائيًا على جملة SQL خام (قبل التشفير) */
 export function scopeEncSQLToOffice(encSQLRaw?: string) {
   const { role, officeId } = getSession();
   if (role !== "O" || !officeId) return (encSQLRaw || "").trim();
@@ -42,12 +47,10 @@ export function scopeEncSQLToOffice(encSQLRaw?: string) {
   const hasOrder = /(order\s+by[\s\S]+)$/i.test(sql);
 
   if (hasWhere) {
-    // أضِف AND قبل ORDER BY إن وُجد
     return sql.replace(/(order\s+by[\s\S]+)$/i, (m) => ` AND (Office_Id = ${officeId}) ${m}`)
               .replace(/\s+$/, "");
   }
-  // مفيش WHERE
-  return hasOrder ? sql.replace(/(order\s+by[\s\S]+)$/i, (m) => ` WHERE (Office_Id = ${officeId}) ${m}`)
+  return hasOrder ? sql.replace(/(order\s+by[\s\S]+)$/i, (m) => ` WHERE (Office_Id = ${officeId}) ${m}`) 
                   : `${sql} WHERE (Office_Id = ${officeId})`;
 }
 

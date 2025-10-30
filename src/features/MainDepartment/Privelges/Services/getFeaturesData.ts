@@ -1,4 +1,3 @@
-// src/features/MainDepartment/Privelges/hooks/getFeatures.ts
 import {
   executeProcedure,
   analyzeExecution,
@@ -7,7 +6,6 @@ import {
   PROCEDURE_NAMES,
 } from "../../../../api/apiClient";
 
-/** أكواد الأدوار المتاحة (عدّل حسب نظامك) */
 export type RoleCode = "M" | "O" | "A" | "U";
 
 export type FeaturesSummary = NormalizedSummary & { rows: any[] };
@@ -33,19 +31,13 @@ export async function getFeatures(roleCode?: RoleCode | string): Promise<Feature
 
   const summary = analyzeExecution(raw) as any;
 
-  // -------- تطبيع: استخرج الصفوف من أماكن محتملة مختلفة --------
   let rows: any[] = [];
 
-  // مرشّحات أماكن شائعة:
-  // 1) summary.rows (لو analyzeExecution جهّزها)
-  // 2) summary.FeaturesData
-  // 3) summary.data?.[0]?.FeaturesData
-  // 4) summary.Result?.[0]?.FeaturesData
   const candidate =
-    summary?.rows ??
-    summary?.FeaturesData ??
-    summary?.data?.[0]?.FeaturesData ??
-    summary?.Result?.[0]?.FeaturesData ??
+    summary?.rows ?? 
+    summary?.FeaturesData ?? 
+    summary?.data?.[0]?.FeaturesData ?? 
+    summary?.Result?.[0]?.FeaturesData ?? 
     "";
 
   if (Array.isArray(candidate)) {

@@ -37,7 +37,7 @@ export async function addOffice(payload: AddOfficePayload): Promise<NormalizedSu
   // 1) رفع الصورة باستخدام الفانكشن الجديدة
   const hf = new HandelFile();
   const uploadRes = await hf.UploadFileWebSite({
-    action: "Insert",           // عملية رفع صورة جديدة
+    action: "Add",           // عملية رفع صورة جديدة
     file: photoFile,           // إرسال الصورة
     SessionID: sessionId,      // إرسال الـ session ID
     fileId: "",                // ID فارغ للإضافة

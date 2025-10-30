@@ -1,50 +1,29 @@
-// src/features/MainDepartment/Offices/AddOffice.tsx
 import {
-  Box,
-  Heading,
-  useToast,
-  Collapse,
-  HStack,
-  Button,
-  Text,
-  IconButton,
-  Spinner,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  useDisclosure,
+  Box, Heading, useToast, Collapse, HStack, Button, Text, IconButton, Spinner,
+  AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogOverlay, useDisclosure,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 
 import SharedButton from "../../../Components/SharedButton/Button";
 import SectionDivider from "../../../Components/Divider/SectionDivider";
 
 import OfficeDetailsSection, {
-  type OfficeDetailsHandle,
-  type OfficeDetailsValues,
+  type OfficeDetailsHandle, type OfficeDetailsValues,
 } from "./OfficeDetailsSection";
 
 import BankDetailsSection, {
-  type BankDetailsHandle,
-  type BankDetailsValues,
-  type Option,
+  type BankDetailsHandle, type BankDetailsValues, type Option,
 } from "./BankDetailsSection";
 
 import BankAccountSection from "./BankAccountSection";
 
 import { doTransaction, doMultiTransaction } from "../../../api/apiClient";
 import useUpdateOffice from "./hooks/useUpdateOffice";
-
-// ✅ جلب حسابات مكتب واحد
 import { useGetDashBankData } from "./hooks/useGetDashBankData";
-
-// ✅ دوال CRUD على الحسابات البنكية (خاصة بالحذف هنا)
-import { deleteBankAccount, BANK_TABLE_NAME } from "./Services/addAccount";
+import { deleteBankAccount } from "./Services/addAccount";
 
 /* ===================== ثوابت ===================== */
 const OFFICE_TABLE = "msDmpDYZ2wcHBSmvMDczrg==";
@@ -102,8 +81,11 @@ export default function AddOffice() {
   const officeRef = useRef<OfficeDetailsHandle>(null);
   const bankRef   = useRef<BankDetailsHandle>(null);
 
+  // 👇 ref لتثبيت ID الصورة خلال الجلسة (الأصلي أو المرفوع)
+  const photoIdRef = useRef<string>("");
+
   const [isAddOpen, setIsAddOpen] = useState(false);
-  const [bankAccounts, setBankAccounts] = useState<BankDetailsValues[]>([]); // محلي للإضافة
+  const [bankAccounts, setBankAccounts] = useState<BankDetailsValues[]>([]);
   const formAnchorRef = useRef<HTMLDivElement | null>(null);
 
   // وضع التعديل
@@ -112,12 +94,38 @@ export default function AddOffice() {
   const editId = qs.get("edit");
   const isEdit = Boolean(editId || location.state?.mode === "edit");
 
+  // صف قادم من اللستة
   const row = location.state?.row as
-    | { id: number | string; companyName?: string; phone?: string; city?: string | number; cityId?: string | number; isActive?: boolean; address?: string; latitude?: string | number; longitude?: string | number; photoName?: string }
+    | {
+        id: number | string;
+        companyName?: string;
+        phone?: string;
+        city?: string | number;
+        cityId?: string | number;
+        isActive?: boolean;
+        address?: string;
+        latitude?: string | number;
+        longitude?: string | number;
+        photoName?: string;
+        OfficePhotoName?: string;
+        OfficePhotoName_Id?: string|number;
+      }
     | undefined;
 
+  // قيم مبدئية لصفحة التفاصيل
   const defaultValues: Partial<OfficeDetailsValues> | undefined = useMemo(() => {
     if (!row) return undefined;
+
+    const photoIdFromRow =
+      (row as any).OfficePhotoName_Id ??
+      (row as any).photoId ??
+      "";
+
+    const photoNameForPreview =
+      (row as any).OfficePhotoName ??
+      (row as any).photoName ??
+      "";
+
     return {
       officeName: row.companyName ?? "",
       phoneNum: row.phone ?? "",
@@ -126,9 +134,22 @@ export default function AddOffice() {
       isActive: Boolean(row.isActive),
       officeLatitude: row.latitude != null ? String(row.latitude) : "",
       officeLongitude: row.longitude != null ? String(row.longitude) : "",
-      officePhotoName: String(row.photoName ?? ""), // لعرض صورة تعديل
-    };
+      officePhotoName: String(photoIdFromRow || ""),                           // ← نخزن الـID
+      ...(photoNameForPreview ? { officePhotoDisplayName: String(photoNameForPreview) } : {}), // للمعاينة
+    } as any;
   }, [row]);
+
+  // 👇 ثبّت الـID الأصلي في ref عند دخول وضع التعديل
+  useEffect(() => {
+    if (isEdit) {
+      photoIdRef.current = String(
+        (row as any)?.OfficePhotoName_Id ??
+        (row as any)?.photoId ??
+        (defaultValues as any)?.officePhotoName ??
+        ""
+      );
+    }
+  }, [isEdit, row, defaultValues]);
 
   const handleOpenAdd = () => {
     setIsAddOpen(true);
@@ -145,7 +166,6 @@ export default function AddOffice() {
     refetch: refetchBanks,
   } = useGetDashBankData(officeIdForBanks as any, 0, 200);
 
-  // نحفظ الـ serverId عشان الحذف
   type DisplayBank = BankDetailsValues & {
     serverId?: number | string;
     bankNameLabel?: string;
@@ -153,10 +173,9 @@ export default function AddOffice() {
     serviceTypeLabel?: string;
   };
 
-  // حسابات السيرفر بعد التطبيع للعرض
   const serverBankAccounts: DisplayBank[] = useMemo(() => {
     return (bankData?.rows ?? []).map((r: any) => ({
-      serverId: r.id,                                 // 👈 مهم للحذف
+      serverId: r.id,
       bankId: String(r.bankId ?? ""),
       accountNumber: String(r.accountNumber ?? ""),
       openingBalance: String(r.openingBalance ?? "0"),
@@ -170,49 +189,36 @@ export default function AddOffice() {
     })) as DisplayBank[];
   }, [bankData?.rows]);
 
-  // المعروض: في التعديل = (سيرفر) + (محلي مضاف أثناء الجلسة)
   const displayAccounts: DisplayBank[] = useMemo(() => {
     if (!isEdit) return bankAccounts as DisplayBank[];
     return [...serverBankAccounts, ...(bankAccounts as DisplayBank[])];
   }, [isEdit, serverBankAccounts, bankAccounts]);
 
-  /* -------------------- حذف محلي (للوضع الإضافة) -------------------- */
+  /* -------------------- حذف محلي / سيرفر -------------------- */
   const handleDeleteLocal = (idx: number) => {
     setBankAccounts((prev) => prev.filter((_, i) => i !== idx));
     toast({ title: "تم حذف الحساب من الجدول.", status: "info" });
   };
 
-  /* -------------------- حذف من الداتابيز (للوضع التعديل) -------------------- */
   const confirm = useDisclosure();
   const [pendingDeleteId, setPendingDeleteId] = useState<string | number | null>(null);
-
-  const askDeleteServer = (serverId: string | number) => {
-    setPendingDeleteId(serverId);
-    confirm.onOpen();
-  };
-
+  const askDeleteServer = (serverId: string | number) => { setPendingDeleteId(serverId); confirm.onOpen(); };
   const doDeleteServer = async () => {
     if (!pendingDeleteId) return;
     try {
       const res = await deleteBankAccount(pendingDeleteId);
-      if (!(res as any)?.success) {
-        throw new Error((res as any)?.error || "Delete failed");
-      }
+      if (!(res as any)?.success) throw new Error((res as any)?.error || "Delete failed");
       toast({ title: "تم حذف الحساب.", status: "success" });
-      await refetchBanks(); // تحدّيث القائمة فورًا
+      await refetchBanks();
     } catch (e: any) {
-      toast({
-        title: "فشل حذف الحساب",
-        description: e?.message || "حدث خطأ غير متوقع",
-        status: "error",
-      });
+      toast({ title: "فشل حذف الحساب", description: e?.message || "حدث خطأ غير متوقع", status: "error" });
     } finally {
       setPendingDeleteId(null);
       confirm.onClose();
     }
   };
 
-  /* -------------------- حفظ حساب بنكي محلي (في وضع الإضافة) -------------------- */
+  /* -------------------- إضافة حساب بنكي -------------------- */
   const handleAddBankLocal = async () => {
     const bank = await bankRef.current?.submit();
     if (!bank) { toast({ title: "من فضلك املأ حقول البنك.", status: "error" }); return; }
@@ -222,23 +228,18 @@ export default function AddOffice() {
     toast({ title: "تم حفظ الحساب في الجدول.", status: "success" });
   };
 
-  /* -------- إضافة حساب بنكي في الداتابيز مباشرة (التعديل) + refetch -------- */
   const handleAddBankInEdit = async () => {
     if (!isEdit) { await handleAddBankLocal(); return; }
-
     const bank = await bankRef.current?.submit();
     if (!bank) { toast({ title: "من فضلك املأ حقول البنك.", status: "error" }); return; }
     const nb = normalizeBank(bank);
 
     const officeId = String(editId || row?.id || "");
-    if (!officeId) {
-      toast({ title: "لا يمكن إضافة حساب: رقم المكتب غير معروف.", status: "error" });
-      return;
-    }
+    if (!officeId) { toast({ title: "لا يمكن إضافة حساب: رقم المكتب غير معروف.", status: "error" }); return; }
 
     const ColumnsValues = [
-      "0",                               // Id (Insert)
-      officeId,                          // Office_Id
+      "0",
+      officeId,
       String(Number(nb.bankId) || 0),
       scrub(nb.accountNumber),
       String(Number(nb.openingBalance) || 0),
@@ -251,7 +252,7 @@ export default function AddOffice() {
     try {
       const res = await doTransaction({
         TableName: BANK_TABLE,
-        WantedAction: 0,                 // Insert
+        WantedAction: 0,
         ColumnsNames: BANK_COLS,
         ColumnsValues,
         PointId: 0,
@@ -260,20 +261,16 @@ export default function AddOffice() {
       if ((res as any)?.success) {
         setIsAddOpen(false);
         toast({ title: "تم إضافة الحساب البنكي للمكتب.", status: "success" });
-        refetchBanks(); // ✅ هات من السيرفر تاني
+        refetchBanks();
       } else {
-        toast({
-          title: "فشل إضافة الحساب",
-          description: (res as any)?.error || "Transaction Failed",
-          status: "error",
-        });
+        toast({ title: "فشل إضافة الحساب", description: (res as any)?.error || "Transaction Failed", status: "error" });
       }
     } catch (e: any) {
       toast({ title: "خطأ أثناء الإضافة", description: e?.message, status: "error" });
     }
   };
 
-  /* -------------------- إضافة مكتب + حسابات (وضع الإضافة) -------------------- */
+  /* -------------------- إضافة مكتب + حسابات (جديد) -------------------- */
   const handleAddOfficeAndBanks = async () => {
     const office: OfficeDetailsValues | null = await officeRef.current?.submit();
     if (!office) { toast({ title: "راجِع حقول المكتب.", status: "error" }); return; }
@@ -300,14 +297,14 @@ export default function AddOffice() {
       scrub((office as any).phoneNum) || "",
       scrub((office as any).address) || "",
       office.isActive ? "1" : "0",
-      scrub((office as any).officePhotoName) || "",
+      scrub((office as any).officePhotoName) || "", // ID بعد الرفع
     ].join("#");
 
     const bankParts = bankAccounts.map((b) => {
       const nb = normalizeBank(b);
       return [
         "0",
-        "0", // السيرفر هيملأ Office_Id بعد إنشاء المكتب
+        "0",
         String(Number(nb.bankId) || 0),
         scrub(nb.accountNumber),
         String(Number(nb.openingBalance) || 0),
@@ -336,24 +333,21 @@ export default function AddOffice() {
         replace: true,
       });
     } else {
-      toast({
-        title: "فشل الحفظ",
-        description: (res as any)?.error || "Transaction Failed",
-        status: "error",
-      });
+      toast({ title: "فشل الحفظ", description: (res as any)?.error || "Transaction Failed", status: "error" });
     }
   };
 
-  /* -------------------- حفظ المكتب في وضع التعديل (Update) -------------------- */
+  /* -------------------- حفظ المكتب (التعديل) -------------------- */
   const updateMutation = useUpdateOffice();
   const handleSave = async () => {
-    if (!isEdit) {
-      await handleAddOfficeAndBanks();
-      return;
-    }
+    if (!isEdit) { await handleAddOfficeAndBanks(); return; }
 
     const office = await officeRef.current?.submit();
     if (!office) { toast({ title: "راجع بيانات المكتب.", status: "error" }); return; }
+
+    // 👇 ناخد من الحقل لو فيه قيمة، وإلا fallback على الـref (الأصلي/آخر مرفوع)
+    const currentId = String(office.officePhotoName ?? "").trim();
+    const photoIdToSend = currentId && currentId !== "0" ? currentId : photoIdRef.current;
 
     const payload = {
       id: editId || row?.id || "",
@@ -364,7 +358,7 @@ export default function AddOffice() {
       isActive: office.isActive,
       latitude: office.officeLatitude ?? "",
       longitude: office.officeLongitude ?? "",
-      photoName: office.officePhotoName ?? "",
+      photoId: photoIdToSend,   // دايمًا ID
       pointId: 0,
     } as const;
 
@@ -386,9 +380,17 @@ export default function AddOffice() {
       <Heading size="md" mb={4}>{isEdit ? "تعديل مكتب" : "إضافة مكتب"}</Heading>
 
       {/* بيانات المكتب */}
-      <OfficeDetailsSection ref={officeRef} defaultValues={defaultValues} />
+      <OfficeDetailsSection
+        ref={officeRef}
+        defaultValues={defaultValues}
+        // 👇 أي تغيير في صورة المكتب يحدّث الـref
+        onPhotoIdChange={(id) => { photoIdRef.current = id; }}
+      />
 
       <SectionDivider my={8} />
+
+      {/* باقي الصفحة كما هو */}
+      {/* ... نفس كود جدول الحسابات والحذف والإضافة ... */}
 
       {/* شريط أعلى جدول الحسابات */}
       <HStack justify="space-between" mb={2}>
@@ -405,7 +407,6 @@ export default function AddOffice() {
         />
       </HStack>
 
-      {/* جدول الحسابات */}
       {isEdit && banksLoading ? (
         <HStack p={4} border="1px dashed" borderColor="gray.300" rounded="lg" color="gray.500">
           <Spinner size="sm" />
@@ -430,7 +431,6 @@ export default function AddOffice() {
             accountType={b.accountTypeLabel ?? b.accountTypeId}
             serviceType={b.serviceTypeLabel ?? b.serviceTypeId}
             hasCard={!!b.hasCard}
-            // ⬇️ في الإضافة: حذف محلي، في التعديل: حذف من السيرفر بالـ serverId
             onDelete={
               isEdit
                 ? (b.serverId ? () => askDeleteServer(b.serverId!) : undefined)
@@ -444,20 +444,11 @@ export default function AddOffice() {
 
       <SectionDivider my={8} />
 
-      {/* فورم البنك داخل Collapse */}
       <Collapse in={isAddOpen} animateOpacity>
         <Box ref={formAnchorRef}>
-          <BankDetailsSection
-            ref={bankRef}
-            // accountTypes: بتتجلب داخليًا من useGetAccountTypes
-            serviceTypes={serviceTypes}
-          />
+          <BankDetailsSection ref={bankRef} serviceTypes={serviceTypes} />
           <HStack justify="flex-end" mt={3} spacing={3}>
-            <Button variant="ghost" onClick={() => setIsAddOpen(false)}>
-              إلغاء
-            </Button>
-
-            {/* لو تعديل → احفظ مباشرة في الداتابيز + refetch. لو إضافة → خزّن محلي */}
+            <Button variant="ghost" onClick={() => setIsAddOpen(false)}>إلغاء</Button>
             <Button colorScheme={isEdit ? "teal" : undefined} onClick={handleAddBankInEdit}>
               {isEdit ? "حفظ الحساب" : "حفظ الحساب"}
             </Button>
@@ -465,24 +456,18 @@ export default function AddOffice() {
         </Box>
       </Collapse>
 
-      {/* أزرار أسفل الصفحة */}
       <Box mt={8} display="flex" justifyContent="flex-end" gap={4}>
-        <SharedButton onClick={() => navigate(-1)} variant="outline">
-          إلغاء
-        </SharedButton>
+        <SharedButton onClick={() => navigate(-1)} variant="outline">إلغاء</SharedButton>
         <SharedButton onClick={handleSave} isLoading={updateMutation.isPending}>
           {isEdit ? "حفظ التعديلات" : "إضافة"}
         </SharedButton>
       </Box>
 
-      {/* Dialog تأكيد حذف حساب بنكي (وضع التعديل) */}
       <AlertDialog isOpen={confirm.isOpen} leastDestructiveRef={undefined as any} onClose={confirm.onClose} isCentered>
         <AlertDialogOverlay />
         <AlertDialogContent>
           <AlertDialogHeader fontWeight="700">حذف الحساب البنكي</AlertDialogHeader>
-          <AlertDialogBody>
-            هل أنت متأكد من حذف هذا الحساب؟ لا يمكن التراجع عن هذا الإجراء.
-          </AlertDialogBody>
+          <AlertDialogBody>هل أنت متأكد من حذف هذا الحساب؟ لا يمكن التراجع عن هذا الإجراء.</AlertDialogBody>
           <AlertDialogFooter>
             <HStack spacing={3}>
               <Button onClick={confirm.onClose}>إلغاء</Button>

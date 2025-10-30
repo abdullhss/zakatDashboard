@@ -1,199 +1,149 @@
-import React, { useState, useMemo } from 'react';
-import { Box, Flex, Spinner, Alert, AlertIcon, Text, Select, HStack, Switch } from '@chakra-ui/react';
-import { DataTable } from '../../../Components/Table/DataTable';
-import type { AnyRec, Column } from '../../../Components/Table/TableTypes';
-import { useGetSacrificesDashData } from '../../OfficeDashboard/SacrificesData/hooks/useGetSacrificeData'; 
-import { useGetOffices } from '../Offices/hooks/useGetOffices'; // هوك جلب المكاتب
+import React, { useMemo, useState } from "react";
+import { Box, Flex, Spinner, Alert, AlertIcon, Text, useToast } from "@chakra-ui/react";
+import { DataTable } from "../../../Components/Table/DataTable";
+import type { AnyRec, Column } from "../../../Components/Table/TableTypes";
+import { useGetSacrificesDashData } from "../../OfficeDashboard/SacrificesData/hooks/useGetSacrificeData";
+import { useUpdateSacrificesData } from "../../OfficeDashboard/SacrificesData/hooks/useUpdateSacrificesData";
+import ActionButtons from "../../../Components/SharedButton/ActionButtons";
 
 const PAGE_SIZE = 10;
 
-// ===================================
-// 1. تعريف الأعمدة
-// ===================================
+/** عرض التاريخ فقط (DD/MM/YYYY) */
+function formatApiDate(value: any): string {
+  if (!value) return "—";
+  if (typeof value === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) return value;
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}(?:T.*)?$/.test(value)) {
+    const [y,m,d] = value.slice(0,10).split("-");
+    return `${d}/${m}/${y}`;
+  }
+  const t = Date.parse(value);
+  if (!isNaN(t)) {
+    const dt = new Date(t);
+    const dd = String(dt.getDate()).padStart(2,"0");
+    const mm = String(dt.getMonth()+1).padStart(2,"0");
+    const yy = dt.getFullYear();
+    return `${dd}/${mm}/${yy}`;
+  }
+  return "—";
+}
 
-const SACRIFICES_COLUMNS: Column[] = [
-  {
-    key: "ApplicantName", 
-    header: "اسم مقدم الطلب",
-    width: "25%",
-    render: (row: AnyRec) => row.UserName ?? row.ApplicantName ?? `مستخدم رقم ${row.GeneralUser_Id}` ?? '—',
-  },
-  {
-    key: "OfficeName", 
-    header: "المكتب",
-    width: "20%",
-    render: (row: AnyRec) => row.OfficeName ?? '—',
-  },
-  {
-    key: "SacrificeOrderDate", 
-    header: "تاريخ الطلب",
-    width: "15%",
-    render: (row: AnyRec) => {
-      const raw = row.SacrificeOrderDate || row.CreatedDate;
-      if (!raw) return '—';
-
-      const s = String(raw);
-
-      // ISO مثل 2025-10-14T00:00:00
-      if (s.includes('-')) {
-        const d = new Date(s);
-        if (!Number.isNaN(+d)) {
-          const dd = String(d.getDate()).padStart(2, '0');
-          const mm = String(d.getMonth() + 1).padStart(2, '0');
-          const yyyy = d.getFullYear();
-          return `${dd}/${mm}/${yyyy}`;
-        }
-      }
-
-      //Fallback للشكل المتسلسل yyyymmdd
-      if (s.length >= 8) {
-        const year = s.substring(0, 4);
-        const month = s.substring(4, 6);
-        const day = s.substring(6, 8);
-        return `${day}/${month}/${year}`;
-      }
-
-      return '—';
-    },
-  },
-  {
-    key: "SacrificeTotalAmount", 
-    header: "الإجمالي",
-    width: "15%",
-    render: (row: AnyRec) => {
-      const amount = row.SacrificeTotalAmount ?? row.TotalAmount ?? '0';
-      return <Text fontWeight="600">{amount} د.ل.</Text>;
-    },
-  },
-  {
-    key: "IsApproved", 
-    header: "حالة الطلب",
-    width: "15%",
-    render: (row: AnyRec) => {
-      const isApproved = row.IsApproved === true || String(row.IsApproved).toLowerCase() === 'true';
-      return (
-        <HStack spacing={3}>
-          <Switch 
-            isChecked={isApproved} 
-            isReadOnly 
-            size="sm"
-            colorScheme={isApproved ? "green" : "red"}
-          />
-          <Text as="span" color="gray.600">
-            {isApproved ? "مقبول" : "مرفوض"}
-          </Text>
-        </HStack>
-      );
-    },
-  },
-];
-
-// ===================================
-// 2. مكون عرض البيانات
-// ===================================
+type Row = {
+  Id?: any;
+  SacrificeOrderId?: any;
+  OrderId?: any;
+  SacrificeOrderDate?: any;
+  Office_Id?: any;
+  OfficeId?: any;
+  GeneralUser_Id?: any;
+  UserId?: any;
+  SacrificeTotalAmount?: any;
+  TotalAmount?: any;
+  OfficeName?: string;
+  ApplicantName?: string;
+  UserName?: string;
+  IsApproved?: any;
+  IsDone?: any;
+};
 
 export default function GetSacrificeDataMain() {
   const [page, setPage] = useState(1);
   const limit = PAGE_SIZE;
   const offset = useMemo(() => (page - 1) * limit, [page, limit]);
 
-  // حالة التصفية للحالة (0=الكل، 1=مقبول، 2=مرفوض)
-  const [selectedStatus, setSelectedStatus] = useState<number>(0); 
-  // حالة فلتر المكاتب (0 = الكل)
-  const [selectedOfficeId, setSelectedOfficeId] = useState<string | number>(0); 
+  const toast = useToast();
+  const { data, isLoading, isError, error, isFetching } =
+    useGetSacrificesDashData(0 /* إدارة تشوف الكل */, offset, limit);
 
-  // جلب المكاتب
-  const { data: officesData, isLoading: isOfficesLoading, isError: isOfficesError } = useGetOffices(0, 100); 
+  const rows = (data?.rows ?? []) as Row[];
+  const totalRows = data?.totalRows ?? rows.length;
 
-  // جلب بيانات الأضاحي بناءً على المكتب المُختار
-  const { data, isLoading, isError, error, isFetching } = useGetSacrificesDashData(
-    selectedOfficeId, // ✅ يتم تمرير المكتب الآن بشكل صحيح
-    offset, 
-    limit
-  ); 
+  const upd = useUpdateSacrificesData();
 
-  const rows = data?.rows ?? [];
-  const totalRows = data?.totalRows ?? 0;
-
-  // تحويل بيانات المكاتب للعرض (لإصلاح مشكلة العرض)
-  const officesOptions = useMemo(() => {
-    return (officesData?.rows ?? []).map((office: AnyRec) => ({
-      id: String(office.id ?? office.Office_Id ?? 0), 
-      name: office.companyName ?? office.OfficeName ?? office.Name, 
-    })).filter(o => o.name); 
-  }, [officesData?.rows]);
-
-  // منطق التصفية المحلية للحالة (ضروري)
-  const filteredRows = useMemo(() => {
-    let currentRows = rows;
-    
-    if (selectedStatus !== 0) {
-      const statusTarget = selectedStatus === 1; // 1: مقبول
-      
-      currentRows = currentRows.filter(row => {
-        const isApproved = row.IsApproved === true || String(row.IsApproved).toLowerCase() === 'true';
-        return isApproved === statusTarget;
-      });
+  const approveOrReject = async (r: Row, approve: boolean) => {
+    const Id = r.Id ?? r.SacrificeOrderId ?? r.OrderId ?? r["id"];
+    if (!Id) {
+      toast({ status: "warning", title: "لا يمكن تحديد السجل", description: "المعرّف مفقود." });
+      return;
     }
-    return currentRows;
-  }, [rows, selectedStatus]);
+    try {
+      await upd.mutateAsync({
+        Id,
+        SacrificeOrderDate: r.SacrificeOrderDate ?? "",
+        Office_Id: r.Office_Id ?? r.OfficeId ?? "",
+        GeneralUser_Id: r.GeneralUser_Id ?? r.UserId ?? "",
+        SacrificeOrderTotalAmount: r.SacrificeTotalAmount ?? r.TotalAmount ?? 0,
+        IsApproved: approve,            // ✅ قبول/رفض
+        ApprovedDate: new Date(),       // ✅ سيُرسل DD/MM/YYYY
+        ApprovedBy: 1,                  // ✅ لو عندك adminId من localStorage بدله هنا
+        IsDone: r.IsDone ?? 0,
+      });
+      toast({ status: "success", title: approve ? "تمت الموافقة" : "تمّ الرفض" });
+    } catch (e: any) {
+      toast({ status: "error", title: "فشل تنفيذ العملية", description: e?.message || "حاول مرة أخرى" });
+    }
+  };
 
+  const COLUMNS: Column[] = useMemo(() => [
+    {
+      key: "ApplicantName",
+      header: "اسم مقدم الطلب",
+      width: "24%",
+      render: (row: AnyRec) => {
+        const r = row as Row;
+        return r.UserName ?? r.ApplicantName ?? (r.GeneralUser_Id ? `مستخدم رقم ${r.GeneralUser_Id}` : "—");
+      },
+    },
+    { key: "OfficeName", header: "المكتب", width: "16%", render: (row: AnyRec) => (row as Row).OfficeName ?? "—" },
+    { key: "SacrificeOrderDate", header: "تاريخ الطلب", width: "16%", render: (row: AnyRec) => formatApiDate((row as Row).SacrificeOrderDate) },
+    {
+      key: "SacrificeTotalAmount",
+      header: "الإجمالي",
+      width: "16%",
+      render: (row: AnyRec) => {
+        const r = row as Row;
+        const v = r.SacrificeTotalAmount ?? r.TotalAmount ?? 0;
+        return <Text fontWeight="600">{String(v)} د.ل</Text>;
+      },
+    },
+    {
+      key: "__actions",
+      header: "الإجراء",
+      width: "12%",
+      render: (row: AnyRec) => (
+        <ActionButtons
+          onApprove={() => approveOrReject(row as Row, true)}
+          onReject={() => approveOrReject(row as Row, false)}
+          disabled={upd.isPending || isFetching}
+        />
+      ),
+    },
+  ], [upd.isPending, isFetching]);
 
-  if (isLoading || isOfficesLoading || isFetching) {
-    return (
-      <Flex justify="center" p={10}><Spinner size="xl" /></Flex>
-    );
+  if (isLoading || (isFetching && rows.length === 0)) {
+    return <Flex justify="center" p={10}><Spinner size="xl" /></Flex>;
   }
-
-  if (isError || isOfficesError) {
+  if (isError) {
     return (
-      <Alert status='error' m={6}>
+      <Alert status="error" m={6}>
         <AlertIcon />
-        حدث خطأ أثناء جلب البيانات: {(error as Error)?.message || "خطأ في جلب بيانات المكاتب."}
+        حدث خطأ أثناء جلب بيانات الأضاحي: {(error as Error)?.message}
       </Alert>
     );
   }
 
   return (
     <Box p={6}>
-      <HStack mb={4} spacing={3}>
-        {/* فلتر حالة الطلب */}
-
-        {/* فلتر المكاتب */}
-        <Select
-          w="260px"
-          value={selectedOfficeId}
-          onChange={(e) => {
-            setPage(1); 
-            setSelectedOfficeId(e.target.value);
-          }}
-          isDisabled={isOfficesLoading || isOfficesError}
-        >
-          <option value={0}>جميع المكاتب</option> 
-          {officesOptions.map((office) => (
-            <option key={office.id} value={office.id}>
-              {office.name}
-            </option>
-          ))}
-        </Select>
-      </HStack>
-
       <DataTable
-        title="مراجعة بيانات الأضاحي"
-        data={filteredRows as unknown as AnyRec[]}
-        columns={SACRIFICES_COLUMNS}
+        title="طلبات الأضاحي"
+        data={rows as unknown as AnyRec[]}
+        columns={COLUMNS}
         startIndex={offset + 1}
         page={page}
         pageSize={limit}
-        onPageChange={setPage}
         totalRows={totalRows}
+        onPageChange={setPage}
       />
-      
-      {filteredRows.length === 0 && !isLoading && (
-        <Text mt={3} color="gray.500">
-          لا توجد طلبات أضاحي حاليًا.
-        </Text>
-      )}
+      {rows.length === 0 && <Text mt={3} color="gray.500">لا توجد بيانات.</Text>}
     </Box>
   );
 }

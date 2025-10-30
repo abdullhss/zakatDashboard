@@ -51,8 +51,6 @@ export default function Users() {
     const sz = Number.isFinite(pageSize) ? Math.trunc(pageSize) : 25;
     return Math.max(1, sz);
   }, [pageSize]);
-
-  // SQL النهائي لـ @EncSQL
   const encSQLRaw = useMemo(() => {
     const where = buildSearchSQL(query);
     return [where, DEFAULT_ORDER].filter(Boolean).join(" ").trim();

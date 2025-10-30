@@ -18,7 +18,7 @@ import KafaraValues from "../features/MainDepartment/Kafara/KafaraValues";
 import ZakahTypes from "../features/MainDepartment/Zakah/ZakahTypes";
 import Privileges from "../features/MainDepartment/Privelges/PrivelgesTypes";
 import AddPrivelges from "../features/MainDepartment/Privelges/AddPrivelges";
-// import UpdatePrivileges from "../features/MainDepartment/Privelges/updatePrivelgesPage";
+
 import Users from "../features/MainDepartment/Users/Users";
 import UserCreated from "../features/MainDepartment/Users/userCreated";
 import AddUserPage from "../features/MainDepartment/Users/AddUserForm";
@@ -39,8 +39,16 @@ import GetDashPaymentData from "../features/OfficeDashboard/PaymentData/getDashP
 import PaymentDetails from "../features/OfficeDashboard/PaymentData/PaymentDetails";
 import GetNewsData from "../features/OfficeDashboard/NewsData/getNewsData";
 import NewsTypesPage from "../features/OfficeDashboard/NewsData/getNewsTypes";
-import UpdatePrivileges from "../features/MainDepartment/Privelges/PrivelgesTypes";
 import AddNewsData from "../features/OfficeDashboard/NewsData/AddNewsData";
+// import AboutUs from "../features/MainDepartment/ProgramData/AboutUs";
+import UpdatePrivilege from "../features/MainDepartment/Privelges/getGroupRightFeatures";
+import AboutUs from "../features/MainDepartment/AboutUs/AboutUs";
+import LawsData from "../features/MainDepartment/Laws/LawsData";
+import AddLaw from "../features/MainDepartment/Laws/AddLaw";
+import ContactUs from "../features/MainDepartment/ProgramData/ContactUs";
+import UseConditions from "../features/MainDepartment/ProgramData/UseConditions";
+import WhoAreWe from "../features/MainDepartment/ProgramData/WhoAreWe";
+import GroupRightFeaturesPage from "../features/OfficeDashboard/PrivelegesOffice/GroupRightFeaturesPageOffice";
 
 export default function App() {
   return (
@@ -65,7 +73,8 @@ export default function App() {
             <Route path="zakah" element={<ZakahTypes />} />
             <Route path="privelges" element={<Privileges />} />
             <Route path="privelges/add" element={<AddPrivelges />} />
-           <Route path="/maindashboard/privelges/update" element={<UpdatePrivileges />} />
+           <Route path="/maindashboard/privelges/update" element={<UpdatePrivilege />} />
+
             <Route path="users" element={<Users />} />
             <Route path="users/add" element={<AddUserPage />} />
             <Route path="users/edit/:id" element={<AddUserPage />} />
@@ -75,31 +84,38 @@ export default function App() {
             <Route path="assistanceData" element={<AssistanceDataTypes />} />
             <Route path="campaign" element={<GetCampaignData />} />
             <Route path="sacrificeDataMain" element={<GetSacrificeDataMain />} />
+            <Route path="aboutus" element={<AboutUs />} />
+            <Route path="laws" element={<LawsData />} />
+            <Route path="laws/add" element={<AddLaw />} />
+            <Route path="contactus" element={<ContactUs />} />
+            <Route path="conditions" element={<UseConditions />} />
+            <Route path="whoarewe" element={<WhoAreWe />} />
+
           </Route>
         </Route>
 
-        {/* Office Dashboard - O */}
-        <Route element={<RequireAuth allow={["O"]} />}>
-          <Route path="/officedashboard" element={<OfficeDashboardLayout />}>
-            <Route index element={<HomePage />} />
-            <Route path="home" element={<HomePage />} />
-            <Route path="usersOffice" element={<UsersOffice />} />
-            <Route path="usersOffice/add" element={<AddUserPage />} />
-            <Route path="users/edit/:id" element={<AddUserPage />} />
-            <Route path="privelgesOffice" element={<PrivelgesOfficeTypes />} />
-            <Route path="privelgesOffice/add" element={<AddPrivelges />} />
-            <Route path="campaignOffice" element={<CampaignOffice />} />
-            <Route path="projects" element={<GetProjects />} />
-            <Route path="projects/add" element={<AddProjectForm />} />
-            <Route path="sacrificesDashData" element={<SacrificeDashData />} />
-            <Route path="paymentData" element={<GetDashPaymentData />} />
-
-  <Route path="newsdata" element={<GetNewsData />} />
-  <Route path="newsdata/add" element={<AddNewsData />} />
-   <Route path="news-types" element={<NewsTypesPage />} />
-  <Route path="payment-details/:paymentId" element={<PaymentDetails />} />          </Route>
-
-        </Route>
+ {/* Office Dashboard - O */}
+<Route element={<RequireAuth allow={["O"]} />}>
+  <Route path="/officedashboard" element={<OfficeDashboardLayout />}>
+    <Route index element={<HomePage />} />
+    <Route path="home" element={<HomePage />} />
+    <Route path="usersOffice" element={<UsersOffice />} />
+    <Route path="usersOffice/add" element={<AddUserPage />} />
+    <Route path="users/edit/:id" element={<AddUserPage />} />
+    <Route path="privelgesOffice" element={<PrivelgesOfficeTypes />} />
+    <Route path="privelgesOffice/add" element={<AddPrivelges />} />
+    <Route path="group-right-features" element={<GroupRightFeaturesPage />} /> {/* ✅ الجديد */}
+    <Route path="campaignOffice" element={<CampaignOffice />} />
+    <Route path="projects" element={<GetProjects />} />
+    <Route path="projects/add" element={<AddProjectForm />} />
+    <Route path="sacrificesDashData" element={<SacrificeDashData />} />
+    <Route path="paymentData" element={<GetDashPaymentData />} />
+    <Route path="newsdata" element={<GetNewsData />} />
+    <Route path="newsdata/add" element={<AddNewsData />} />
+    <Route path="news-types" element={<NewsTypesPage />} />
+    <Route path="payment-details/:paymentId" element={<PaymentDetails />} />
+  </Route>
+</Route>
 
         {/* 404 */}
         <Route path="*" element={<h1>404 | Page Not Found</h1>} />

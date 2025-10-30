@@ -1,3 +1,4 @@
+// src/features/OfficeDashboard/PrivelgesOfficeTypes.tsx
 import { Box, HStack, Switch, Text, useColorModeValue, useToast } from "@chakra-ui/react";
 import { useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +7,7 @@ import DataTable from "../../../Components/Table/DataTable";
 import SharedButton from "../../../Components/SharedButton/Button";
 
 import type { AnyRec } from "../../../api/apiClient";
-import { useGetPrivilege } from "../../MainDepartment/Privelges/hooks/useGetPrivelge"; // نعيد استخدام نفس الهوك
+import { useGetPrivilege } from "../../MainDepartment/Privelges/hooks/useGetPrivelge";
 import { getSession } from "../../../session";
 
 type Row = {
@@ -22,7 +23,7 @@ const PAGE_SIZE = 10;
 export default function PrivelgesOfficeTypes() {
   const toast = useToast();
   const navigate = useNavigate();
-  const { mainUser } = getSession(); // نقرأ مجموعة المكتب الحالية إن وجدت
+  const { mainUser } = getSession();
   const titleClr = useColorModeValue("gray.700", "gray.100");
 
   // الدور ثابت "O" (مكاتب)
@@ -103,7 +104,7 @@ export default function PrivelgesOfficeTypes() {
     [titleClr, roleCode]
   );
 
-  // تعديل ⇒ نفس ستايل باقي الصفحات
+  // ⇐ تعديل: افتح صفحة الميزات لنفس المجموعة بدور المكتب O
   const onEditRow = useCallback(
     (row: AnyRec) => {
       const r = row as Row;
@@ -112,9 +113,11 @@ export default function PrivelgesOfficeTypes() {
         toast({ title: "لا يمكن تحديد الصلاحية للتعديل", status: "warning" });
         return;
       }
-      const to = `/officedashboard/privelges/update?groupId=${encodeURIComponent(
+
+      const to = `/officedashboard/group-right-features?groupId=${encodeURIComponent(
         String(id)
-      )}&featureType=2&role=O`;
+      )}&role=O`;
+
       navigate(to, { state: { row } });
     },
     [navigate, toast]
@@ -131,20 +134,19 @@ export default function PrivelgesOfficeTypes() {
   return (
     <Box>
       <HStack justify="space-between" mb={3}>
-        <HStack>
-          {/* ممكن تضيف بادجات تعريفية بالمكتب هنا لو حابب */}
-        </HStack>
-
+        <HStack />
         <HStack>
           <SharedButton variant="secondary" onClick={onRefresh}>
             تحديث
           </SharedButton>
 
-          {/* زر الإضافة يفتح صفحة إضافة الصلاحيات بدور O
-              لو للمستخدم GroupRight_Id هنمرره كـ groupId */}
-          <SharedButton variant="brandGradient" to="/officedashboard/privelgesOffice/add">
-              إضافة صلاحية
-            </SharedButton>
+          {/* إضافة صلاحية لدور المكتب */}
+          <SharedButton
+            variant="brandGradient"
+            to="/officedashboard/privelgesOffice/add?role=O"
+          >
+            إضافة صلاحية
+          </SharedButton>
         </HStack>
       </HStack>
 

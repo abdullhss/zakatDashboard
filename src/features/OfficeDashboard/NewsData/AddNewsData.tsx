@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Box, Grid, GridItem, FormControl, FormLabel, Input, Select, Textarea,
   VStack, HStack, Text, useToast, Spinner, Alert, AlertIcon, AspectRatio, Image, Icon, Button, Flex,
@@ -14,8 +14,22 @@ import { updateNewsData } from "./Services/updateNewsData";
 
 // 🔗 مسار عرض الصور/الملفات
 const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
-const buildFileUrl = (id?: string | number, ext = ".jpg") =>
-  id ? `${ZAKAT_IMAGES_BASE}/${id}${ext}` : "";
+const ZAKAT_FILES_BASE  = "https://framework.md-license.com:8093/ZakatFiles";
+
+const buildPhotoUrlByName = (name?: string | number, ext?: string) => {
+  if (!name) return "";
+  const normalized = ext && ext.startsWith(".") ? ext : ".jpg";
+  return `${ZAKAT_IMAGES_BASE}/${name}${normalized}`;
+};
+
+const buildAttachmentUrlByName = (name?: string | number, ext?: string) => {
+  if (!name) return "";
+  const normalized = (ext && ext.startsWith(".")) ? ext.toLowerCase() : "";
+  const isImage = [".jpg", ".jpeg", ".png", ".gif", ".webp"].includes(normalized);
+  const base = isImage ? ZAKAT_IMAGES_BASE : ZAKAT_FILES_BASE;
+  const suffix = normalized || ".pdf";
+  return `${base}/${name}${suffix}`;
+};
 
 type NewsFormState = {
   id?: number | string;
@@ -116,8 +130,6 @@ export default function AddNewsForm() {
     }
 
     // ✅ فاليديشن إلزام الصورة:
-    // - في الإضافة: لازم mainPhotoFile
-    // - في التعديل: لازم (mainPhotoFile أو currentPhotoId)
     const hasPhoto = isEdit ? (Boolean(mainPhotoFile) || Boolean(form.currentPhotoId)) : Boolean(mainPhotoFile);
     if (!hasPhoto) {
       toast({
@@ -140,7 +152,7 @@ export default function AddNewsForm() {
 
     try {
       // IDs النهائية المرسلة
-      let photoId = form.currentPhotoId || "";
+      let photoId = form.currentPhotoId || "";  // هنا نتأكد من حفظ الـ ID القديم إن كان موجودًا
       let attachId = form.currentAttachId || "";
 
       // 1) ارفع الصورة لو تم اختيارها
@@ -153,8 +165,8 @@ export default function AddNewsForm() {
           onProgress: (p: number) => console.log(`Main photo progress: ${p}%`),
         });
         if (!up?.id || up.id === "0") throw new Error(up?.error || "فشل رفع الصورة");
-        photoId = String(up.id);
-        setLastMainPhotoId(photoId);
+        photoId = String(up.id);  // نُحفظ الـ id المستلم
+        setLastMainPhotoId(photoId);  // نحدّث الـ ID هنا
       }
 
       // 2) ارفع المرفق لو تم اختياره
@@ -239,8 +251,8 @@ export default function AddNewsForm() {
   }
 
   // عرض الصورة/المرفق الحالية لو موجودة
-  const currentPhotoUrl = form.currentPhotoId ? buildFileUrl(form.currentPhotoId, ".jpg") : "";
-  const currentAttachUrl = form.currentAttachId ? buildFileUrl(form.currentAttachId, "") : "";
+  const currentPhotoUrl = form.currentPhotoId ? buildPhotoUrlByName(form.currentPhotoId) : "";
+  const currentAttachUrl = form.currentAttachId ? buildAttachmentUrlByName(form.currentAttachId) : "";
 
   return (
     <Box p={6}>
@@ -333,7 +345,6 @@ export default function AddNewsForm() {
                 </Box>
               </AspectRatio>
 
-              {/* ✅ مُفعّل: إدخال ملف الصورة */}
               <input
                 ref={photoInputRef}
                 type="file"
@@ -341,10 +352,6 @@ export default function AddNewsForm() {
                 hidden
                 onChange={(e) => setMainPhotoFile(e.target.files?.[0] || null)}
               />
-{/* 
-              {(lastMainPhotoId || form.currentPhotoId) && (
-                <Text fontSize="xs" color="gray.500">Photo ID: {lastMainPhotoId || form.currentPhotoId}</Text>
-              )} */}
             </VStack>
 
             <FormLabel>ملف مرفق (اختياري)</FormLabel>
@@ -359,11 +366,6 @@ export default function AddNewsForm() {
                 hidden
                 onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)}
               />
-              {/* {form.currentAttachId && (
-                <Text fontSize="xs" color="gray.500">
-                  Attach ID: {form.currentAttachId} {currentAttachUrl ? " (مرفوع)" : ""}
-                </Text>
-              )} */}
             </VStack>
           </GridItem>
         </Grid>

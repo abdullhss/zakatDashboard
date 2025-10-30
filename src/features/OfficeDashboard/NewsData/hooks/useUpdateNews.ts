@@ -1,4 +1,3 @@
-// src/features/MainDepartment/News/hooks/useUpdateNewsData.ts
 import {
   useMutation,
   useQueryClient,
@@ -21,9 +20,8 @@ export function useUpdateNewsData(): UseMutationResult<
     mutationFn: updateNewsData,
     mutationKey: ["news:update"],
     onSuccess: (_data, variables) => {
-
+      // عند النجاح نقوم بتحديث الكاش أو استرجاع البيانات الجديدة من السيرفر
       queryClient.invalidateQueries({ queryKey: ["news-dashboard"] });
- 
     },
   });
 }

@@ -1,4 +1,3 @@
-// src/features/OfficeDashboard/NewsData/getNewsData.tsx
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import {
   Box, Flex, Spinner, Alert, AlertIcon, Text, HStack, Switch, Image, Link,
@@ -116,18 +115,18 @@ const makeColumns = ({ startIndex, goToType, onEdit, onDelete }: MakeColsArgs): 
     header: "المرفقات",
     width: "12%",
     render: (row: AnyRec) => {
-      const name: string | number | undefined = row.AttachmentFile;
-      const ext: string | undefined = row.AttachmentFileExt;
-      if (!name) return <Text>—</Text>;
+      const name: string | number | undefined = row.AttachmentFile || row.NewsMainPhotoName;  // هنا نعرض الـ ID للصورة في المرفق إذا كانت الصورة موجودة
+      const ext: string | undefined = row.AttachmentFileExt || ".jpg";  // التأكد من استخدام امتداد الصورة
       const url = buildAttachmentUrlByName(name, ext);
-      const isPdf = (ext ?? "").toLowerCase() === ".pdf";
-      return (
+      return name ? (
         <HStack spacing={2}>
-          <Icon as={isPdf ? FiFileText : FiImage} />
+          <Icon as={FiImage} />
           <Link href={url} target="_blank" rel="noopener noreferrer">
             {`${name}${ext || ""}`}
           </Link>
         </HStack>
+      ) : (
+        <Text>—</Text>
       );
     },
   },
@@ -230,7 +229,6 @@ export default function GetNewsData() {
     [navigate]
   );
 
-  // ⬅️ أهم جزء: فتح نفس فورم الإضافة في وضع تعديل مع تمرير الصف كاملًا
   const onEdit = useCallback(
     (row: AnyRec) => {
       const id =
@@ -241,16 +239,6 @@ export default function GetNewsData() {
     },
     [navigate]
   );
-
-  useEffect(() => {
-    if (!isLoading) {
-      console.groupCollapsed("%c[News] parsed", "color:#06b6d4;font-weight:bold");
-      console.log("rows:", rows);
-      console.log("totalRows:", totalRows);
-      console.log("raw payload:", data);
-      console.groupEnd();
-    }
-  }, [data, rows, totalRows, isLoading]);
 
   const handleDelete = async (row: AnyRec) => {
     const id = (row as any)?.Id ?? (row as any)?.NewsId ?? (row as any)?.id;
@@ -269,7 +257,6 @@ export default function GetNewsData() {
     try {
       await delNews.mutateAsync({ id });
       toast({ status: "success", title: "تم الحذف", description: `تم حذف الخبر رقم ${id}.` });
-      // revalidate هنا حسب هوك الجلب عندك
     } catch (e: any) {
       toast({
         status: "error",
