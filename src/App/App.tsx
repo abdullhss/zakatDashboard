@@ -49,6 +49,11 @@ import ContactUs from "../features/MainDepartment/ProgramData/ContactUs";
 import UseConditions from "../features/MainDepartment/ProgramData/UseConditions";
 import WhoAreWe from "../features/MainDepartment/ProgramData/WhoAreWe";
 import GroupRightFeaturesPage from "../features/OfficeDashboard/PrivelegesOffice/GroupRightFeaturesPageOffice";
+import TransferData from "../features/OfficeDashboard/TransferBanksData/TransferData";
+import AddTransferData from "../features/OfficeDashboard/TransferBanksData/AddTransferData";
+import GetPaymentData from "../features/OfficeDashboard/DashPaymentData/GetPaymentData";
+import AddPaymentData from "../features/OfficeDashboard/DashPaymentData/addPaymentDashData";
+import GetStatmentData from "../features/OfficeDashboard/StatementData/GetStatmentData";
 
 export default function App() {
   return (
@@ -104,7 +109,7 @@ export default function App() {
     <Route path="users/edit/:id" element={<AddUserPage />} />
     <Route path="privelgesOffice" element={<PrivelgesOfficeTypes />} />
     <Route path="privelgesOffice/add" element={<AddPrivelges />} />
-    <Route path="group-right-features" element={<GroupRightFeaturesPage />} /> {/* ✅ الجديد */}
+    <Route path="group-right-features" element={<GroupRightFeaturesPage />} /> 
     <Route path="campaignOffice" element={<CampaignOffice />} />
     <Route path="projects" element={<GetProjects />} />
     <Route path="projects/add" element={<AddProjectForm />} />
@@ -114,6 +119,12 @@ export default function App() {
     <Route path="newsdata/add" element={<AddNewsData />} />
     <Route path="news-types" element={<NewsTypesPage />} />
     <Route path="payment-details/:paymentId" element={<PaymentDetails />} />
+    <Route path="transferdata" element={<TransferData />} />
+    <Route path="transferdata/add" element={<AddTransferData />} />
+    <Route path="dashpayment" element={<GetPaymentData />} />
+    <Route path="dashpayment/add" element={<AddPaymentData />} />
+    <Route path="statement" element={<GetStatmentData />} />
+    
   </Route>
 </Route>
 

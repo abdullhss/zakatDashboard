@@ -1,25 +1,17 @@
 import { chakra, Icon } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 
-// أيقونات متنوعة لكل قسم
+// أيقونات
 import { FiHome, FiMapPin, FiCreditCard, FiUsers } from "react-icons/fi";
-import { HiOutlineBuildingOffice } from "react-icons/hi2";
-import { RiShieldKeyholeLine, RiHandCoinLine, RiHandHeartLine, RiServiceLine } from "react-icons/ri";
+import { RiShieldKeyholeLine, RiServiceLine } from "react-icons/ri";
 import { TbCategory2 } from "react-icons/tb";
 import { GiSheep } from "react-icons/gi";
-import { MdOutlineAssignmentTurnedIn } from "react-icons/md";
-import { AiOutlineCalculator } from "react-icons/ai";
 
-// ✅ قائمة الناف بار
+import { getSession } from "../../../session";
+import { useGetGroupRightFeature } from "../../MainDepartment/Privelges/hooks/useGetGroupRightFeature";
+
 const NavList = chakra("nav", {
-  baseStyle: {
-    display: "flex",
-    flexDirection: "column",
-    mt: 4,
-    fontSize: "18px",
-    fontWeight: "bold",
-    lineHeight: "120%",
-  },
+  baseStyle: { display: "flex", flexDirection: "column", mt: 4, fontSize: "18px", fontWeight: "bold", lineHeight: "120%" }
 });
 
 const LinkItem = chakra(NavLink, {
@@ -34,76 +26,51 @@ const LinkItem = chakra(NavLink, {
     fontWeight: 800,
     transition: "all .2s ease",
     _hover: { bg: "gray.200", color: "gray.700" },
-
     "&.active, &[aria-current='page']": {
       color: "black",
       bg: "gray.100",
       fontWeight: 600,
       position: "relative",
-      _before: {
-        content: `""`,
-        position: "absolute",
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: "4px",
-        bg: "#17343B",
-        borderRadius: "4px 0 0 4px",
-      },
+      _before: { content: `""`, position: "absolute", left: 0, top: 0, bottom: 0, width: "4px", bg: "#17343B", borderRadius: "4px 0 0 4px" }
     },
   },
 });
 
 export default function MainNavBarOfficeDepartment() {
+  const { groupRightId } = getSession();
+  const { data: featuresQuery } = useGetGroupRightFeature("O", groupRightId); // featureType O للمكاتب
+
+  const featuresData = featuresQuery?.rows || [];
+
+  const isFeatureEnabled = (featureName: string) => {
+    if (groupRightId === 0) return true; // admin كل حاجة مفتوحة
+    return featuresData.some(f => f.FeatureName === featureName && f.IsActive);
+  };
+
+  const renderLink = (to: string, name: string, IconComp: any) => (
+    <LinkItem
+      to={to}
+      pointerEvents={isFeatureEnabled(name) ? "auto" : "none"}
+      opacity={isFeatureEnabled(name) ? 1 : 0.5}
+    >
+      <Icon as={IconComp} boxSize={5} />
+      {name}
+    </LinkItem>
+  );
+
   return (
     <NavList>
-      {/* الرئيسية */}
-      <LinkItem to="." end>
-        <Icon as={FiHome} boxSize={5} />
-        الصفحة الرئيسية
-      </LinkItem>
-
-      {/* المستخدمين */}
-      <LinkItem to="usersOffice">
-        <Icon as={FiUsers} boxSize={5} />
-        المستخدمين
-      </LinkItem>
-
-      {/* الصلاحيات */}
-      <LinkItem to="privelgesOffice">
-        <Icon as={RiShieldKeyholeLine} boxSize={5} />
-        الصلاحيات
-      </LinkItem>
-
-      {/* الخدمات */}
-      <LinkItem to="campaignOffice">
-        <Icon as={RiServiceLine} boxSize={5} />
-        الخدمات
-      </LinkItem>
-
-      {/* المشاريع */}
-      <LinkItem to="newsdata">
-        <Icon as={TbCategory2} boxSize={5} />
-        الاخبار
-      </LinkItem>
-      {/* المشاريع */}
-      <LinkItem to="projects">
-        <Icon as={TbCategory2} boxSize={5} />
-        المشاريع
-      </LinkItem>
-
-      {/* الأضحيات */}
-      <LinkItem to="sacrificesDashData">
-        <Icon as={GiSheep} boxSize={5} />
-        الأضحيات
-      </LinkItem>
-
-      {/* المدفوعات */}
-      <LinkItem to="paymentData">
-        <Icon as={FiCreditCard} boxSize={5} />
-        المدفوعات
-      </LinkItem>
+      {renderLink(".", "الصفحة الرئيسية", FiHome)}
+      {renderLink("usersOffice", "المستخدمين", FiUsers)}
+      {renderLink("privelgesOffice", "الصلاحيات", RiShieldKeyholeLine)}
+      {renderLink("campaignOffice", "الخدمات", RiServiceLine)}
+      {renderLink("newsdata", "الأخبار", TbCategory2)}
+      {renderLink("projects", "المشاريع", TbCategory2)}
+      {renderLink("sacrificesDashData", "الأضحيات", GiSheep)}
+      {renderLink("paymentData", "المدفوعات", FiCreditCard)}
+      {renderLink("transferdata", "التحويلات البنكية", FiCreditCard)}
+      {renderLink("dashpayment", "المصروفات", FiCreditCard)}
+      {renderLink("statement", "الايصالات", FiCreditCard)}
     </NavList>
-    
   );
 }

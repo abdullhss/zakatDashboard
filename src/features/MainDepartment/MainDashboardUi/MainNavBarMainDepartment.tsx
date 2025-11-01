@@ -1,30 +1,20 @@
 import { chakra, Icon } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 
-// أيقونات مناسبة لكل عنصر
+// أيقونات
 import { FiHome, FiMapPin, FiCreditCard, FiUsers } from "react-icons/fi";
 import { HiOutlineBuildingOffice } from "react-icons/hi2";
-import {
-  RiShieldKeyholeLine,
-  RiHandCoinLine,
-  RiHandHeartLine,
-  RiServiceLine,
-} from "react-icons/ri";
+import { RiShieldKeyholeLine, RiHandCoinLine, RiHandHeartLine, RiServiceLine } from "react-icons/ri";
 import { TbCategory2 } from "react-icons/tb";
 import { GiSheep } from "react-icons/gi";
 import { MdOutlineAssignmentTurnedIn } from "react-icons/md";
 import { AiOutlineCalculator } from "react-icons/ai";
 
-// ✅ قائمة الناف بار
+import { getSession } from "../../../session";
+import { useGetGroupRightFeature } from "../Privelges/hooks/useGetGroupRightFeature";
+
 const NavList = chakra("nav", {
-  baseStyle: {
-    display: "flex",
-    flexDirection: "column",
-    mt: 4,
-    fontSize: "18px",
-    fontWeight: "bold",
-    lineHeight: "120%",
-  },
+  baseStyle: { display: "flex", flexDirection: "column", mt: 4, fontSize: "18px", fontWeight: "bold", lineHeight: "120%" }
 });
 
 const LinkItem = chakra(NavLink, {
@@ -39,130 +29,59 @@ const LinkItem = chakra(NavLink, {
     fontWeight: 800,
     transition: "all .2s ease",
     _hover: { bg: "gray.200", color: "gray.700" },
-
     "&.active, &[aria-current='page']": {
       color: "black",
       bg: "gray.100",
       fontWeight: 600,
       position: "relative",
-      _before: {
-        content: `""`,
-        position: "absolute",
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: "4px",
-        bg: "#17343B",
-        borderRadius: "4px 0 0 4px",
-      },
+      _before: { content: `""`, position: "absolute", left: 0, top: 0, bottom: 0, width: "4px", bg: "#17343B", borderRadius: "4px 0 0 4px" }
     },
   },
 });
 
 export default function MainNavBar() {
+  const { groupRightId } = getSession();
+  const { data: featuresQuery } = useGetGroupRightFeature("M", groupRightId);
+
+  // FeaturesData parsed
+  const featuresData = featuresQuery?.rows || [];
+
+  const isFeatureEnabled = (featureName: string) => {
+    if (groupRightId === 0) return true; // admin كل حاجة مفتوحة
+    return featuresData.some(f => f.FeatureName === featureName && f.IsActive);
+  };
+
+  const renderLink = (to: string, name: string, IconComp: any) => (
+    <LinkItem
+      to={to}
+      pointerEvents={isFeatureEnabled(name) ? "auto" : "none"}
+      opacity={isFeatureEnabled(name) ? 1 : 0.5}
+    >
+      <Icon as={IconComp} boxSize={5} />
+      {name}
+    </LinkItem>
+  );
+
   return (
     <NavList>
-      {/* الرئيسية */}
-      <LinkItem to="." end>
-        <Icon as={FiHome} boxSize={5} />
-        الصفحة الرئيسية
-      </LinkItem>
-
-      {/* المدن */}
-      <LinkItem to="cities">
-        <Icon as={FiMapPin} boxSize={5} />
-        المدن
-      </LinkItem>
-
-      {/* البنوك */}
-      <LinkItem to="banks">
-        <Icon as={FiCreditCard} boxSize={5} />
-        البنوك
-      </LinkItem>
-
-      {/* المكاتب */}
-      <LinkItem to="offices">
-        <Icon as={HiOutlineBuildingOffice} boxSize={5} />
-        المكاتب
-      </LinkItem>
-
-      {/* تصنيف الإعانات */}
-      <LinkItem to="subventionTypes">
-        <Icon as={TbCategory2} boxSize={5} />
-        تصنيف الإعانات
-      </LinkItem>
-
-      {/* الكفارة */}
-      <LinkItem to="kafara">
-        <Icon as={RiHandHeartLine} boxSize={5} />
-        الكفارة
-      </LinkItem>
-
-      {/* أصناف الزكاة */}
-      <LinkItem to="zakah">
-        <Icon as={RiHandCoinLine} boxSize={5} />
-        أصناف الزكاة
-      </LinkItem>
-
-      {/* الصلاحيات */}
-      <LinkItem to="privelges">
-        <Icon as={RiShieldKeyholeLine} boxSize={5} />
-        الصلاحيات
-      </LinkItem>
-
-      {/* المستخدمين */}
-      <LinkItem to="users">
-        <Icon as={FiUsers} boxSize={5} />
-        المستخدمين
-      </LinkItem>
-
-      {/* حاسبة الزكاة */}
-      <LinkItem to="zakatGold">
-        <Icon as={AiOutlineCalculator} boxSize={5} />
-        حاسبة الزكاة
-      </LinkItem>
-
-      {/* أنواع الأضحيات */}
-      <LinkItem to="sacirificeTypes">
-        <Icon as={GiSheep} boxSize={5} />
-        أنواع الأضحيات
-      </LinkItem>
-
-      {/* مراجعة طلب الإعانة */}
-      <LinkItem to="assistanceData">
-        <Icon as={MdOutlineAssignmentTurnedIn} boxSize={5} />
-        مراجعة طلب الإعانة
-      </LinkItem>
-
-      {/* الخدمات */}
-      <LinkItem to="campaign">
-        <Icon as={RiServiceLine} boxSize={5} />
-        الخدمات
-      </LinkItem>
-      <LinkItem to="sacrificeDataMain">
-        <Icon as={RiServiceLine} boxSize={5} />
-        الاضحيات
-      </LinkItem>
-      {/* <LinkItem to="aboutus">
-        <Icon as={RiServiceLine} boxSize={5} />
-        من نحن
-      </LinkItem> */}
-      <LinkItem to="laws">
-        <Icon as={RiServiceLine} boxSize={5} />
-       اللوائح
-      </LinkItem>
-      <LinkItem to="contactus">
-        <Icon as={RiServiceLine} boxSize={5} />
-       اتصل بنا 
-      </LinkItem>
-      <LinkItem to="conditions">
-        <Icon as={RiServiceLine} boxSize={5} />
-    الشروط
-      </LinkItem>
-      <LinkItem to="whoarewe">
-        <Icon as={RiServiceLine} boxSize={5} />
-      من نحن؟
-      </LinkItem>
+      {renderLink(".", "الصفحة الرئيسية", FiHome)}
+      {renderLink("cities", "المدن", FiMapPin)}
+      {renderLink("banks", "البنوك", FiCreditCard)}
+      {renderLink("offices", "المكاتب", HiOutlineBuildingOffice)}
+      {renderLink("subventionTypes", "تصنيف الإعانات", TbCategory2)}
+      {renderLink("kafara", "الكفارة", RiHandHeartLine)}
+      {renderLink("zakah", "أصناف الزكاة", RiHandCoinLine)}
+      {renderLink("privelges", "الصلاحيات", RiShieldKeyholeLine)}
+      {renderLink("users", "المستخدمين", FiUsers)}
+      {renderLink("zakatGold", "حاسبة الزكاة", AiOutlineCalculator)}
+      {renderLink("sacirificeTypes", "أنواع الأضحيات", GiSheep)}
+      {renderLink("assistanceData", "مراجعة طلب الإعانة", MdOutlineAssignmentTurnedIn)}
+      {renderLink("campaign", "الخدمات", RiServiceLine)}
+      {renderLink("sacrificeDataMain", "الأضحيات", RiServiceLine)}
+      {renderLink("laws", "اللوائح", RiServiceLine)}
+      {renderLink("contactus", "اتصل بنا", RiServiceLine)}
+      {renderLink("conditions", "الشروط", RiServiceLine)}
+      {renderLink("whoarewe", "من نحن؟", RiServiceLine)}
     </NavList>
   );
 }

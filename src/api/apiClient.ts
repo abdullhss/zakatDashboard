@@ -65,6 +65,13 @@ export const PROCEDURE_NAMES: Record<string, string> = {
      GET_DASH_NEWS_DATA: "D1gxIpW0jvHPzz2gPx4IHsMenSKRzg6GpMH2gJxxN8g=",
      GET_TYPES_NEW_DATA: "4VqIN2QLEsIVgrrrZ9+QTf47UlCZzoc1uZeOQx5MsEI=",
      NEWS_TABLE_NAME: "M3zRwxiJknLboYsWUx3adg==",
+     GET_TRANSFER_MONEYS_DATA: "TgpuUW6jhnFIqnrrHl3kBZmyA3emjDs1Bm0ddGBoPyc=",
+     TRANSFER_MONEY_TABLE: "hcC+ccd408QLXTqNcXHRHg==", //
+     GET_OFFICE_BANKS_DATA: "sUlbVhUJKwC+dwRdG8NZb+RoLowRJemxolOItXOYojg=",
+     GET_DASH_OFFICE_PAYMENTS_DATA: "abIePzcUTm/9zXbdpbAElw/ueKFMAnpSn0ARLfhp6Uc=",
+     OFFICE_PAYMENT_TABLE: "JluHfcgecZFjQs2/9pBjEg==",
+     GET_ACTIVE_OFFICES_DATA: "mdemtAbueh2oz+k6MjjaFaOfTRzNK4XQQy0TBhCaV0Y=",
+     GET_STATEMENT_DATA: "4LVTia3rNexqqd1QObxL/xQGNKgCOr9UiUhhCMKj1XAu2G6Tk7qjxXLRhgfXVsHu",
 };
 
 /* ===================================

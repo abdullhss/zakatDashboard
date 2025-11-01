@@ -8,11 +8,24 @@ type RawUser = {
   UserType?: Role;
   Office_Id?: number | string;
   OfficeName?: string;
+  // ✅ الحقول الجديدة من الـ API
   GroupRight_Id?: number | string;
   GroupRightName?: string;
 };
 
-export function getSession() {
+export interface SessionData {
+  role: Role;
+  userId: number;
+  userName: string;
+  officeId: number;
+  officeName: string;
+  mainUser: RawUser | null;
+  // ✅ إضافة حقول الصلاحيات إلى البيانات التي يتم إرجاعها
+  groupRightId: number; 
+  groupRightName: string;
+}
+
+export function getSession(): SessionData {
   // جلب الدور (Role) من localStorage، الافتراضي "M" (Main)
   const role = ((localStorage.getItem("role") || "M").toUpperCase() as Role);
   
@@ -30,7 +43,21 @@ export function getSession() {
     mainUser?.OfficeName ||
     (officeId > 0 ? `Office #${officeId}` : "الإدارة الرئيسية");
 
-  return { role, userId, userName, officeId, officeName, mainUser };
+  // ✅ استخلاص بيانات الصلاحيات (نحولها إلى رقم لسهولة المقارنة)
+  const groupRightId = Number(mainUser?.GroupRight_Id ?? 0) || 0;
+  const groupRightName = mainUser?.GroupRightName || "غير محدد";
+
+
+  return { 
+    role, 
+    userId, 
+    userName, 
+    officeId, 
+    officeName, 
+    mainUser, 
+    groupRightId, // ✅ تم إضافته
+    groupRightName // ✅ تم إضافته
+  };
 }
 
 export const isMain = () => getSession().role === "M"; // إدارة
@@ -48,10 +75,10 @@ export function scopeEncSQLToOffice(encSQLRaw?: string) {
 
   if (hasWhere) {
     return sql.replace(/(order\s+by[\s\S]+)$/i, (m) => ` AND (Office_Id = ${officeId}) ${m}`)
-              .replace(/\s+$/, "");
+             .replace(/\s+$/, "");
   }
   return hasOrder ? sql.replace(/(order\s+by[\s\S]+)$/i, (m) => ` WHERE (Office_Id = ${officeId}) ${m}`) 
-                  : `${sql} WHERE (Office_Id = ${officeId})`;
+                 : `${sql} WHERE (Office_Id = ${officeId})`;
 }
 
 /** لو API محتاج تبعته كقيمة، هات الـ Office_Id أو 0 */

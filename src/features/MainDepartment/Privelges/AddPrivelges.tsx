@@ -28,13 +28,15 @@ export default function AddPrivelges() {
   // session
   const { role, officeName } = getSession(); // role = "M" | "O"
 
-  // لو جاي تضيف على مجموعة موجودة
   const groupRightId = sp.get("groupId") || "";
 
-  // اسم المجموعة (لو مكتب: بنقفل الحقل ونحط اسم المكتب)
   const [groupRightName, setGroupRightName] = useState<string>("");
-  const lockName = role === "O"; // مكتب ⇒ الاسم ثابت = اسم المكتب
-
+const lockName = false;
+useEffect(() => {
+  if (role === "O" && !groupRightName) {
+    setGroupRightName(officeName || "");
+  }
+}, [role, officeName, groupRightName]);
   useEffect(() => {
     if (lockName) setGroupRightName(officeName || "");
   }, [lockName, officeName]);
