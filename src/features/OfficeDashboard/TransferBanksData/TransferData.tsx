@@ -1,5 +1,3 @@
-// src/features/Transfers/TransferData.tsx
-
 import React, { useState, useMemo } from "react";
 import {
   Box,
@@ -20,7 +18,6 @@ import { useNavigate } from "react-router-dom";
 
 const PAGE_SIZE = 10;
 
-// ✅ Updated columns based on your API data
 const TRANSFER_COLUMNS: Column[] = [
   {
     key: "Id",
@@ -34,7 +31,9 @@ const TRANSFER_COLUMNS: Column[] = [
     width: "15%",
     render: (row: AnyRec) => {
       const dateStr = row.TransferDate;
-      return dateStr ? new Date(dateStr).toLocaleDateString("ar-EG") : "—";
+      return dateStr
+        ? new Date(dateStr).toLocaleDateString("en-GB") // 👈 English format
+        : "—";
     },
   },
   {

@@ -122,7 +122,7 @@ export default function MainNavBarOfficeDepartment() {
       {renderLink("dashpayment", "المصروفات", RiHandCoinLine)}
 
       {/* الإيصالات */}
-      {renderLink("statement", "الإيصالات", FiFileText)}
+      {renderLink("statement", "كشف الحسابات المصرفية", FiFileText)}
     </NavList>
   );
 }

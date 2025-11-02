@@ -18,7 +18,7 @@ function getCurrentUserId(): number {
         if (Number.isFinite(Number(id))) return Number(id);
       } catch {}
     }
-  }
+  }ac
   return 0;
 }
 

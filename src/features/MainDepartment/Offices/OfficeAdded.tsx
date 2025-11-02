@@ -51,9 +51,15 @@ const accountTypeLabel = (v: any) => {
   return m[v] ?? (v != null ? String(v) : "—");
 };
 const serviceTypeLabel = (v: any) => {
-  const m: Record<any, string> = { 1: "صدقة", 2: "زكاة", sadaka: "صدقة", zakat: "زكاة" };
+  const m: Record<any, string> = { 
+    1: "صدقة", 
+    2: "زكاة", 
+    zakat: "زكاة", 
+    sadaka: "صدقة" 
+  };
   return m[v] ?? (v != null ? String(v) : "—");
 };
+
 const fmtCurrency = (v: any) => {
   const n = Number(v);
   return Number.isFinite(n)

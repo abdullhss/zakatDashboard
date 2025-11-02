@@ -6,8 +6,6 @@ import { useGetCampaignQuery } from "../../MainDepartment/GetCashCampaign/hooks/
 import useUpdateCampaignData from "../../MainDepartment/GetCashCampaign/hooks/useUpdateCampaignData";
 import { getSession, isOffice } from "../../../session";
 
-// 🛑 توحيد مسارات الاستيراد بناءً على مسار useGetCampaignQuery
-// تأكد من أن هذه الملفات موجودة في المسارات المحددة:
 import type { CampaignRow } from "../../MainDepartment/GetCashCampaign/utils/types";
 import { filterRowsByOffice, hasOfficeColumn } from "../../MainDepartment/GetCashCampaign/utils/sessionFilters";
 import { createCampaignColumns } from "../../MainDepartment/GetCashCampaign/components/createCampaignColumns";

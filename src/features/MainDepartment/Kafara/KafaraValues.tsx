@@ -137,7 +137,7 @@ export default function Kafara() {
               fontWeight="bold"
             />
             <Text color={hintClr} width="10%" fontWeight="600">
-              قيمة الكفارة
+  القيمة الحالية
             </Text>
           </HStack>
 
@@ -162,10 +162,10 @@ export default function Kafara() {
               variant="unstyled"
               textAlign="left"
               pe="4"
-              placeholder="برجاء تحديد قيمة الكفارة"
+              placeholder="برجاء تحديث قيمة الكفارة"
             />
             <Text color={hintClr} width="15%" fontWeight="600">
-              تحديد قيمة الكفارة
+           تحديث القيمة
             </Text>
           </HStack>
 

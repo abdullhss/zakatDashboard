@@ -9,7 +9,7 @@ type FieldRowProps = {
 export default function FieldRow({ label, children }: FieldRowProps) {
   return (
     <VStack align="stretch" spacing={2} w="full" dir="rtl">
-      <Text fontWeight="700" fontSize="md" color="gray.700">
+      <Text fontWeight="700" fontSize="mx;d" color="gray.700">
         {label}
       </Text>
       {children}

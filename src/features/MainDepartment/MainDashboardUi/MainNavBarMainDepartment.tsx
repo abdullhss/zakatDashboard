@@ -111,7 +111,7 @@ export default function MainNavBar() {
       {renderLink("subventionTypes", "تصنيف الإعانات", TbCategory2)}
 
       {/* الكفارة */}
-      {renderLink("kafara", "الكفارة", RiHandHeartLine)}
+      {renderLink("kafara", "الكفارة والفدية", RiHandHeartLine)}
 
       {/* الزكاة */}
       {renderLink("zakah", "أصناف الزكاة", RiHandCoinLine)}
