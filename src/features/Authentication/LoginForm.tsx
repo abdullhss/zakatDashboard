@@ -12,12 +12,10 @@ import {
 } from "@chakra-ui/react";
 import { FieldsStack } from "./Styles/LoginpageStyles";
 
-/** أيقونات من public/ */
 const userIcon = "/assets/LoginIcons/profile.png";
 const eyeIcon = "/assets/LoginIcons/eye.png";
 const eyeOffIcon = "/assets/LoginIcons/eye-slash.png";
 
-// ⬅️ تعريف الأنواع لـ Props
 interface LoginFormProps {
     username: string;
     password: string;
@@ -31,9 +29,8 @@ export default function LoginForm({ username, password, setUsername, setPassword
 
   return (
     <FieldsStack>
-      {/* اسم المستخدم */}
       <FormControl isRequired>
-        <FormLabel fontSize="sm" color="gray.700" mb={1}>
+        <FormLabel color="gray.700" mb={1}>
           اسم مستخدم 
         </FormLabel>
         <InputGroup>
@@ -51,7 +48,6 @@ export default function LoginForm({ username, password, setUsername, setPassword
               borderColor: "brand.700",
               boxShadow: "0 0 0 1px var(--chakra-colors-brand-700)",
             }}
-             // ⬅️ ربط القيمة ودالة التحديث
              value={username}
              onChange={(e) => setUsername(e.target.value)}
              isDisabled={isDisabled}
@@ -59,9 +55,8 @@ export default function LoginForm({ username, password, setUsername, setPassword
         </InputGroup>
       </FormControl>
 
-      {/* كلمة المرور */}
       <FormControl isRequired>
-        <FormLabel fontSize="sm" color="gray.700" mb={1}>
+        <FormLabel color="gray.700" mb={1}>
           كلمة المرور 
         </FormLabel>
         <InputGroup>
@@ -76,13 +71,11 @@ export default function LoginForm({ username, password, setUsername, setPassword
               borderColor: "brand.700",
               boxShadow: "0 0 0 1px var(--chakra-colors-brand-700)",
             }}
-             // ⬅️ ربط القيمة ودالة التحديث
              value={password}
              onChange={(e) => setPassword(e.target.value)}
              isDisabled={isDisabled}
           />
 
-          {/* زر العين (وضعناه في LeftElement) */}
           <InputLeftElement w="40px" h="100%">
             <IconButton
               aria-label="Toggle password"
