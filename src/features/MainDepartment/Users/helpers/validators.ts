@@ -8,8 +8,8 @@ export function isValidLibyaPhone(raw: string): boolean {
   return false;
 }
 
-export const isValidEmail = (e: string) => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(e.trim());
-export const strongPassword = (p: string) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]).{8,}$/.test(p);
+export const isValidEmail = (e: string) =>
+  /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(e.trim());
 
-export const privIdOf = (r: any) => r?.GroupRight_Id ?? r?.Id ?? r?.id;
-export const privNameOf = (r: any) => r?.GroupRight_Name ?? r?.GroupRightName ?? r?.Name ?? r?.Title ?? String(privIdOf(r) ?? "—");
+export const strongPassword = (p: string) =>
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]).{8,}$/.test(p);

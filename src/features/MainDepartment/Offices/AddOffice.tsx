@@ -1,8 +1,6 @@
 import {
   Box, Heading, useToast, Collapse, HStack, Button, Text, IconButton, Spinner,
-  AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader,
-  AlertDialogOverlay, useDisclosure,
-  Flex,
+  useDisclosure, Flex,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
@@ -16,7 +14,7 @@ import OfficeDetailsSection, {
 } from "./OfficeDetailsSection";
 
 import BankDetailsSection, {
-  type BankDetailsHandle, type BankDetailsValues, type Option,
+  type BankDetailsHandle, type BankDetailsValues,
 } from "./BankDetailsSection";
 
 import BankAccountSection from "./BankAccountSection";
@@ -26,53 +24,9 @@ import useUpdateOffice from "./hooks/useUpdateOffice";
 import { useGetDashBankData } from "./hooks/useGetDashBankData";
 import { deleteBankAccount } from "./Services/addAccount";
 
-/* ===================== ثوابت ===================== */
-const OFFICE_TABLE = "msDmpDYZ2wcHBSmvMDczrg==";
-const BANK_TABLE   = "7OJ/SnO8HWuJK+w5pE0FXA==";
-
-const BANK_COLS =
-  "Id#Office_Id#Bank_Id#AccountNum#OpeningBalance#AccountType_Id#ServiceType_Id#AcceptBankCards#IsActive";
-
-const serviceTypes: Option[] = [
-  { value: "1", label: "صدقة" },
-  { value: "2", label: "زكاة"  },
-];
-
-const accountTypeMap: Record<string, number> = { checking: 1, saving: 2, "1": 1, "2": 2 };
-const serviceTypeMap: Record<string, number> = { sadaka: 1, zakat: 2, "1": 1, "2": 2 };
-
-const scrub = (v: unknown) => String(v ?? "").replace(/#/g, "");
-const toId = (map: Record<string, number>, v: unknown): number => {
-  const s = String(v ?? "");
-  const n = Number(s);
-  if (Number.isFinite(n) && s !== "" && !Number.isNaN(n)) return n;
-  return map[s] ?? 0;
-};
-
-function normalizeBank(b: BankDetailsValues): BankDetailsValues {
-  return {
-    ...b,
-    bankId: String(Number(b.bankId) || 0),
-    accountTypeId: String(toId(accountTypeMap, b.accountTypeId)),
-    serviceTypeId:  String(toId(serviceTypeMap,  b.serviceTypeId)),
-    openingBalance: String(Number(b.openingBalance) || 0),
-    accountNumber: scrub(b.accountNumber),
-  };
-}
-
-function extractNewOfficeId(dec: any): string | null {
-  try {
-    const d = dec?.data ?? {};
-    const candidates = [
-      d?.NewId, d?.OfficeId, d?.Id,
-      d?.Result?.[0]?.NewId, d?.Result?.[0]?.OfficeId, d?.Result?.[0]?.Id,
-      dec?.newId, dec?.id, dec?.resultId,
-    ].filter((x) => x != null);
-    return candidates.length ? String(candidates[0]) : null;
-  } catch {
-    return null;
-  }
-}
+import { OFFICE_TABLE, BANK_TABLE, BANK_COLS, serviceTypes } from "./helpers/constants";
+import { normalizeBank, scrub, extractNewOfficeId } from "./helpers/utils";
+import ConfirmDeleteDialog from "./Components/ConfirmDeleteDialog";
 
 /* ===================== Component ===================== */
 export default function AddOffice() {
@@ -80,7 +34,7 @@ export default function AddOffice() {
   const toast = useToast();
 
   const officeRef = useRef<OfficeDetailsHandle>(null);
-  const bankRef   = useRef<BankDetailsHandle>(null);
+  const bankRef   = useRef<BankDetailsHandle>(null);
 
   // 👇 ref لتثبيت ID الصورة خلال الجلسة (الأصلي أو المرفوع)
   const photoIdRef = useRef<string>("");
@@ -135,7 +89,7 @@ export default function AddOffice() {
       isActive: Boolean(row.isActive),
       officeLatitude: row.latitude != null ? String(row.latitude) : "",
       officeLongitude: row.longitude != null ? String(row.longitude) : "",
-      officePhotoName: String(photoIdFromRow || ""),                           // ← نخزن الـID
+      officePhotoName: String(photoIdFromRow || ""),                           // ← نخزن الـID
       ...(photoNameForPreview ? { officePhotoDisplayName: String(photoNameForPreview) } : {}), // للمعاينة
     } as any;
   }, [row]);
@@ -359,7 +313,7 @@ export default function AddOffice() {
       isActive: office.isActive,
       latitude: office.officeLatitude ?? "",
       longitude: office.officeLongitude ?? "",
-      photoId: photoIdToSend,   // دايمًا ID
+      photoId: photoIdToSend,   // دايمًا ID
       pointId: 0,
       dataToken: "Zakat", // ✅ تمرير DataToken
     } as const;
@@ -466,19 +420,11 @@ export default function AddOffice() {
         </SharedButton>
       </Box>
 
-      <AlertDialog isOpen={confirm.isOpen} leastDestructiveRef={undefined as any} onClose={confirm.onClose} isCentered>
-        <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader fontWeight="700">حذف الحساب البنكي</AlertDialogHeader>
-          <AlertDialogBody>هل أنت متأكد من حذف هذا الحساب؟ لا يمكن التراجع عن هذا الإجراء.</AlertDialogBody>
-          <AlertDialogFooter>
-            <HStack spacing={3}>
-              <Button onClick={confirm.onClose}>إلغاء</Button>
-              <Button colorScheme="red" onClick={doDeleteServer}>حذف</Button>
-            </HStack>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog
+        isOpen={confirm.isOpen}
+        onClose={confirm.onClose}
+        onConfirm={doDeleteServer}
+      />
     </Box>
   );
 }
