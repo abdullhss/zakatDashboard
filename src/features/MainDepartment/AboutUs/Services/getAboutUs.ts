@@ -21,5 +21,7 @@ export async function getAboutUs(userId: number | string): Promise<NormalizedSum
     );
     
     // 2. التحليل والتوحيد
+    console.log(exec);
     return analyzeExecution(exec);
+    
 }

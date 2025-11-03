@@ -6,7 +6,6 @@ export function useAddSacrifice() {
   return useMutation({
     mutationFn: (p: AddSacrificeInput) => addSacrificeType(p),
     onSuccess: () => {
-      // إعادة تحميل القائمة زي Cities
       qc.invalidateQueries({ queryKey: ["sacrifice-types"] });
     },
   });

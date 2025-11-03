@@ -4,52 +4,56 @@ import { doTransaction, analyzeExecution, PROCEDURE_NAMES } from "../../../../ap
 import type { NormalizedSummary } from "../../../../api/apiClient";
 
 export interface UpdateProgramPayload {
-  id: number | string; // مفتاح التعديل
+  id: number | string;
   aboutUs?: string;
   contactUs?: string;
   useConditions?: string;
   privacyPolicy?: string;
 }
 
-// دالة تنظيف البيانات (مُضمَّنة للحماية من علامات الـ #)
+// دالة تنظيف النصوص من الرموز الغير مرغوبة
 const scrub = (v: unknown) => String(v ?? "").replace(/#/g, "");
 
 /**
- * تنفذ عملية تحديث سجل إعدادات البرنامج (WantedAction: 1).
+ * دالة لتحديث حقل واحد فقط من جدول Program.
+ * تبعت Id + اسم العمود + القيمة الجديدة فقط.
  */
 export async function updateProgram(payload: UpdateProgramPayload): Promise<NormalizedSummary> {
-  const action = 1; // 1 لـ Update
-  const pointId = 0; // PointId الافتراضي
+  const action = 1; // 1 = Update
+  const pointId = 0;
 
-  // جلب البيانات الحالية
-  const existingData = await getExistingData(payload.id); // دالة لربط البيانات الحالية من الخادم (يمكنك استخدام getProgramData هنا)
+  // تحديد العمود اللي تم إرساله فعلاً
+  let columnName = "";
+  let columnValue = "";
 
-  // إعداد القيم المعدلة فقط
-  const columnsValues: string[] = [String(payload.id)];
+  if (payload.aboutUs !== undefined) {
+    columnName = "AboutUs";
+    columnValue = scrub(payload.aboutUs);
+  } else if (payload.contactUs !== undefined) {
+    columnName = "ContactUs";
+    columnValue = scrub(payload.contactUs);
+  } else if (payload.useConditions !== undefined) {
+    columnName = "UseConditions";
+    columnValue = scrub(payload.useConditions);
+  } else if (payload.privacyPolicy !== undefined) {
+    columnName = "PrivacyPolicy";
+    columnValue = scrub(payload.privacyPolicy);
+  } else {
+    throw new Error("لم يتم تمرير أي حقل لتحديثه.");
+  }
 
-  // إضافة القيم المعدلة أو القديمة
-  columnsValues.push(payload.aboutUs ? scrub(payload.aboutUs) : scrub(existingData.AboutUs));
-  columnsValues.push(payload.contactUs ? scrub(payload.contactUs) : scrub(existingData.ContactUs));
-  columnsValues.push(payload.useConditions ? scrub(payload.useConditions) : scrub(existingData.UseConditions));
-  columnsValues.push(payload.privacyPolicy ? scrub(payload.privacyPolicy) : scrub(existingData.PrivacyPolicy));
+  // إعداد أسماء وأعمدة التحديث
+  const columnsNames = `Id#${columnName}`;
+  const columnsValues = `${payload.id}#${columnValue}`;
 
-  const columnsNames = "Id#AboutUs#ContactUs#UseConditions#PrivacyPolicy";   
-
-  // تنفيذ المعاملة باستخدام doTransaction
+  // تنفيذ التحديث في قاعدة البيانات
   const exec = await doTransaction({
-    TableName: PROCEDURE_NAMES.PROGRAM_TABLE_NAME, // نستخدم اسم الجدول الصحيح
+    TableName: PROCEDURE_NAMES.PROGRAM_TABLE_NAME,
     WantedAction: action,
-    ColumnsValues: columnsValues.join("#"), // اجمع القيم مع #
     ColumnsNames: columnsNames,
+    ColumnsValues: columnsValues,
     PointId: pointId,
   });
 
   return analyzeExecution(exec);
-}
-
-// دالة للحصول على البيانات الحالية (يمكنك ربطها بالـ API لديك)
-async function getExistingData(id: number | string) {
-  const result = await fetch(`/api/getProgramData/${id}`);
-  const data = await result.json();
-  return data.rows[0];  // إرجاع البيانات الأولى
 }

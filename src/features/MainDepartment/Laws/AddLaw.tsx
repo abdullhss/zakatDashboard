@@ -83,7 +83,7 @@ export default function AddLawForm() {
         const result = await hf.UploadFileWebSite({ 
           file: attachmentFile, 
           SessionID: sessionId, 
-          action: "Upload" 
+          action: "Add" 
         });
         if (result.error && result.error.trim() && result.error !== "200") throw new Error(result.error);
         lawAttachFileId = result.id; // تحديث الـ ID

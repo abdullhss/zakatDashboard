@@ -42,7 +42,7 @@ import NewsTypesPage from "../features/OfficeDashboard/NewsData/getNewsTypes";
 import AddNewsData from "../features/OfficeDashboard/NewsData/AddNewsData";
 // import AboutUs from "../features/MainDepartment/ProgramData/AboutUs";
 import UpdatePrivilege from "../features/MainDepartment/Privelges/getGroupRightFeatures";
-import AboutUs from "../features/MainDepartment/AboutUs/AboutUs";
+import AboutUs from "../features/MainDepartment/AboutUs/ContactUsNow";
 import LawsData from "../features/MainDepartment/Laws/LawsData";
 import AddLaw from "../features/MainDepartment/Laws/AddLaw";
 import ContactUs from "../features/MainDepartment/ProgramData/ContactUs";
@@ -54,6 +54,8 @@ import AddTransferData from "../features/OfficeDashboard/TransferBanksData/AddTr
 import GetPaymentData from "../features/OfficeDashboard/DashPaymentData/GetPaymentData";
 import AddPaymentData from "../features/OfficeDashboard/DashPaymentData/addPaymentDashData";
 import GetStatmentData from "../features/OfficeDashboard/StatementData/GetStatmentData";
+import ContactUsNow from "../features/MainDepartment/AboutUs/ContactUsNow";
+import PrivacyPolicy from "../features/MainDepartment/ProgramData/PrivaryPolicy";
 
 export default function App() {
   return (
@@ -92,10 +94,11 @@ export default function App() {
             <Route path="aboutus" element={<AboutUs />} />
             <Route path="laws" element={<LawsData />} />
             <Route path="laws/add" element={<AddLaw />} />
-            <Route path="contactus" element={<ContactUs />} />
+            {/* <Route path="contactus" element={<ContactUs />} /> */}
             <Route path="conditions" element={<UseConditions />} />
             <Route path="whoarewe" element={<WhoAreWe />} />
-
+            <Route path="ContactUs" element={ <ContactUsNow />}/>
+            <Route path="privarypolicy" element={<PrivacyPolicy />} />
           </Route>
         </Route>
 

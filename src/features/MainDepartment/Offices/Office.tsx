@@ -1,5 +1,4 @@
-// src/features/MainDepartment/Offices/Office.tsx
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import {
   Box, Text, Switch, HStack, useDisclosure, useToast,
   AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader,
@@ -26,8 +25,6 @@ type OfficeRow = {
   isActive: boolean;
   photoName?: string | number;
 };
-
-const PAGE_SIZE = 8;
 
 /* --------------- utils --------------- */
 function getCurrentUserId(): number {
@@ -63,7 +60,6 @@ function RowActions({
     try {
       const res = await hardDelete.mutateAsync(row.id);
       if (res.flags.FAILURE || res.flags.INTERNAL_ERROR) {
-        // fallback -> soft deactivate
         toast({
           title: res.message || "تعذّر الحذف بسبب وجود علاقات مرتبطة.",
           description: "سنحاول تعطيل السجل بدلًا من حذفه.",
@@ -135,11 +131,11 @@ export default function Office() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const [page, setPage] = useState(1);
-  const offset = (page - 1) * PAGE_SIZE;
-
   const userId = getCurrentUserId();
-  const { data, isLoading, isError, error, isFetching, refetch } = useGetOffices(offset, PAGE_SIZE, userId);
+
+  // ✅ استدعاء كل المكاتب مرة واحدة (من غير pagination)
+  const { data, isLoading, isError, error, isFetching, refetch } =
+    useGetOffices(0, 9999, userId); // limit كبير جداً عشان يجيب الكل
 
   const rows = useMemo<OfficeRow[]>(() => {
     const src = (data?.rows as AnyRec[]) ?? [];
@@ -153,7 +149,7 @@ export default function Office() {
     }));
   }, [data?.rows]);
 
-  const totalRows = data?.totalRows ?? 0;
+  const serverMessage = data?.message || "";
 
   const columns: Column[] = useMemo(
     () => [
@@ -174,23 +170,20 @@ export default function Office() {
         render: (row: AnyRec) => <Text dir="ltr">{(row as OfficeRow).phone}</Text>,
       },
       { key: "city", header: "المدينة", width: "22%" },
-{
-  key: "isActive",
-  // خلي العنوان ReactNode ووسّطه
-  header: <Box w="full" textAlign="center">الحالة</Box>,
-  width: "18%", // اختياري: قلّلها شوية لو حابب
-  render: (row: AnyRec) => {
-    const r = row as OfficeRow;
-    return (
-      <HStack justify="center" spacing={2}> {/* توسيط محتوى الخلية */}
-        <Switch isChecked={r.isActive} isReadOnly />
-        <Text color="gray.600">{r.isActive ? "مفعل" : "غير مفعل"}</Text>
-      </HStack>
-    );
-  },
-},
-
-      // 👇 لا نضيف عمود للأزرار، هنستخدم renderActions بتاع الـ DataTable
+      {
+        key: "isActive",
+        header: <Box w="full" textAlign="center">الحالة</Box>,
+        width: "18%",
+        render: (row: AnyRec) => {
+          const r = row as OfficeRow;
+          return (
+            <HStack justify="center" spacing={2}>
+              <Switch isChecked={r.isActive} isReadOnly />
+              <Text color="gray.600">{r.isActive ? "مفعل" : "غير مفعل"}</Text>
+            </HStack>
+          );
+        },
+      },
     ],
     []
   );
@@ -201,17 +194,22 @@ export default function Office() {
     );
   }
 
-  if (isError) {
-    return (
-      <Alert status="error" m={6}>
-        <AlertIcon />
-        حدث خطأ أثناء جلب بيانات المكاتب: {(error as Error)?.message}
-      </Alert>
-    );
-  }
-
   return (
     <Box>
+      {isError && (
+        <Alert status="error" mb={4}>
+          <AlertIcon />
+          حدث خطأ أثناء جلب بيانات المكاتب: {(error as Error)?.message}
+        </Alert>
+      )}
+
+      {serverMessage && !isError && (
+        <Alert status="warning" mb={4}>
+          <AlertIcon />
+          {serverMessage}
+        </Alert>
+      )}
+
       <DataTable
         title="بيانات المكاتب"
         data={rows as unknown as AnyRec[]}
@@ -226,20 +224,13 @@ export default function Office() {
             إضافة مكتب
           </SharedButton>
         }
-        startIndex={offset + 1}
-        page={page}
-        pageSize={PAGE_SIZE}
-        totalRows={totalRows}
-        onPageChange={setPage}
-        serverSide
-        /* ✅ نخلي الإجراءات في عمود actions الافتراضي الخاص بالـ DataTable */
         renderActions={(row) => (
           <RowActions
             row={row as OfficeRow}
             onDeleted={() => refetch()}
             onEdited={(r) =>
               navigate(`/maindashboard/offices/add?edit=${r.id}`, {
-                state: { mode: "edit", row: r }, // r يحتوي photoName
+                state: { mode: "edit", row: r },
               })
             }
           />

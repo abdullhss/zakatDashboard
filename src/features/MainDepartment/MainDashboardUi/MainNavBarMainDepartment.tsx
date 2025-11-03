@@ -1,7 +1,6 @@
 import { chakra, Icon } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 
-// أيقونات من مكتبات مختلفة
 import {
   FiHome,
   FiMapPin,
@@ -141,13 +140,15 @@ export default function MainNavBar() {
       {renderLink("laws", "اللوائح", MdOutlineRule)}
 
       {/* اتصل بنا */}
-      {renderLink("contactus", "اتصل بنا", FiPhoneCall)}
+      {renderLink("ContactUs", "اتصل بنا", FiPhoneCall)}
 
       {/* الشروط */}
       {renderLink("conditions", "الشروط", RiGovernmentLine)}
 
       {/* من نحن */}
       {renderLink("whoarewe", "من نحن؟", FiInfo)}
+
+      {renderLink("privarypolicy", "سياسة الخصوصية", FiInfo)}
     </NavList>
   );
 }

@@ -14,7 +14,8 @@ export const FieldInput = chakra(Input, {
     dir: "rtl", // ✅ FIX: فرض الاتجاه
     _focusVisible: { boxShadow: "none" },
     _placeholder: {
-  marginLeft:"200px",
+  // marginLeft:"200px",
+    
       color: "gray.500",
       textAlign: "right", // فرض المحاذاة لليمين
     },

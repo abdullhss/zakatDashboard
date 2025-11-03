@@ -8,7 +8,7 @@ export type AnyRec = Record<string, any>;
  * 1) الإعدادات
  * =================================== */
 const API_BASE_URL =
-  "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions/";
+  "http://185.207.251.48:8085/ERPDatabaseWorkFunctions/";
 
 const API_CONFIG = {
   API_TOKEN: "TTRgG@i$$ol@m$Wegh77",
@@ -31,7 +31,7 @@ export const PROCEDURE_NAMES: Record<string, string> = {
   OFFICE: "msDmpDYZ2wcHBSmvMDczrg==",
   ACCOUNT_TYPES: "GQIZZERj0S9ZOfY1hfnllyAjhmG5JhWEQf8hMuGilWA=",
    GET_DASH_OFFICE_BANKS: "jO0qkiQGe4UNVcwh8EDVtF0HtNvwkx6o94a+i6+lf5k=",
-  GET_SUBVENTION_TYPES: "CjSj0j5kAa/aqk9LMpWvCavGukOw8WsDmvfzbXkXVaI=",
+  GET_SUBVENTION_TYPES: "p1dZQ2LqHP3ipXrvdIkFTPOkL7pyFBKDfbdPiSMLQKs=",
   SUBVENTION_TYPE_TABLE_NAME: "l+3chSRUz867HysB0r4EWQ==", // For ADDING & DELETING & UPDATING 
  GET_KAFARA_VALUES: "T8mEvmQC2AYQQYTmdNYTU/U5ngsTOI/NJy4+CGMFmAM=",
   KAFARA_TABLE_NAME: "gggqsde9BRYL7OcqrwJ7jw==", // for updating kafara value

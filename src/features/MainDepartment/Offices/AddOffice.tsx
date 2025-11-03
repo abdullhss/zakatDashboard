@@ -2,6 +2,7 @@ import {
   Box, Heading, useToast, Collapse, HStack, Button, Text, IconButton, Spinner,
   AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader,
   AlertDialogOverlay, useDisclosure,
+  Flex,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
@@ -27,14 +28,14 @@ import { deleteBankAccount } from "./Services/addAccount";
 
 /* ===================== ثوابت ===================== */
 const OFFICE_TABLE = "msDmpDYZ2wcHBSmvMDczrg==";
-const BANK_TABLE   = "7OJ/SnO8HWuJK+w5pE0FXA==";
+const BANK_TABLE   = "7OJ/SnO8HWuJK+w5pE0FXA==";
 
 const BANK_COLS =
   "Id#Office_Id#Bank_Id#AccountNum#OpeningBalance#AccountType_Id#ServiceType_Id#AcceptBankCards#IsActive";
 
 const serviceTypes: Option[] = [
   { value: "1", label: "صدقة" },
-  { value: "2", label: "زكاة"  },
+  { value: "2", label: "زكاة"  },
 ];
 
 const accountTypeMap: Record<string, number> = { checking: 1, saving: 2, "1": 1, "2": 2 };
@@ -53,7 +54,7 @@ function normalizeBank(b: BankDetailsValues): BankDetailsValues {
     ...b,
     bankId: String(Number(b.bankId) || 0),
     accountTypeId: String(toId(accountTypeMap, b.accountTypeId)),
-    serviceTypeId:  String(toId(serviceTypeMap,  b.serviceTypeId)),
+    serviceTypeId:  String(toId(serviceTypeMap,  b.serviceTypeId)),
     openingBalance: String(Number(b.openingBalance) || 0),
     accountNumber: scrub(b.accountNumber),
   };
@@ -79,7 +80,7 @@ export default function AddOffice() {
   const toast = useToast();
 
   const officeRef = useRef<OfficeDetailsHandle>(null);
-  const bankRef   = useRef<BankDetailsHandle>(null);
+  const bankRef   = useRef<BankDetailsHandle>(null);
 
   // 👇 ref لتثبيت ID الصورة خلال الجلسة (الأصلي أو المرفوع)
   const photoIdRef = useRef<string>("");
@@ -134,7 +135,7 @@ export default function AddOffice() {
       isActive: Boolean(row.isActive),
       officeLatitude: row.latitude != null ? String(row.latitude) : "",
       officeLongitude: row.longitude != null ? String(row.longitude) : "",
-      officePhotoName: String(photoIdFromRow || ""),                           // ← نخزن الـID
+      officePhotoName: String(photoIdFromRow || ""),                           // ← نخزن الـID
       ...(photoNameForPreview ? { officePhotoDisplayName: String(photoNameForPreview) } : {}), // للمعاينة
     } as any;
   }, [row]);
@@ -358,8 +359,9 @@ export default function AddOffice() {
       isActive: office.isActive,
       latitude: office.officeLatitude ?? "",
       longitude: office.officeLongitude ?? "",
-      photoId: photoIdToSend,   // دايمًا ID
+      photoId: photoIdToSend,   // دايمًا ID
       pointId: 0,
+      dataToken: "Zakat", // ✅ تمرير DataToken
     } as const;
 
     try {
@@ -375,6 +377,10 @@ export default function AddOffice() {
     }
   };
 
+  if (banksLoading && isEdit) {
+    return <Flex justify="center" p={10}><Spinner size="xl" /></Flex>;
+  }
+
   return (
     <Box p={4} dir="rtl">
       <Heading size="md" mb={4}>{isEdit ? "تعديل مكتب" : "إضافة مكتب"}</Heading>
@@ -388,9 +394,6 @@ export default function AddOffice() {
       />
 
       <SectionDivider my={8} />
-
-      {/* باقي الصفحة كما هو */}
-      {/* ... نفس كود جدول الحسابات والحذف والإضافة ... */}
 
       {/* شريط أعلى جدول الحسابات */}
       <HStack justify="space-between" mb={2}>

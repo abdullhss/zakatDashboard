@@ -43,62 +43,110 @@ export default function SacrificeDataTypes() {
   const rows: SacrificeRow[] = useMemo(() => mapApiRowsToSacrificeRows(sourceRows), [sourceRows]);
   const totalRows = useMemo(() => pickTotalRows(data, rows.length), [data, rows.length]);
 
-  const onEditRow = useCallback((raw: AnyRec) => {
-    const row = raw as SacrificeRow;
-    if (!row.Id) return toast({ title: "لا يمكن تحديد السجل للتعديل", status: "warning" });
-    setEditingRow(row);
-    editModal.onOpen();
-  }, [editModal, toast]);
+  const onEditRow = useCallback(
+    (raw: AnyRec) => {
+      const row = raw as SacrificeRow;
+      if (!row.Id) return toast({ title: "لا يمكن تحديد السجل للتعديل", status: "warning" });
+      setEditingRow(row);
+      editModal.onOpen();
+    },
+    [editModal, toast]
+  );
 
-  const onDeleteRow = useCallback((raw: AnyRec) => {
-    const row = raw as SacrificeRow;
-    if (!row.Id) return toast({ title: "لا يمكن تحديد السجل للحذف", status: "warning" });
-    setDeletingRow(row);
-    delModal.onOpen();
-  }, [delModal, toast]);
+  const onDeleteRow = useCallback(
+    (raw: AnyRec) => {
+      const row = raw as SacrificeRow;
+      if (!row.Id) return toast({ title: "لا يمكن تحديد السجل للحذف", status: "warning" });
+      setDeletingRow(row);
+      delModal.onOpen();
+    },
+    [delModal, toast]
+  );
 
-  const handleAddSubmit = useCallback(async (vals: { name: string; price: string | number; isActive?: boolean }) => {
-    await addSacrifice.mutateAsync({ name: vals.name.trim(), price: Number(vals.price), isActive: !!vals.isActive });
-    toast({ status: "success", title: "تمت الإضافة", description: "تمت إضافة نوع الأضحية بنجاح" });
-    addModal.onClose();
-    refetch();
-  }, [addSacrifice, addModal, refetch, toast]);
+  /* ✅ تحقق من الاسم قبل الإضافة */
+  const handleAddSubmit = useCallback(
+    async (vals: { name: string; price: string | number; isActive?: boolean }) => {
+      const name = vals.name.trim();
 
-const handleEditSubmit = useCallback(async (vals: { name: string; price: string | number; isActive?: boolean }) => {
-  if (!editingRow?.Id) return;
+      const isDuplicate = rows.some((r) => r.Name?.toLowerCase() === name.toLowerCase());
+      if (isDuplicate) {
+        toast({
+          status: "warning",
+          title: "اسم مكرر",
+          description: `الاسم "${name}" موجود بالفعل، يرجى اختيار اسم آخر.`,
+        });
+        return;
+      }
 
-  await updateSacrifice.mutateAsync({
-    id: editingRow.Id,
-    name: vals.name.trim(),
-    price: Number(vals.price),
-    isActive: vals.isActive ?? editingRow.IsActive,  // التأكد من تمرير القيمة الصحيحة
-  });
+      await addSacrifice.mutateAsync({
+        name,
+        price: Number(vals.price),
+        isActive: !!vals.isActive,
+      });
+      toast({
+        status: "success",
+        title: "تمت الإضافة",
+        description: "تمت إضافة نوع الأضحية بنجاح",
+      });
+      addModal.onClose();
+      refetch();
+    },
+    [addSacrifice, addModal, refetch, rows, toast]
+  );
 
-  toast({ status: "success", title: "تم التعديل", description: "تم تحديث بيانات النوع" });
-  editModal.onClose();
-  setEditingRow(null);
-  refetch();
-}, [editingRow, refetch, toast, updateSacrifice, editModal]);
+  /* ✅ تعديل يشمل التفعيل والإلغاء */
+  const handleEditSubmit = useCallback(
+    async (vals: { name: string; price: string | number; isActive?: boolean }) => {
+      if (!editingRow?.Id) return;
 
+      await updateSacrifice.mutateAsync({
+        id: editingRow.Id,
+        name: vals.name.trim(),
+        price: Number(vals.price),
+        isActive: vals.isActive ?? editingRow.IsActive,
+      });
 
+      toast({
+        status: "success",
+        title: "تم التعديل",
+        description: "تم تحديث بيانات النوع بنجاح",
+      });
+      editModal.onClose();
+      setEditingRow(null);
+      refetch();
+    },
+    [editingRow, refetch, toast, updateSacrifice, editModal]
+  );
 
-  const handleDelete = useCallback(async () => {
-    if (!deletingRow?.Id) return;
-    await deleteSacrifice.mutateAsync(deletingRow.Id);
-    toast({ status: "success", title: "تم الحذف", description: `تم حذف النوع \"${deletingRow.Name}\"` });
-    delModal.onClose();
-    setDeletingRow(null);
-    refetch();
-  }, [deleteSacrifice, deletingRow, delModal, refetch, toast]);
+  const handleDelete = useCallback(
+    async () => {
+      if (!deletingRow?.Id) return;
+      await deleteSacrifice.mutateAsync(deletingRow.Id);
+      toast({
+        status: "success",
+        title: "تم الحذف",
+        description: `تم حذف النوع \"${deletingRow.Name}\"`,
+      });
+      delModal.onClose();
+      setDeletingRow(null);
+      refetch();
+    },
+    [deleteSacrifice, deletingRow, delModal, refetch, toast]
+  );
 
   const columns = useMemo(() => buildColumns(), []);
 
   if (isError) {
-    return <Box color="red.500" fontSize="sm">حدث خطأ: {(error as Error)?.message}</Box>;
+    return (
+      <Box color="red.500" fontSize="sm">
+        حدث خطأ: {(error as Error)?.message}
+      </Box>
+    );
   }
 
   return (
     <Box>
+      {/* ✅ فورم الإضافة */}
       <SacrificeForm
         isOpen={addModal.isOpen}
         onClose={addModal.onClose}
@@ -109,25 +157,38 @@ const handleEditSubmit = useCallback(async (vals: { name: string; price: string 
         isSubmitting={addSacrifice.isPending}
       />
 
+      {/* ✅ فورم التعديل - أضفنا دعم حالة التفعيل */}
       <SacrificeForm
         isOpen={editModal.isOpen}
-        onClose={() => { editModal.onClose(); setEditingRow(null); }}
+        onClose={() => {
+          editModal.onClose();
+          setEditingRow(null);
+        }}
         title="تعديل نوع أضحية"
         mode="edit"
-        initialValues={{ name: editingRow?.Name ?? "", price: editingRow?.Price ?? "" }}
+        initialValues={{
+          name: editingRow?.Name ?? "",
+          price: editingRow?.Price ?? "",
+          isActive: editingRow?.IsActive ?? false, // ✅ تم إضافته هنا
+        }}
         onSubmit={handleEditSubmit}
         isSubmitting={updateSacrifice.isPending}
       />
 
+      {/* ✅ نافذة الحذف */}
       <DeleteDialog
         isOpen={delModal.isOpen}
-        onClose={() => { delModal.onClose(); setDeletingRow(null); }}
+        onClose={() => {
+          delModal.onClose();
+          setDeletingRow(null);
+        }}
         onConfirm={handleDelete}
         isLoading={deleteSacrifice.isPending}
         title="حذف نوع الأضحية"
         message={`هل أنت متأكد من حذف “${deletingRow?.Name ?? "هذا النوع"}”؟ لا يمكن التراجع عن هذا الإجراء.`}
       />
 
+      {/* ✅ الجدول */}
       <DataTable
         title="أنواع الأضاحي"
         data={rows as unknown as AnyRec[]}
@@ -148,7 +209,9 @@ const handleEditSubmit = useCallback(async (vals: { name: string; price: string 
       />
 
       {!isLoading && rows.length === 0 && (
-        <Text mt={3} color="gray.500">لا توجد بيانات.</Text>
+        <Text mt={3} color="gray.500">
+          لا توجد بيانات.
+        </Text>
       )}
     </Box>
   );

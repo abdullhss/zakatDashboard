@@ -31,7 +31,7 @@ function safeParseAboutUsData(summary: NormalizedSummary): AnyRec[] {
   return [];
 }
 
-export function useGetAboutUs(): UseQueryResult<AboutUsData, Error> {
+export function useGetContactUs(): UseQueryResult<AboutUsData, Error> {
   const queryKey = ["about-us-content", 1]; 
   return useQuery<AboutUsData, Error>({
     queryKey,

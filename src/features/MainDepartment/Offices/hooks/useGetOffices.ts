@@ -2,15 +2,15 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getOffices } from "../Services/getOffice";
 
 export function useGetOffices(offset: number, limit: number) {
-  return useQuery({
-    queryKey: ["offices", offset, limit],
-    queryFn: async () => {
-      const res = await getOffices(offset, limit);
-      return {
-        rows: res.rows ?? [],
-        totalRows: res.totalRows ?? 0,
-      };
-    },
-    placeholderData: keepPreviousData,
-  });
+  return useQuery({
+    queryKey: ["offices", offset, limit],
+    queryFn: async () => {
+      const res = await getOffices(offset, limit);
+      return {
+        rows: res.rows ?? [],
+        totalRows: res.totalRows ?? 0,
+      };
+    },
+    placeholderData: keepPreviousData,
+  });
 }

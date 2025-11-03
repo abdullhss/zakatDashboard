@@ -1,4 +1,3 @@
-// src/features/MainDepartment/Cities/Cities.tsx
 import { useMemo, useRef, useState } from "react";
 import {
   Box, Flex, Spinner, Alert, AlertIcon, useDisclosure,
@@ -26,8 +25,6 @@ async function hasOfficesInCity(cityId: number | string): Promise<boolean> {
   const PAGE = 200;
   let offset = 0;
 
-  // نجلب على صفحات لحدّ ما نخلص أو نلاقي مكتب مرتبط
-  // نفترض أن getOffices(offset, limit) يرجّع { rows, totalRows }
   while (true) {
     const res = await getOffices(offset, PAGE);
     const rows = res?.rows ?? [];
@@ -40,7 +37,7 @@ async function hasOfficesInCity(cityId: number | string): Promise<boolean> {
     if (found) return true;
 
     offset += rows.length;
-    if (rows.length < PAGE) return false; // آخر صفحة
+    if (rows.length < PAGE) return false;
   }
 }
 
@@ -57,7 +54,6 @@ function RowActions({
     const id = row.Id ?? row.id ?? row.CityId ?? row.city_id;
 
     try {
-      // ✅ فحص الارتباط قبل محاولة الحذف
       const linked = await hasOfficesInCity(id);
       if (linked) {
         toast({
@@ -71,13 +67,11 @@ function RowActions({
         return;
       }
 
-      // لا يوجد ارتباط ⇒ نكمل الحذف
       await del.mutateAsync(id);
       toast({ status: "success", title: "تم الحذف", description: "تم حذف المدينة بنجاح" });
       confirm.onClose();
       onDeleted();
     } catch (e: any) {
-      // fallback: في حال الـAPI رجّع رفض بسبب قيود FK
       const code = e?.code ?? e?.sqlState ?? e?.number;
       const msg: string = String(e?.message || e?.data?.message || e?.error || "");
 
@@ -147,9 +141,11 @@ function RowActions({
 
 export default function Cities() {
   const toast = useToast();
-  const [page, setPage] = useState(1);
-  const limit = 8;
-  const offset = (page - 1) * limit;
+
+  // 🟢 عرض كل الداتا دفعة واحدة (بدون pagination)
+  const [page] = useState(1);
+  const limit = 1000; // رقم كبير يغطي كل المدن
+  const offset = 0;
 
   const addModal = useDisclosure();
   const editModal = useDisclosure();
@@ -169,7 +165,6 @@ export default function Cities() {
     []
   );
 
-  // إضافة
   const handleAddSubmit = async (vals: { cityName: string }) => {
     const newCityName = vals.cityName.trim();
     const isDuplicate = citiesData.some(
@@ -181,7 +176,7 @@ export default function Cities() {
       toast({
         status: "warning",
         title: "فشل الإضافة",
-        description: `المدينة ${newCityName} موجودة بالفعل. لا يمكن إضافة اسم مكرر.`,
+        description: `المدينة ${newCityName} موجودة بالفعل.`,
         duration: 5000,
         isClosable: true,
       });
@@ -202,7 +197,6 @@ export default function Cities() {
     }
   };
 
-  // تعديل
   const handleEditSubmit = async (vals: { cityName: string }) => {
     if (!editingRow) return;
     const id = editingRow.Id ?? editingRow.id ?? editingRow.CityId ?? editingRow.city_id;
@@ -218,7 +212,7 @@ export default function Cities() {
       toast({
         status: "warning",
         title: "فشل التعديل",
-        description: `المدينة ${newCityName} موجودة بالفعل لمدينة أخرى.`,
+        description: `المدينة ${newCityName} موجودة بالفعل.`,
         duration: 5000,
         isClosable: true,
       });
@@ -240,7 +234,6 @@ export default function Cities() {
     }
   };
 
-  /** أعمدة الجدول */
   const CITIES_COLUMNS: Column[] = useMemo(
     () => [
       {
@@ -292,9 +285,8 @@ export default function Cities() {
         data={citiesData}
         columns={CITIES_COLUMNS}
         startIndex={offset + 1}
-        page={page}
         pageSize={limit}
-        onPageChange={setPage}
+        // ✅ تم إزالة pagination props
         headerAction={
           <SharedButton
             variant="brandGradient"
