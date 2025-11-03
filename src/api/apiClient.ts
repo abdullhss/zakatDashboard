@@ -8,7 +8,7 @@ export type AnyRec = Record<string, any>;
  * 1) الإعدادات
  * =================================== */
 const API_BASE_URL =
-  "http://185.207.251.48:8085/ERPDatabaseWorkFunctions/";
+  "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions/";
 
 const API_CONFIG = {
   API_TOKEN: "TTRgG@i$$ol@m$Wegh77",

@@ -13,7 +13,7 @@ export const getBase64 = (file) => {
 const CONFIG = {
   API_TOKEN: "TTRgG@i$$ol@m$Wegh77",
   DATA_TOKEN: "Zakat",
-  BASE_URL: "http://185.207.251.48:8085/ERPDatabaseWorkFunctions/"  //Al Medad,
+  BASE_URL: "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions/"  //Al Medad,
   //  BASE_URL: "https://client-frw.almedadsoft.com/emsserver.dll/ERPDatabaseWorkFunctions/"   //Zakat,
   
 };
