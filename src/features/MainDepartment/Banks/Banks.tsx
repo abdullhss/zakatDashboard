@@ -218,7 +218,7 @@ const BANKS_COLUMNS: Column[] = [
 export default function Banks() {
   const toast = useToast();
   const [page, setPage] = useState(1);
-  const limit = 8;
+  const limit =10;
   const offset = (page - 1) * limit;
 
   const addModal = useDisclosure();
@@ -229,7 +229,11 @@ export default function Banks() {
   const addBank = useAddBank();
 
   const banksData = data?.rows || [];
-  const totalRows = data?.totalRows || 0;
+  console.log(data);
+  
+  console.log(data?.decrypted);
+  
+  const totalRows = Number(data?.decrypted?.data?.Result[0]?.BanksCount) || 1;
 
   const addFields: FieldConfig[] = [
     {

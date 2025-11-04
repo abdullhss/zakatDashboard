@@ -149,6 +149,7 @@ export type NormalizedSummary = {
   row: AnyRec | null;
   rows: AnyRec[];
   serverTime?: string;
+  decrypted : any ;
 };
 
 /* ===================================
@@ -272,8 +273,11 @@ export function analyzeExecution(result: ExecutionResult): NormalizedSummary {
   let row: AnyRec | null = null;
   let total: number | null = null;
   let serverTime: string | undefined;
-
+  let decrypted : any = null ; 
+  console.log(result);
+  
   if (result.success) {
+    decrypted = result.decrypted ;
     rows = result.rows ?? [];
     row = result.row ?? null;
     total = result.meta?.total ?? (Array.isArray(rows) ? rows.length : null);
@@ -303,6 +307,7 @@ export function analyzeExecution(result: ExecutionResult): NormalizedSummary {
     row,
     rows,
     serverTime,
+    decrypted
   };
 }
 
@@ -322,8 +327,8 @@ export async function executeProcedure(
       ParametersValues: procedureValues,
       DataToken: dataToken,
     };
-    if (offset !== undefined) toEncrypt.Offset = Math.max(0, offset);
-    if (fetch !== undefined) toEncrypt.Fetch = fetch;
+    // if (offset !== undefined) toEncrypt.Offset = Math.max(0, offset);
+    // if (fetch !== undefined) toEncrypt.Fetch = fetch;
 
     console.log("%c[ERP] Procedure Input (plain) ⇒", "color:#888", toEncrypt);
 

@@ -9,11 +9,7 @@ export async function getSubventionTypes(
 
   const exec = await executeProcedure(
     PROCEDURE_NAMES.GET_SUBVENTION_TYPES,
-    `${startNum}#${limit}`,
-    undefined,   // DataToken (الافتراضي "Zakat")
-    undefined,   // ❌ ما نبعتش Offset هنا
-    undefined    // ❌ ما نبعتش Fetch هنا
+    `${startNum}#${limit}`
   );
-
   return analyzeExecution(exec);
 }

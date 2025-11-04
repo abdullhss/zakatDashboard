@@ -87,6 +87,7 @@ export default function Privileges() {
 
   // جلب البيانات
   const { data, isLoading, isError, error, refetch } = useGetPrivilege(roleCode, 0, 500);
+  
   const { mutateAsync: deletePrivilege, isPending: deleting } = useDeletePrivilege();
 
   // تجهيز البيانات
@@ -108,9 +109,7 @@ export default function Privileges() {
     }));
   }, [data?.rows, roleCode]);
 
-  const totalRows =
-    typeof data?.totalRows === "number" ? data.totalRows : (rows.length ?? 0);
-
+  const totalRows = Number(data?.decrypted.data.Result[0].GroupRightsCount) || 1 
   const titleClr = useColorModeValue("gray.700", "gray.100");
 
   // بناء لينك التعديل

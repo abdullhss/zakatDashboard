@@ -21,7 +21,7 @@ function toArraySafe(input: any): any[] {
     } catch {
       return [];
     }
-  }s
+  }
   if (typeof input === "object" && Array.isArray((input as any).items)) {
     return (input as any).items;
   }
@@ -76,6 +76,7 @@ export async function getPrivileges(
         rows.length
     ) || rows.length;
 
+    const decrypted = base.decrypted
   // نُرجع نفس الـ base لكن مع rows/totalRows المصححة
-  return { ...base, rows, totalRows };
+  return { ...base, rows, totalRows , decrypted };
 }

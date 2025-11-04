@@ -197,7 +197,8 @@ export default function SubventionTypes() {
       r.AllowZakat ?? r.allowZakat ?? r.AcceptZakat ?? r.acceptZakat ?? r.IsZakat ?? r.isZakat ?? false
     ),
   }));
-  const totalRows = data?.totalRows ?? rows.length;
+    console.log(data?.decrypted.data.Result[0].SubventionTypesCount);
+    const totalRows = Number(data?.decrypted.data.Result[0].SubventionTypesCount) || 1;
 
   const openAdd = () => addModal.onOpen();
   const openEdit = (row: Row) => { setEditRow(row); manageModal.onOpen(); };

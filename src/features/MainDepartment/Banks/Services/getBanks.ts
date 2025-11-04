@@ -12,7 +12,8 @@ export async function getBanks(startNum: number, count: number): Promise<Normali
 
   // نفس فورمات الـ params (@StartNum#@Count)
   const procedureValues = `${sqlStartNum}#${count}`;
-
+  console.log(procedureValues);
+  
   const result: ExecutionResult = await executeProcedure(
     PROCEDURE_NAMES.GET_BANKS_LIST,
     procedureValues,
@@ -20,6 +21,7 @@ export async function getBanks(startNum: number, count: number): Promise<Normali
     startNum,
     count
   );
-
+  console.log(result);
+  
   return analyzeExecution(result);
 }

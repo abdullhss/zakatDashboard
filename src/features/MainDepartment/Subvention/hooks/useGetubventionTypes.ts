@@ -6,6 +6,7 @@ import type { AnyRec, NormalizedSummary } from "../../../../api/apiClient";
 export interface SubventionTypesData {
   rows: AnyRec[];
   totalRows: number | null;
+  decrypted:any;
 }
 
 export function useGetSubventionTypes(
@@ -24,6 +25,7 @@ export function useGetSubventionTypes(
       return {
         rows: summary.rows,
         totalRows: summary.totalRows,
+        decrypted : summary.decrypted,
       };
     },
     staleTime: 60_000,
