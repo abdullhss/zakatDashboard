@@ -1,12 +1,10 @@
 import { chakra, Box, Icon, useToast } from "@chakra-ui/react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { FiLogOut, FiSettings } from "react-icons/fi";
-
+import { FiSettings } from "react-icons/fi";
 import Logo from "./Logo";
 import MainNavBar from "./MainNavBarMainDepartment";
 import LogoutButton from "../../../Components/LogoutButton/Logout";
 
-// زر فعل في الأسفل
 const ActionButton = chakra("button", {
   baseStyle: {
     display: "flex",
@@ -25,39 +23,30 @@ const ActionButton = chakra("button", {
   },
 });
 
-// الحاوية
 const StyledSideBar = chakra("aside", {
   baseStyle: {
-    gridArea: "sidebar",
-    width: "282.6300048828125px",
-    bg: "background.sidebar", // ✅ بدل الأبيض بخلفية رمادية
+    width: "282.63px",
+    bg: "background.sidebar",
     color: "gray.700",
     px: 0,
-    py: 4,
-    height: "100%",
-    alignSelf: "stretch",
-    overflowY: "hidden",
+    py: 0,
+    position: "fixed",
+    top: 0,
+    left: 0,
+    height: "100vh",
+    zIndex: 100,
     display: "flex",
     flexDirection: "column",
-    margin: "auto",
   },
 });
-
-// دالة الخروج (ممكن تعيد استخدامها في أي مكان)
-export function logout(navigate?: (path: string, opts?: any) => void) {
-  localStorage.removeItem("auth");
-  localStorage.removeItem("role");
-  localStorage.removeItem("username");
-  localStorage.removeItem("userId");
-  if (navigate) navigate("/login", { replace: true });
-}
 
 export default function SideBarMainDepartment() {
   const navigate = useNavigate();
   const toast = useToast();
 
   const handleLogout = () => {
-    logout(navigate);
+    localStorage.clear();
+    navigate("/login", { replace: true });
     toast({
       title: "تم تسجيل الخروج",
       status: "success",
@@ -68,34 +57,47 @@ export default function SideBarMainDepartment() {
 
   return (
     <StyledSideBar role="navigation" aria-label="Sidebar">
-      {/* العنوان/اللوجو */}
+      {/* ✅ اللوجو ثابت بأعلى السايدبار ومعاه ظل */}
       <Box
         px={5}
-        mb={4}
+        py={4}
         textAlign="right"
         borderBottom="1px solid"
         borderColor="gray.100"
-        pb={4}
-        mx={5}
+        boxShadow="sm" // ✅ ظل خفيف
+        position="sticky"
+        top={0}
+        bg="background.sidebar"
+        zIndex={1}
       >
         <Logo />
       </Box>
 
-      {/* روابط القسم */}
-      <MainNavBar />
+      {/* ✅ المحتوى اللي بيعمل scroll */}
+      <Box
+        flex="1"
+        overflowY="auto"
+        px={0}
+        py={4}
+        scrollbarWidth="thin"
+        sx={{
+          "&::-webkit-scrollbar": { width: "6px" },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#ccc",
+            borderRadius: "3px",
+          },
+        }}
+      >
+        <MainNavBar />
+      </Box>
 
-      <Box flexGrow={1} />
-
-      {/* أزرار أسفل السايدبار */}
-      <Box mt={4} borderTop="1px solid" borderColor="gray.100" pt={4}>
-        {/* الإعدادات – رابط نسبي داخل maindashboard */}
+      {/* ✅ الجزء السفلي */}
+      <Box mt={4} borderTop="1px solid" borderColor="gray.100" py={4} px={2}>
         <ActionButton as={NavLink} to="settings">
           الإعدادات
           <Icon as={FiSettings} boxSize={5} />
         </ActionButton>
-
-        {/* تسجيل الخروج */}
-    <LogoutButton />
+        <LogoutButton />
       </Box>
     </StyledSideBar>
   );

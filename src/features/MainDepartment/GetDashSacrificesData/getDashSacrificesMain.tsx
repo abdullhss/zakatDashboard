@@ -87,7 +87,6 @@ export default function GetSacrificeDataMain() {
     {
       key: "ApplicantName",
       header: "اسم مقدم الطلب",
-      width: "24%",
       render: (row: AnyRec) => {
         const r = row as Row;
         return r.UserName ?? r.ApplicantName ?? (r.GeneralUser_Id ? `مستخدم رقم ${r.GeneralUser_Id}` : "—");
@@ -98,7 +97,6 @@ export default function GetSacrificeDataMain() {
     {
       key: "SacrificeTotalAmount",
       header: "الإجمالي",
-      width: "16%",
       render: (row: AnyRec) => {
         const r = row as Row;
         const v = r.SacrificeTotalAmount ?? r.TotalAmount ?? 0;
@@ -108,7 +106,6 @@ export default function GetSacrificeDataMain() {
     {
       key: "__actions",
       header: "الإجراء",
-      width: "12%",
       render: (row: AnyRec) => (
         <ActionButtons
           onApprove={() => approveOrReject(row as Row, true)}

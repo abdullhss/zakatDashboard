@@ -33,6 +33,7 @@ export function useGetSacrificesDashData(
             if (summary.flags.FAILURE || summary.flags.INTERNAL_ERROR) {
                 throw new Error(summary.message || "فشل غير معروف في جلب بيانات الأضاحي.");
             }
+            console.log(summary);
             
             return {
                 rows: summary.rows,

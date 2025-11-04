@@ -91,15 +91,15 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
             zIndex={1}
           >
             <Tr>
-              <TableHeadCell width="48px">#</TableHeadCell>
+              <TableHeadCell fontSize={18} textAlign={"center"}>#</TableHeadCell>
 
               {columns.map((col) => (
-                <TableHeadCell key={col.key} width={col.width}>
+                <TableHeadCell key={col.key} textAlign={"start"} fontSize={18} width={col.width}>
                   {col.header}
                 </TableHeadCell>
               ))}
 
-              {hasActions && <TableHeadCell width="64px">إجراءات</TableHeadCell>}
+              {hasActions && <TableHeadCell fontSize={18} width="64px">إجراءات</TableHeadCell>}
             </Tr>
           </Thead>
 
@@ -113,7 +113,7 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
 
                 {/* data cells */}
                 {columns.map((col) => (
-                  <TableDataCell key={col.key}>
+                  <TableDataCell fontWeight="500" fontSize={16} textAlign={"start"} key={col.key}>
                     {col.render
                       ? col.render(row, index)
                       : (row as any)[col.key]}

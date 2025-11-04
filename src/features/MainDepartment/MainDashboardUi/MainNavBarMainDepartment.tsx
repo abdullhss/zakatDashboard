@@ -15,7 +15,7 @@ import {
   RiShieldKeyholeLine,
   RiHandCoinLine,
   RiHandHeartLine,
-  RiServiceLine,
+  RiServiceLine,  
   RiGovernmentLine,
 } from "react-icons/ri";
 import { TbCategory2 } from "react-icons/tb";
@@ -81,9 +81,10 @@ export default function MainNavBar() {
     return featuresData.some((f) => f.FeatureName === featureName && f.IsActive);
   };
 
-  const renderLink = (to: string, name: string, IconComp: any) => (
+  const renderLink = (to: string, name: string, IconComp: any, end: boolean = false) => (
     <LinkItem
       to={to}
+      end={end} // ✅ هنا الإضافة
       pointerEvents={isFeatureEnabled(name) ? "auto" : "none"}
       opacity={isFeatureEnabled(name) ? 1 : 0.5}
     >
@@ -92,10 +93,11 @@ export default function MainNavBar() {
     </LinkItem>
   );
 
+
   return (
     <NavList>
       {/* الرئيسية */}
-      {renderLink(".", "الصفحة الرئيسية", FiHome)}
+      {renderLink(".", "الصفحة الرئيسية", FiHome, true)}
 
       {/* المدن */}
       {renderLink("cities", "المدن", FiMapPin)}

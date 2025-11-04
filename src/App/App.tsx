@@ -80,7 +80,7 @@ export default function App() {
             <Route path="zakah" element={<ZakahTypes />} />
             <Route path="privelges" element={<Privileges />} />
             <Route path="privelges/add" element={<AddPrivelges />} />
-           <Route path="/maindashboard/privelges/update" element={<UpdatePrivilege />} />
+            <Route path="/maindashboard/privelges/update" element={<UpdatePrivilege />} />
 
             <Route path="users" element={<Users />} />
             <Route path="users/add" element={<AddUserPage />} />

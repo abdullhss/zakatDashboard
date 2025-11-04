@@ -156,7 +156,6 @@ export default function Office() {
       {
         key: "officeName",
         header: "اسم المكتب",
-        width: "32%",
         render: (row: AnyRec) => (
           <Text fontWeight="600" color="gray.700">
             {(row as OfficeRow).companyName}
@@ -166,14 +165,12 @@ export default function Office() {
       {
         key: "phone",
         header: "رقم الهاتف",
-        width: "24%",
-        render: (row: AnyRec) => <Text dir="ltr">{(row as OfficeRow).phone}</Text>,
+        render: (row: AnyRec) => <Text>{(row as OfficeRow).phone}</Text>,
       },
-      { key: "city", header: "المدينة", width: "22%" },
+      { key: "city", header: "المدينة" },
       {
         key: "isActive",
         header: <Box w="full" textAlign="center">الحالة</Box>,
-        width: "18%",
         render: (row: AnyRec) => {
           const r = row as OfficeRow;
           return (

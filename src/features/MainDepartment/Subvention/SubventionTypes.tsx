@@ -310,7 +310,6 @@ export default function SubventionTypes() {
       {
         key: "name",
         header: "بيان التصنيف",
-        width: "34%",
         render: (row: AnyRec) => (
           <Text fontWeight="600" color="gray.700">
             {(row as Row).name}
@@ -320,7 +319,6 @@ export default function SubventionTypes() {
       {
         key: "acceptZakat",
         header: "تقبل الزكاة",
-        width: "18%",
         render: (row: AnyRec) => {
           const accept = boolish(
             (row as Row)?.acceptZakat ??
@@ -332,7 +330,7 @@ export default function SubventionTypes() {
             false
           );
           return (
-            <Text color={accept ? "green.600" : "red.500"} fontWeight="600" textAlign="center">
+            <Text color={accept ? "green.600" : "red.500"} fontWeight="600">
               {accept ? "نعم" : "لا"}
             </Text>
           );
@@ -341,7 +339,6 @@ export default function SubventionTypes() {
       {
         key: "isActive",
         header: "حالة الخدمة",
-        width: "20%",
         render: (row: AnyRec) => {
           const r = row as Row;
           const loading = updateStatus.isPending && updateStatus.variables?.id === r.id;
@@ -364,7 +361,6 @@ export default function SubventionTypes() {
       {
         key: "actions",
         header: "الإجراءات",
-        width: "8%",
         render: (row: AnyRec) => {
           const r = row as Row;
           return (

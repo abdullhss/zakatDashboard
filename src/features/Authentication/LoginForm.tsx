@@ -44,13 +44,15 @@ export default function LoginForm({ username, password, setUsername, setPassword
             borderColor="gray.300"
             rounded="8px"
             h="45px"
+            fontSize={15}
+            fontWeight={500}
             _focus={{
               borderColor: "brand.700",
               boxShadow: "0 0 0 1px var(--chakra-colors-brand-700)",
             }}
-             value={username}
-             onChange={(e) => setUsername(e.target.value)}
-             isDisabled={isDisabled}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            isDisabled={isDisabled}
           />
         </InputGroup>
       </FormControl>
@@ -67,13 +69,16 @@ export default function LoginForm({ username, password, setUsername, setPassword
             borderColor="gray.300"
             rounded="8px"
             h="45px"
+
+            fontSize={15}
+            fontWeight={500}
             _focus={{
               borderColor: "brand.700",
               boxShadow: "0 0 0 1px var(--chakra-colors-brand-700)",
             }}
-             value={password}
-             onChange={(e) => setPassword(e.target.value)}
-             isDisabled={isDisabled}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            isDisabled={isDisabled}
           />
 
           <InputLeftElement w="40px" h="100%">

@@ -142,9 +142,8 @@ function RowActions({
 export default function Cities() {
   const toast = useToast();
 
-  // 🟢 عرض كل الداتا دفعة واحدة (بدون pagination)
   const [page] = useState(1);
-  const limit = 1000; // رقم كبير يغطي كل المدن
+  const limit = 1000;
   const offset = 0;
 
   const addModal = useDisclosure();
@@ -239,10 +238,9 @@ export default function Cities() {
       {
         key: "CityName",
         header: "اسم المدينة",
-        width: "auto",
         render: (row: AnyRec) => row.CityName ?? row.name ?? "-",
       },
-      { key: "__spacer", header: "", width: "35%", render: () => null },
+
     ],
     []
   );
@@ -286,7 +284,6 @@ export default function Cities() {
         columns={CITIES_COLUMNS}
         startIndex={offset + 1}
         pageSize={limit}
-        // ✅ تم إزالة pagination props
         headerAction={
           <SharedButton
             variant="brandGradient"

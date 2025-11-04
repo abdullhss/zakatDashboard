@@ -112,12 +112,61 @@ export default function OfficeAdded() {
           </HStack>
         </SectionHeader>
 
-        <TwoCols labelColWidth="160px">
-          <KVRow label="اسم المكتب" value={office.officeName} />
-          <KVRow label="رقم الهاتف" value={office.phoneNum} />
-          <KVRow label="المدينة" value={office.cityName} />
-          <KVRow label="العنوان" value={office.address} />
-        </TwoCols>
+        <div
+          style={{
+            padding: "1rem",              // p-4
+            display: "flex",              // flex
+            flexDirection: "column",      // flex-col
+            gap: "2rem",                  // gap-8
+            width: "100%",                // w-full
+            fontWeight:"500"
+          }}
+        >
+          <div
+            style={{
+              width: "100%",              // w-full
+              display: "flex",            // flex
+              alignItems: "center",       // items-center
+              justifyContent: "space-between", // justify-between
+            }}
+          >
+            <span>اسم المكتب</span>
+            <span>{office.officeName}</span>
+          </div>
+          <div
+            style={{
+              width: "100%",              // w-full
+              display: "flex",            // flex
+              alignItems: "center",       // items-center
+              justifyContent: "space-between", // justify-between
+            }}
+          >
+            <span>رقم الهاتف</span>
+            <span>{office.phoneNum}</span>
+          </div>
+          <div
+            style={{
+              width: "100%",              // w-full
+              display: "flex",            // flex
+              alignItems: "center",       // items-center
+              justifyContent: "space-between", // justify-between
+            }}
+          >
+            <span>المدينة</span>
+            <span>{office.cityName}</span>
+          </div>
+          <div
+            style={{
+              width: "100%",              // w-full
+              display: "flex",            // flex
+              alignItems: "center",       // items-center
+              justifyContent: "space-between", // justify-between
+            }}
+          >
+            <span>العنوان</span>
+            <span>{office.address}</span>
+          </div>
+        </div>
 
         <Box mt={6}>
           <Text fontWeight="800" color="gray.700" textAlign="center" mb={2}>
