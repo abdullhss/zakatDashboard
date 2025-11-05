@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Box, Text, Switch, HStack, useDisclosure, useToast,
   AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader,
@@ -133,10 +133,15 @@ export default function Office() {
 
   const userId = getCurrentUserId();
 
+  const [page, setPage] = useState(1);
+  const limit =10;
+  const offset = (page - 1) * limit;
+
   // ✅ استدعاء كل المكاتب مرة واحدة (من غير pagination)
   const { data, isLoading, isError, error, isFetching, refetch } =
-    useGetOffices(0, 9999, userId); // limit كبير جداً عشان يجيب الكل
-
+    useGetOffices(offset , limit, userId);
+    
+    const totalRows = Number(data?.decrypted.data.Result[0].OfficesCount) || 1;
   const rows = useMemo<OfficeRow[]>(() => {
     const src = (data?.rows as AnyRec[]) ?? [];
     return src.map((r) => ({
@@ -211,6 +216,11 @@ export default function Office() {
         title="بيانات المكاتب"
         data={rows as unknown as AnyRec[]}
         columns={columns}
+        onPageChange={setPage}
+        page={page}
+        pageSize={limit}
+        totalRows={totalRows}
+        startIndex={offset + 1}
         headerAction={
           <SharedButton
             size="sm"

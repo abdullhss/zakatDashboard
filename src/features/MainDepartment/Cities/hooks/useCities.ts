@@ -5,6 +5,8 @@ import type { NormalizedSummary, AnyRec } from "../../../../api/apiClient";
 export interface CitiesData {
   rows: AnyRec[];
   totalRows: number | null;
+  decrypted : any; 
+
 }
 
 export function useCitiesQuery(offset: number, limit: number): UseQueryResult<CitiesData, Error> {
@@ -22,6 +24,7 @@ export function useCitiesQuery(offset: number, limit: number): UseQueryResult<Ci
       return {
         rows: summary.rows,
         totalRows: summary.totalRows,
+        decrypted : summary.decrypted
       };
     },
     staleTime: 60_000,

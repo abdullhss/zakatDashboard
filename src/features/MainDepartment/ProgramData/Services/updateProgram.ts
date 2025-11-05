@@ -57,3 +57,22 @@ export async function updateProgram(payload: UpdateProgramPayload): Promise<Norm
 
   return analyzeExecution(exec);
 }
+
+
+export async function updateAboutUs(payload: any): Promise<NormalizedSummary> {
+  console.log("assssssss",payload);
+  
+  const columnsNames = `Id#PhoneNum#Address#WebSite#Instegram#FaceBook`;
+  const columnsValues = `${1}#${payload.PhoneNum}#${payload.Address}#${payload.WebSite}#${payload.FaceBook}#${payload.Instegram}`;
+
+  const exec = await doTransaction({
+    TableName: "daO6ZmlHKZsgpQBx6zCv/A==",
+    WantedAction: 1,
+    ColumnsNames: columnsNames,
+    ColumnsValues: columnsValues,
+    PointId: 0,
+  });
+  console.log(exec);
+  
+  return analyzeExecution(exec);
+}

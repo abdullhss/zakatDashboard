@@ -22,6 +22,7 @@ export async function getOffices(
     offset,
     limit
   );
+    const decrypted = result.decrypted
 
   const dec = (result as any)?.decrypted?.data;
   if (!dec?.Result?.[0]) return analyzeExecution(result);
@@ -43,5 +44,6 @@ export async function getOffices(
     rows: officesData,
     row: officesData[0] ?? null,
     serverTime: (result as any)?.decrypted?.servertime,
+    decrypted : decrypted
   };
 }

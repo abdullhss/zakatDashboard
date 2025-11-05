@@ -6,7 +6,8 @@ import type { NormalizedSummary, AnyRec } from '../../../../api/apiClient';
 
 export interface AboutUsData {
   rows: AnyRec[]; 
-  totalRows: number | null; 
+  totalRows: number | null;
+  data : any;
 }
 
 // دالة مساعدة لتحليل الـ JSON الخاص بـ AboutUs
@@ -46,6 +47,7 @@ export function useGetContactUs(): UseQueryResult<AboutUsData, Error> {
       const finalRows = safeParseAboutUsData(summary);
       
       return {
+        data : summary.decrypted.data ,
         rows: finalRows,
         totalRows: finalRows.length,
       } as AboutUsData;

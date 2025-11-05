@@ -55,7 +55,7 @@ export default function GetSacrificeDataMain() {
     useGetSacrificesDashData(0 /* إدارة تشوف الكل */, offset, limit);
 
   const rows = (data?.rows ?? []) as Row[];
-  const totalRows = data?.totalRows ?? rows.length;
+  const totalRows = Number(data?.decrypted.data.Result[0].SacrificesCount) || 1;
 
   const upd = useUpdateSacrificesData();
 

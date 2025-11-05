@@ -26,12 +26,15 @@ export function useGetUsers(opts: UseGetUsersOptions = {}) {
   const [total, setTotal] = useState<number | null>(null);
   const [serverTime, setServerTime] = useState<string | undefined>(undefined);
   const [lastSummary, setLastSummary] = useState<NormalizedSummary | null>(null);
+  const [dec , setDec] = useState<any>(null);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const summary = await getWorkUsersData(startNum, count, encSQLRaw, dataToken);
+      setDec(summary.decrypted)
+      
       setLastSummary(summary);
       setRows(summary.rows ?? []);
       setTotal(summary.totalRows ?? null);
@@ -52,6 +55,7 @@ export function useGetUsers(opts: UseGetUsersOptions = {}) {
 
   const state = useMemo(
     () => ({
+      dec,
       loading,
       error,
       rows,

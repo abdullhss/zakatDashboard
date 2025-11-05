@@ -39,13 +39,14 @@ export default function LawsData() {
     const offset = (page - 1) * limit; 
     
     // جلب البيانات
-    const { data, isLoading, isError, error, isFetching } = useGetLaws(offset, limit); 
-    
+    const { data, isLoading, isError, error, isFetching } = useGetLaws(offset, limit);
+
+        
     // هوك الحذف
     const deleteMutation = useDeleteLaw(); // ✅ تهيئة هوك الحذف
     
     const rows = data?.rows ?? [];
-    const totalRows = data?.totalRows ?? 0;
+    const totalRows = Number(data?.decrypted.data.Result[0].LawsCount) || 1;
 
     // === دوال الإجراءات ===
     const handleEdit = useCallback((row: AnyRec) => {
@@ -93,9 +94,6 @@ export default function LawsData() {
     const isOperationLoading = isLoading || isFetching || deleteMutation.isPending;
 
     const LAWS_COLUMNS = useMemo(() => [
-        {
-            key: "Id", header: "#", width: "5%", render: (row: AnyRec) => row.Id ?? '—',
-        },
         {
             key: "LawTitle", header: "عنوان القانون/اللائحة", width: "30%", render: (row: AnyRec) => (<Text fontWeight="600" color="gray.800">{row.LawTitle ?? '—'}</Text>),
         },

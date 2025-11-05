@@ -6,6 +6,7 @@ import type { NormalizedSummary, AnyRec } from "../../../../api/apiClient";
 export interface CampainData {
   rows: AnyRec[];
   totalRows: number | null;
+  decrypted : any; 
 }
 
 export function useGetCampaignQuery(
@@ -26,6 +27,7 @@ export function useGetCampaignQuery(
       return {
         rows: summary.rows,
         totalRows: summary.totalRows,
+        decrypted : summary.decrypted
       };
     },
     staleTime: 60_000,

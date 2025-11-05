@@ -7,6 +7,7 @@ import type { NormalizedSummary, AnyRec } from '../../../../api/apiClient';
 export interface SacrificesData {
     rows: AnyRec[];
     totalRows: number | null;
+    decrypted : any ;
 }
 
 /**
@@ -38,6 +39,7 @@ export function useGetSacrificesDashData(
             return {
                 rows: summary.rows,
                 totalRows: summary.totalRows,
+                decrypted : summary.decrypted
             } as SacrificesData;
         },
         staleTime: 60000, 

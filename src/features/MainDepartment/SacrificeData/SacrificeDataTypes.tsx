@@ -18,7 +18,7 @@ import { buildColumns } from "./components/columns";
 import { mapApiRowsToSacrificeRows, pickTotalRows } from "./helpers/mapApiRows";
 import type { SacrificeRow } from "./helpers/types";
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 10;
 
 export default function SacrificeDataTypes() {
   const toast = useToast();
@@ -41,7 +41,10 @@ export default function SacrificeDataTypes() {
 
   const sourceRows = (data?.rows ?? []) as AnyRec[];
   const rows: SacrificeRow[] = useMemo(() => mapApiRowsToSacrificeRows(sourceRows), [sourceRows]);
-  const totalRows = useMemo(() => pickTotalRows(data, rows.length), [data, rows.length]);
+  console.log(data?.decrypted.data.Result[0].SacrificeTypesCount);
+  
+  const totalRows = Number(data?.decrypted.data.Result[0].SacrificeTypesCount) || 1;
+  
 
   const onEditRow = useCallback(
     (raw: AnyRec) => {
@@ -199,7 +202,7 @@ export default function SacrificeDataTypes() {
         onEditRow={onEditRow}
         onDeleteRow={onDeleteRow}
         page={page}
-        pageSize={25}
+        pageSize={PAGE_SIZE}
         onPageChange={setPage}
         headerAction={
           <SharedButton variant="brandGradient" onClick={addModal.onOpen}>

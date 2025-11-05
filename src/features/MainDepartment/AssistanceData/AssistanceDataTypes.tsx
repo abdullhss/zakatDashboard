@@ -29,13 +29,13 @@ function AssistanceFiltersInline({
 }) {
   return (
     <HStack spacing={3} mb={4} align="center">
-      <Select w="260px" value={subventionTypeId}
+      <Select w="260px" px={3} value={subventionTypeId}
         onChange={(e) => setSubventionTypeId(e.target.value === "0" ? 0 : e.target.value)}
         isDisabled={isDisabled}>
         <option value={0}>كل أنواع الإعانة</option>
         {subventionOptions.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
       </Select>
-      <Select w="260px" value={officeId}
+      <Select w="260px" px={3} value={officeId}
         onChange={(e) => setOfficeId(e.target.value === "0" ? 0 : e.target.value)}
         isDisabled={isDisabled}>
         <option value={0}>كل المكاتب</option>
@@ -117,7 +117,7 @@ export default function AssistanceDataTypes() {
     useGetAssistanceData(officeId, subventionTypeId, offset, PAGE_SIZE);
 
   const rows = (data?.rows ?? []) as AssistanceRow[];
-  const totalRows = data?.totalRows ?? rows.length;
+  const totalRows = Number(data?.decrypted.data.Result[0].AssistancesCount) || 1 ;
 
   const { approve, reject, isPending } = useAssistanceActions(() => refetch());
   const showInitialSpinner = isLoading || (isFetching && rows.length === 0);

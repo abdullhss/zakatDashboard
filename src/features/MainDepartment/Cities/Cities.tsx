@@ -142,20 +142,21 @@ function RowActions({
 export default function Cities() {
   const toast = useToast();
 
-  const [page] = useState(1);
-  const limit = 1000;
-  const offset = 0;
+  const [page , setPage] = useState(1);
+  const limit = 10;
+  const offset = (page - 1) * limit;
 
   const addModal = useDisclosure();
   const editModal = useDisclosure();
   const [editingRow, setEditingRow] = useState<AnyRec | null>(null);
 
   const { data, isLoading, isError, error, isFetching, refetch } = useCitiesQuery(offset, limit);
+  
   const addCity = useAddCity();
   const updateCity = useUpdateCities();
 
   const citiesData = data?.rows || [];
-  const totalRows = data?.totalRows ?? 0;
+  const totalRows = Number(data?.decrypted.data.Result[0].CitiesCount) || 1;
 
   const fields = useMemo<FieldConfig[]>(
     () => [
@@ -284,6 +285,8 @@ export default function Cities() {
         columns={CITIES_COLUMNS}
         startIndex={offset + 1}
         pageSize={limit}
+        page={page}
+        onPageChange={setPage}
         headerAction={
           <SharedButton
             variant="brandGradient"

@@ -31,7 +31,8 @@ export default function PageHeader() {
   const location = useLocation();
   const title = getPageTitle(location.pathname);
   const { officeName } = getSession();
-
+  const isOffice = localStorage.getItem("role") == "O";
+  
   return (
     <StyledHeader dir="rtl">
       <Text fontSize="xl" fontWeight="bold" color="gray.800" mr="auto">
@@ -39,18 +40,20 @@ export default function PageHeader() {
       </Text>
 
       <Menu placement="bottom-start">
-        <MenuButton
-          as={Button}
-          rightIcon={<FiChevronDown />}
-          size="sm"
-          bg="gray.100"
-          color="gray.600"
-          _hover={{ bg: "gray.200" }}
-          _active={{ bg: "gray.200" }}
-          borderRadius="full"
-        >
-          {officeName}
-        </MenuButton>
+        {isOffice && 
+          <MenuButton
+            as={Button}
+            rightIcon={<FiChevronDown />}
+            size="sm"
+            bg="gray.100"
+            color="gray.600"
+            _hover={{ bg: "gray.200" }}
+            _active={{ bg: "gray.200" }}
+            borderRadius="full"
+          >
+            {officeName}
+          </MenuButton>
+        }
       </Menu>
     </StyledHeader>
   );

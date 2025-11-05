@@ -35,7 +35,7 @@ export default function Users() {
 
   // ترقيم
   const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(25);
+  const pageSize = 10;
 
   // بحث (لو عندك حقل UI للبحث اربطه بهذه الحالة)
   const [query, setQuery] = useState<string>("");
@@ -57,7 +57,7 @@ export default function Users() {
   }, [query]);
 
   // جلب البيانات
-  const { loading, error, rows, total, refetch } = useGetUsers({
+  const { dec , loading, error, rows, total, refetch } = useGetUsers({
     startNum,
     count,
     encSQLRaw,
@@ -153,7 +153,7 @@ export default function Users() {
         title="قائمة المستخدمين"
         data={rows}
         columns={columns}
-        totalRows={total ?? rows.length}
+        totalRows={dec!=null ? Number(dec.data.Result[0].WorkUsersCount) : 1}
         stickyHeader
         loading={loading || deleting}
         onEditRow={onEditRow}

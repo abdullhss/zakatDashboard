@@ -8,6 +8,7 @@ export interface AssistanceData {
   totalRows: number | null;
   raw?: any;       // 👈 جديد
   carrier?: any;   // 👈 جديد
+  decrypted?:any
 }
 
 function safeParse<T = any>(txt: any, fb: T): T {
@@ -30,7 +31,9 @@ export function useGetAssistanceData(
       const summary: NormalizedSummary = await getAssistanceData(
         officeId, subventionTypeId, offset, limit
       );
-
+      const decrypted = summary.decrypted
+      console.log(decrypted);
+      
       if (summary.flags.FAILURE || summary.flags.INTERNAL_ERROR) {
         throw new Error(summary.message || "فشل غير معروف في جلب طلبات الإعانات.");
       }
@@ -53,7 +56,7 @@ export function useGetAssistanceData(
         parsedRows.length ||
         0;
 
-      return { rows: parsedRows, totalRows: total, raw: summary, carrier };
+      return {  rows: parsedRows, totalRows: total, raw: summary, carrier , decrypted };
     },
     staleTime: 60_000,
   });

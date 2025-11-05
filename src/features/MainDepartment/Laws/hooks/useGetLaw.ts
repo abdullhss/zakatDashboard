@@ -8,6 +8,7 @@ import type { NormalizedSummary, AnyRec } from '../../../../api/apiClient';
 export interface LawsData {
     rows: AnyRec[];
     totalRows: number | null;
+    decrypted : any ;
 }
 
 /**
@@ -31,6 +32,7 @@ export function useGetLaws(offset: number, limit: number): UseQueryResult<LawsDa
             return {
                 rows: summary.rows,
                 totalRows: summary.totalRows,
+                decrypted : summary.decrypted
             } as LawsData;
         },
         staleTime: 60000, 

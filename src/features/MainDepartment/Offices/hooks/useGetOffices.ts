@@ -9,6 +9,7 @@ export function useGetOffices(offset: number, limit: number) {
       return {
         rows: res.rows ?? [],
         totalRows: res.totalRows ?? 0,
+        decrypted : res.decrypted
       };
     },
     placeholderData: keepPreviousData,

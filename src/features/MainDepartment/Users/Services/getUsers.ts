@@ -34,12 +34,14 @@ export async function getWorkUsersData(
 
   const encSQL = buildEncSQL(encSQLRaw || "");
   const procedureValues = `${startParam}#${countParam}#${encSQL}`;
-
+  console.log(procedureValues);
+  
   const execRes = await executeProcedure(
     PROCEDURE_NAMES.GET_WORK_USERS_DATA,
     procedureValues,
     dataToken
   );
-
+  console.log(analyzeExecution(execRes));
+  
   return analyzeExecution(execRes);
 }

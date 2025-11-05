@@ -27,7 +27,7 @@ export default function Campaigns() {
 
   const { data, isLoading, isError, error, refetch, isFetching } =
     useGetCampaignQuery(offset, PAGE_SIZE);
-
+    
   const serverRows = (data?.rows ?? []) as CampaignRow[];
   const serverTotalRows = data?.totalRows ?? serverRows.length;
 
@@ -45,9 +45,7 @@ export default function Campaigns() {
     return filteredRows.slice(start, end);
   }, [serverRows, filteredRows, offset]);
 
-  const totalRowsForTable = useMemo(() => {
-    return isOffice() ? filteredRows.length : serverTotalRows;
-  }, [filteredRows.length, serverTotalRows]);
+  const totalRowsForTable = Number(data?.decrypted.data.Result[0].CampaignsCount) || 1 
 
   const updateTx = useUpdateCampaignData();
   const busyRowId = useRef<CampaignRow["Id"] | null>(null);
