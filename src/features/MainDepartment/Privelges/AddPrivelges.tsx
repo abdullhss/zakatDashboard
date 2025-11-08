@@ -32,11 +32,6 @@ export default function AddPrivelges() {
 
   const [groupRightName, setGroupRightName] = useState<string>("");
 const lockName = false;
-useEffect(() => {
-  if (role === "O" && !groupRightName) {
-    setGroupRightName(officeName || "");
-  }
-}, [role, officeName, groupRightName]);
   useEffect(() => {
     if (lockName) setGroupRightName(officeName || "");
   }, [lockName, officeName]);

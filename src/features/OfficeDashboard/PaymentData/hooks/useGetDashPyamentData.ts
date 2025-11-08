@@ -7,6 +7,7 @@ import type { NormalizedSummary, AnyRec } from '../../../../api/apiClient';
 export interface PaymentData {
     rows: AnyRec[];
     totalRows: number | null;
+    decrypted:any
 }
 
 export function useGetDashPyamentData(
@@ -29,6 +30,7 @@ export function useGetDashPyamentData(
             return {
                 rows: summary.rows,
                 totalRows: summary.totalRows,
+                decrypted : summary.decrypted
             } as PaymentData;
         },
         staleTime: 60000, 

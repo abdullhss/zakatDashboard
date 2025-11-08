@@ -112,6 +112,7 @@ export default function App() {
     <Route path="users/edit/:id" element={<AddUserPage />} />
     <Route path="privelgesOffice" element={<PrivelgesOfficeTypes />} />
     <Route path="privelgesOffice/add" element={<AddPrivelges />} />
+    <Route path="/officedashboard/privelges/update" element={<UpdatePrivilege />} />
     <Route path="group-right-features" element={<GroupRightFeaturesPage />} /> 
     <Route path="campaignOffice" element={<CampaignOffice />} />
     <Route path="projects" element={<GetProjects />} />

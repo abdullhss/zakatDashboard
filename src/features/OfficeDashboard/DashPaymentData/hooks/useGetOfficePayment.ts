@@ -9,6 +9,7 @@ import { getSession } from '../../../../session'; // لاستخدام getSession
 export interface OfficePaymentData {
     rows: AnyRec[];
     totalRows: number | null;
+    decrypted : any ;
 }
 
 /**
@@ -43,6 +44,7 @@ export function useGetOfficePayment(
             return {
                 rows: summary.rows,
                 totalRows: summary.totalRows,
+                decrypted : summary.decrypted
             } as OfficePaymentData;
         },
         staleTime: 60000, 

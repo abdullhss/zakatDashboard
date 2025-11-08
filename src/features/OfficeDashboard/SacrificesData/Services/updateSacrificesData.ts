@@ -50,18 +50,16 @@ export async function updateSacrificesData(
   pointId: number | string = 1
 ): Promise<NormalizedSummary> {
   const ColumnsNames =
-    "Id#SacrificeOrderDate#Office_Id#GeneralUser_Id#SacrificeOrderTotalAmount#IsApproved#ApprovedDate#ApprovedBy#IsDone";
+    "Id#IsApproved#ApprovedDate#ApprovedBy";
+
+  const today = new Date();
+  const approvedDate = payload.ApprovedDate ? fmtDate(payload.ApprovedDate) : fmtDate(today);
 
   const ColumnsValues = [
     payload.Id ?? "",
-    fmtDate(payload.SacrificeOrderDate),
-    payload.Office_Id ?? "",
-    payload.GeneralUser_Id ?? "",
-    String(payload.SacrificeOrderTotalAmount ?? 0),
     String(boolishTo01(payload.IsApproved)),
-    fmtDate(payload.ApprovedDate),
+    approvedDate,
     payload.ApprovedBy ?? "",
-    String(boolishTo01(payload.IsDone)),
   ].join("#");
 
   const result = await doTransaction({

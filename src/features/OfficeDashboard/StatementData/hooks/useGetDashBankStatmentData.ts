@@ -12,6 +12,7 @@ import { getSession } from "../../../../session";
 export interface BankStatementData {
   rows: AnyRec[];
   totalRows: number | null;
+  decrypted:any;
 }
 
 // ✅ دالة لتنسيق التاريخ لصيغة MM-dd-yyyy
@@ -74,6 +75,7 @@ export function useGetOfficePayment(
       return {
         rows: summary.rows,
         totalRows: summary.totalRows,
+        decrypted:summary.decrypted
       };
     },
     staleTime: 60_000,

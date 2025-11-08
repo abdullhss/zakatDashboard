@@ -24,7 +24,8 @@ export async function getWorkUsersData(
   startNum: number = 1,   // 1-based
   count: number = 50,
   encSQLRaw?: string,
-  dataToken?: string
+  dataToken?: string,
+  officeID : number = 0 , 
 ): Promise<NormalizedSummary> {
   const s = Number.isFinite(startNum) ? Math.trunc(startNum) : 1;
   const c = Number.isFinite(count) ? Math.trunc(count) : 50;
@@ -33,7 +34,7 @@ export async function getWorkUsersData(
   const countParam = Math.max(1, c);
 
   const encSQL = buildEncSQL(encSQLRaw || "");
-  const procedureValues = `${startParam}#${countParam}#${encSQL}`;
+  const procedureValues = `${startParam}#${countParam}#${encSQL}#${officeID}`;
   console.log(procedureValues);
   
   const execRes = await executeProcedure(

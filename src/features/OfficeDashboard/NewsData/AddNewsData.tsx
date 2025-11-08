@@ -88,9 +88,10 @@ export default function AddNewsForm() {
   const update = (k: keyof NewsFormState, v: any) =>
     setForm((s) => ({ ...s, [k]: v }));
 
-  // تهيئة وضع التعديل
   useEffect(() => {
     if (!incoming) return;
+    console.log(incoming);
+    
     setForm((s) => ({
       ...s,
       id: incoming.Id ?? incoming.NewsId ?? incoming.id,
@@ -107,8 +108,8 @@ export default function AddNewsForm() {
         new Date().toISOString().slice(0, 10),
 
       // مهم: نخزن الـ IDs للعرض
-      currentPhotoId: String(incoming.NewsMainPhotoName ?? incoming.PhotoName ?? "") || "",
-      currentAttachId: String(incoming.AttachmentFile ?? "") || "",
+      currentPhotoId: String(incoming.NewsMainPhotoName_Id ) || "",
+      currentAttachId: String(incoming.AttachmentFile_Id ?? "") || "",
     }));
   }, [incoming]);
 
@@ -154,7 +155,8 @@ export default function AddNewsForm() {
       // IDs النهائية المرسلة
       let photoId = form.currentPhotoId || "";  // هنا نتأكد من حفظ الـ ID القديم إن كان موجودًا
       let attachId = form.currentAttachId || "";
-
+      console.log(form);
+      
       // 1) ارفع الصورة لو تم اختيارها
       if (mainPhotoFile) {
         const up = await hf.UploadFileWebSite({
@@ -165,6 +167,7 @@ export default function AddNewsForm() {
           onProgress: (p: number) => console.log(`Main photo progress: ${p}%`),
         });
         if (!up?.id || up.id === "0") throw new Error(up?.error || "فشل رفع الصورة");
+        
         photoId = String(up.id);  // نُحفظ الـ id المستلم
         setLastMainPhotoId(photoId);  // نحدّث الـ ID هنا
       }
@@ -179,12 +182,20 @@ export default function AddNewsForm() {
           onProgress: (p: number) => console.log(`Attachment progress: ${p}%`),
         });
         if (!up2?.id || up2.id === "0") throw new Error(up2?.error || "فشل رفع المرفق");
+        console.log(up2);
+        
         attachId = String(up2.id);
         setLastAttachId(attachId);
       }
 
+        console.log(photoId);
+        console.log(attachId);
+        console.log(currentPhotoUrl);
+        console.log(currentAttachUrl);
       if (!isEdit) {
         // ===== إضافة =====
+        
+        
         await addNews.mutateAsync({
           newsMainTitle: title,
           newsSubTitle: form.newsSubTitle?.trim() || "",

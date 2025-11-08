@@ -3,9 +3,9 @@ import React, { useEffect, useMemo, useState, useRef } from "react";
 import {
   Box, Heading, Text, HStack, VStack, useToast, Divider,
 } from "@chakra-ui/react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 
-import FieldRow from "../../../Components/SharedField/FieldRow"; // لو محتاجه للـ Heading فقط
+import FieldRow from "../../../Components/SharedField/FieldRow";
 // hooks
 import { useAddUser } from "./hooks/useAddUser";
 import { useUpdateUser } from "./hooks/useUpdateUser";
@@ -29,6 +29,8 @@ export default function AddUserPage() {
   const toast = useToast();
   const navigate = useNavigate();
   const firstInputRef = useRef<HTMLInputElement | null>(null);
+  const updatedUserId = useParams() ;
+  
 
   // session
   const session = getSession();
@@ -100,34 +102,33 @@ export default function AddUserPage() {
   }, [privData]);
 
   // fill edit data
-  useEffect(() => {
-    if (!isEdit || !editRow) return;
-    setFullName(editRow.FullName ?? editRow.Name ?? editRow.name ?? "");
-    setUserName(editRow.UserName ?? editRow.LoginName ?? "");
-    setEmail(editRow.Email ?? "");
-    setPhoneNum(editRow.PhoneNum ?? editRow.Mobile ?? editRow.Phone ?? "");
-    setPassword("");
-    setConfirmPassword("");
+  // useEffect(() => {
+  //   if (!isEdit || !editRow) return;
+  //   setFullName(editRow.FullName ?? editRow.Name ?? editRow.name ?? "");
+  //   setUserName(editRow.UserName ?? editRow.LoginName ?? "");
+  //   setEmail(editRow.Email ?? "");
+  //   setPhoneNum(editRow.PhoneNum ?? editRow.Mobile ?? editRow.Phone ?? "");
+  //   setPassword("");
+  //   setConfirmPassword("");
 
-    const uType = String(editRow.UserType ?? "").toUpperCase() as "M" | "O" | "";
-    setUserType(isOfficeSession ? "O" : uType);
+  //   const uType = String(editRow.UserType ?? "").toUpperCase() as "M" | "O" | "";
+  //   setUserType(isOfficeSession ? "O" : uType);
 
-    if (isOfficeSession) {
-      setOfficeId(sessionOfficeId);
-    } else {
-      if (uType === "O") setOfficeId(editRow.Office_Id ?? editRow.OfficeId ?? "");
-      else setOfficeId("");
-    }
+  //   if (isOfficeSession) {
+  //     setOfficeId(sessionOfficeId);
+  //   } else {
+  //     if (uType === "O") setOfficeId(editRow.Office_Id ?? editRow.OfficeId ?? "");
+  //     else setOfficeId("");
+  //   }
 
-    const gid = Number(editRow.GroupRight_Id ?? 0) || "";
-    setGroupRightId(gid);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, editRow, isOfficeSession, sessionOfficeId]);
+  //   const gid = Number(editRow.GroupRight_Id ?? 0) || "";
+  //   setGroupRightId(gid);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isEdit, editRow, isOfficeSession, sessionOfficeId]);
 
   // default/clear privilege per type
   useEffect(() => {
     if (UserType === "O") {
-      setGroupRightId(0);
       return;
     }
     if (UserType === "M" && !privLoading && privileges.length && !GroupRight_Id) {
@@ -152,9 +153,11 @@ export default function AddUserPage() {
     const officeOk = (UserType === "O") ? !!(isOfficeSession ? sessionOfficeId : Office_Id) : true;
 
     const allOk =
-      userNameOk && emailOk && phoneOk &&
-      passStrong && passMatch && passRequired &&
-      typeOk && privOk && officeOk;
+  userNameOk && emailOk && phoneOk &&
+  passStrong && passMatch &&
+  (!isEdit ? passRequired : true) && // 👈 شرط مخصص لحالة Edit
+  typeOk && privOk && officeOk;
+
 
     return { userNameOk, emailOk, phoneOk, passStrong, passMatch, typeOk, privOk, officeOk, allOk, passProvided, passRequired };
   }, [UserName, Email, PhoneNum, Password, ConfirmPassword, UserType, GroupRight_Id, Office_Id, isEdit, isOfficeSession, sessionOfficeId]);
@@ -182,24 +185,27 @@ export default function AddUserPage() {
     if (!validation.typeOk) return toast({ title: "اختر نوع الحساب", status: "warning" });
     if (UserType === "M" && !validation.privOk) return toast({ title: "اختر الصلاحية", status: "warning" });
     if (!validation.officeOk) return toast({ title: "اختر المكتب", status: "warning" });
-    if (isEdit && !validation.passProvided) return toast({ title: "كلمة المرور مطلوبة للتحديث.", status: "warning" });
-    if (!validation.passStrong) return toast({
-      title: "كلمة المرور ضعيفة",
-      description: "الحد الأدنى 8 أحرف وتضم حرفًا كبيرًا وصغيرًا ورقمًا ورمزًا.",
-      status: "warning",
-    });
-    if (!validation.passMatch) return toast({ title: "تأكيد كلمة المرور غير مطابق", status: "warning" });
+    // if (isEdit && !validation.passProvided) return toast({ title: "كلمة المرور مطلوبة للتحديث.", status: "warning" });
+    if (validation.passProvided && !validation.passStrong)
+      return toast({
+        title: "كلمة المرور ضعيفة",
+        description: "الحد الأدنى 8 أحرف وتضم حرفًا كبيرًا وصغيرًا ورقمًا ورمزًا.",
+        status: "warning",
+      });
+
+    if (validation.passProvided && !validation.passMatch)
+      return toast({ title: "تأكيد كلمة المرور غير مطابق", status: "warning" });
 
     try {
       if (isEdit) {
-        const idVal = Number(editRow?.Id ?? editRow?.UserId ?? editRow?.id ?? 0) || 0;
+        const idVal = Number(updatedUserId.id);
         await submitUpdate({
           Id: idVal,
           UserName: UserName.trim(),
           Email: Email.trim(),
           PhoneNum: normalizePhone(PhoneNum),
           LoginName: UserName.trim(),
-          Password: (Password || "").trim(),
+          // Password: (Password || "").trim(),
           UserType: (isOfficeSession ? "O" : UserType) as "M" | "O",
           GroupRight_Id: Number(GroupRight_Id || 0),
           Office_Id: (isOfficeSession ? sessionOfficeId : (UserType === "O" ? Number(Office_Id || 0) : 0)),

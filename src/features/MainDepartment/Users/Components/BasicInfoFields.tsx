@@ -3,6 +3,7 @@ import React from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 import FieldRow from "../../../../Components/SharedField/FieldRow";
 import { FieldInput } from "../../../../Components/SharedField/FieldControl";
+import { useLocation, useParams } from "react-router-dom";
 
 type Props = {
   isEdit: boolean;
@@ -24,6 +25,9 @@ export default function BasicInfoFields({
   Password, setPassword,
   ConfirmPassword, setConfirmPassword,
 }: Props) {
+  const pathName = useLocation() ; 
+  const isEditPage = pathName.pathname.includes("edit")
+  
   return (
     <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }} gap={6}>
       <GridItem>
@@ -70,27 +74,33 @@ export default function BasicInfoFields({
         </FieldRow>
       </GridItem>
 
-      <GridItem>
-        <FieldRow label="كلمة المرور">
-          <FieldInput
-            placeholder={isEdit ? " ادخل كلمة مرور " : "8+ أحرف: كبير/صغير/رقم/رمز"}
-            type="password"
-            value={Password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </FieldRow>
-      </GridItem>
+      {
+       isEditPage &&(
+          <>
+              <GridItem>
+                <FieldRow label="كلمة المرور">
+                  <FieldInput
+                    placeholder={isEdit ? " ادخل كلمة مرور " : "8+ أحرف: كبير/صغير/رقم/رمز"}
+                    type="password"
+                    value={Password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </FieldRow>
+              </GridItem>
 
-      <GridItem>
-        <FieldRow label="تأكيد كلمة المرور">
-          <FieldInput
-            placeholder={isEdit ? " ادخل كلمة مرور " : "برجاء تأكيد كلمة المرور"}
-            type="password"
-            value={ConfirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </FieldRow>
-      </GridItem>
+              <GridItem>
+                <FieldRow label="تأكيد كلمة المرور">
+                  <FieldInput
+                    placeholder={isEdit ? " ادخل كلمة مرور " : "برجاء تأكيد كلمة المرور"}
+                    type="password"
+                    value={ConfirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </FieldRow>
+              </GridItem>
+            </>
+          )
+      }
     </Grid>
   );
 }

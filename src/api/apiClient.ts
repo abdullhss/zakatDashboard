@@ -400,7 +400,7 @@ export async function doTransaction(
       TableName: input.TableName,
       WantedAction: input.WantedAction,
       ColumnsValues: input.ColumnsValues,
-      PointId: input.PointId,
+      PointId: 0,
       DataToken: dataToken,
     };
 

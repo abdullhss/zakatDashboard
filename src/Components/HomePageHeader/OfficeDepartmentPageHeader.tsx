@@ -94,7 +94,6 @@ export default function OfficeDepartmentPageHeader() {
       <Menu placement="bottom-start">
         <MenuButton
           as={Button}
-          rightIcon={<FiChevronDown />}
           size="sm"
           bg="gray.100"
           color="gray.700"
@@ -104,10 +103,6 @@ export default function OfficeDepartmentPageHeader() {
         >
           {headerLabel}
         </MenuButton>
-        <MenuList>
-          {/* عناصر إضافية لو حبيت — ممكن تشيلها */}
-          <MenuItem isDisabled>{headerLabel}</MenuItem>
-        </MenuList>
       </Menu>
     </StyledHeader>
   );

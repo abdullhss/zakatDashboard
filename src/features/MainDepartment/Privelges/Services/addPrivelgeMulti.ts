@@ -12,7 +12,7 @@ const caretJoin = (...parts: string[]) =>
        .join("^");
 
 const pipeJoin = (rows: string[]) =>
-  rows.map((r) => String(r ?? "").trim()).map((s) => s.replace(/(\^)+/g, "")).join("|");
+  rows.map((r) => String(r ?? "").trim()).map((s) => s.replace(/(\^)+/g, "")).join("^");
 
 const sanitizeName = (s: string) =>
   String(s ?? "").replaceAll("^", " ").replaceAll("|", " ").replaceAll("#", " ").trim();
@@ -73,42 +73,46 @@ export async function addGroupRightWithFeatures(
     } as any);
   }
 
-  const activeBit = isActive ? 1 : 0;
+  const activeBit = isActive ? "true" : "false";
 
-  // إضافة تفاصيل لمجموعة موجودة
+  // حالة إضافة تفاصيل لمجموعة موجودة
   if (groupRightId != null && groupRightId !== "") {
     const detailValues = pipeJoin(
       featureIds.map((fid) => `0#${groupRightId}#${fid}#${activeBit}`)
     );
+
+    const tables = featureIds.map(() => ({
+      tableName: D_TABLE,
+      columnsValues: "", // القيم هتتجمع من detailValues تحت
+    }));
+
     const multi = composeMultiTx(
       [{ tableName: D_TABLE, columnsValues: detailValues }],
       0,
       pointId
     );
+
     const res = await doMultiTransaction(multi);
     return analyzeExecution(res);
   }
 
   // إنشاء مجموعة جديدة + ربط الميزات
-  const roleCode = String(groupRightType ?? "M").toUpperCase(); // "M" أو "O"
+  const roleCode = String(groupRightType ?? "M").toUpperCase();
   const name = sanitizeName(groupRightName ?? "");
   if (!name) throw new Error("اسم المجموعة مطلوب.");
 
-  // GroupRight:   Id#GroupRightName#GroupRightType
-  // GroupRight_D: Id#GroupRight_Id#Feature_Id#IsActive
   const masterValues = `0#${name}#${roleCode}`;
-  const detailValues = pipeJoin(
-    featureIds.map((fid) => `0#@T0#${fid}#${activeBit}`)
-  );
 
-  const multi = composeMultiTx(
-    [
-      { tableName: M_TABLE, columnsValues: masterValues },
-      { tableName: D_TABLE, columnsValues: detailValues },
-    ],
-    0,
-    pointId
-  );
+  // هنا بنكرر الـ D_TABLE بعدد الـ features فقط
+  const tables: MultiTablePart[] = [
+    { tableName: M_TABLE, columnsValues: masterValues },
+    ...featureIds.map((fid) => ({
+      tableName: D_TABLE,
+      columnsValues: `0#0#${fid}#${activeBit}`,
+    })),
+  ];
+
+  const multi = composeMultiTx(tables, 0, pointId);
 
   const res = await doMultiTransaction(multi);
   return analyzeExecution(res);

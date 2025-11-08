@@ -21,7 +21,7 @@ const PAGE_SIZE = 10;
 
 export default function Projects() {
   const [page, setPage] = useState(1);
-  const [completeType, setCompleteType] = useState<"N" | "C" | "S">("N");
+  const [completeType, setCompleteType] = useState<"N" | "C" | "S">("S");
 
   // حالة المودال/التعديل
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -48,9 +48,11 @@ export default function Projects() {
   const { data, isLoading, isError, error, isFetching, refetch } =
     useGetProjects(completeType, start, PAGE_SIZE);
 
-  const rows = data?.rows ?? [];
-  const totalRows = data?.total ?? rows.length;
-
+    
+    const totalRows = Number(data?.summary.decrypted.data.Result[0].ProjectsCount)||1
+  const rows = data?.rows || [];
+  console.log(rows);
+  
   const openFile = () => fileRef.current?.click();
   const onFile = (e: React.ChangeEvent<HTMLInputElement>) =>
     setNewPhotoFile(e.target.files?.[0] || null);
@@ -206,12 +208,13 @@ export default function Projects() {
       <HStack mb={4} spacing={3}>
         <Select
           w="260px"
+          px={3}
           value={completeType}
           onChange={(e) => setCompleteType(e.target.value as "N" | "C" | "S")}
         >
-          <option value="N">مشاريع جديدة</option>
-          <option value="C">مشاريع مكتملة</option>
           <option value="S">مشاريع غير مكتملة</option>
+          <option value="C">مشاريع مكتملة</option>
+          <option value="N">مشاريع جديدة</option>
         </Select>
       </HStack>
 

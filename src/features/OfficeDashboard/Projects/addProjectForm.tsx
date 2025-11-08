@@ -119,12 +119,21 @@ export default function AddProjectForm() {
   // حساب القيمة المتبقية تلقائيًا
   const handleValueChange = (field: keyof FormShape, value: string) => {
     const newValue = Number(value) || 0;
+
+    // نحسب القيمة المتبقية بناءً على القيمة الجديدة
+    let newRemaining = Number(form.remainingValue) || 0;
+    if (field === "initialValue") {
+      newRemaining = Math.max((Number(form.requestedValue) || 0) - newValue, 0);
+    } else if (field === "requestedValue") {
+      newRemaining = Math.max(newValue - (Number(form.initialValue) || 0), 0);
+    }
+
     update(field, value);
-    if (field === "requestedValue" || field === "initialValue") {
-      const remainingValue = (Number(form.initialValue) || 0) - (Number(form.requestedValue) || 0);
-      update("remainingValue", String(remainingValue));
+    if (field === "initialValue" || field === "requestedValue") {
+      update("remainingValue", String(newRemaining));
     }
   };
+
 
   const onSubmit = async () => {
     // فحص أساسي
@@ -139,6 +148,14 @@ export default function AddProjectForm() {
 
     // نبدأ بالـID المثبّت
     let photoIdToSend = photoIdRef.current;
+    if (!imageFile && !currentPhotoId) {
+      toast({
+        status: "warning",
+        title: "الصورة مطلوبة",
+        description: "برجاء اختيار صورة للمشروع قبل الحفظ.",
+      });
+      return;
+    }
 
     try {
       const session = getSession();
@@ -278,9 +295,10 @@ export default function AddProjectForm() {
               />
             </FormControl>
 
-            <FormControl mb={4}>
+            <FormControl mb={4} isRequired>
               <FormLabel>تصنيف المشروع</FormLabel>
               <Select
+                px={3}
                 placeholder="برجاء اختيار تصنيف المشروع"
                 value={form.category}
                 onChange={(e) => update("category", e.target.value)}
@@ -296,7 +314,7 @@ export default function AddProjectForm() {
           </GridItem>
 
           <GridItem>
-            <FormControl mb={4}>
+            <FormControl mb={4} isRequired>
               <FormLabel>القيمة الابتدائية</FormLabel>
               <HStack>
                 <Input
@@ -308,7 +326,7 @@ export default function AddProjectForm() {
               </HStack>
             </FormControl>
 
-            <FormControl mb={4}>
+            <FormControl mb={4} isRequired>
               <FormLabel>القيمة المتبقية</FormLabel>
               <HStack>
                 <Input
@@ -323,7 +341,7 @@ export default function AddProjectForm() {
               </HStack>
             </FormControl>
 
-            <FormControl mb={4}>
+            <FormControl mb={4} isRequired>
               <FormLabel>القيمة المطلوبة</FormLabel>
               <HStack>
                 <Input
@@ -353,8 +371,11 @@ export default function AddProjectForm() {
           </GridItem>
 
           {/* عمود الصورة */}
-          <GridItem>
-            <FormLabel>صورة المشروع</FormLabel>
+          <GridItem >
+            <FormLabel >
+              صورة المشروع
+              <span style={{color:"#ff0000"}}> * </span>
+            </FormLabel>
             <VStack align="start">
               <AspectRatio
                 ratio={4 / 3}
@@ -405,7 +426,7 @@ export default function AddProjectForm() {
           </GridItem>
         </Grid>
 
-        <FormControl mt={4}>
+        <FormControl mt={4} isRequired>
           <FormLabel>وصف المشروع</FormLabel>
           <Textarea
             placeholder="برجاء كتابة وصف المشروع"

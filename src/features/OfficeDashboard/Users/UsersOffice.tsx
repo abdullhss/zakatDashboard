@@ -7,20 +7,25 @@ import { getSession } from "../../../session";
 import { useUpdateUser } from "../../MainDepartment/Users/hooks/useUpdateUser"; // هوك التعديل
 import { useDeleteUser } from "../../MainDepartment/Users/hooks/useDeleteUser"; // هوك الحذف
 import { useNavigate } from "react-router-dom"; // استخدام التوجيه
+import { useState } from "react";
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 10;
 
 export default function UsersOffice() {
   const { officeId } = getSession();
   const navigate = useNavigate(); // للحصول على دالة التوجيه
+  
+  const [page , setPage] = useState(1);
 
+  const offset = (page - 1) * PAGE_SIZE;
   // جلب البيانات باستخدام هوك
-  const { rows, loading } = useGetUsers({
-    startNum: 1,
+  const { dec ,rows, loading } = useGetUsers({
+    startNum: offset,
     count: PAGE_SIZE,
     auto: true,
   });
 
+  const totalRows = Number(dec?.data.Result[0].WorkUsersCount) || 1 ; 
   // هوك التحديث
   const { submit: updateUser, loading: updateLoading, error: updateError } = useUpdateUser();
   
@@ -56,9 +61,8 @@ export default function UsersOffice() {
     },
   ];
 
-  const handleUpdate = async (user: AnyRec) => {
-    // تمرير البيانات عبر navigate إلى صفحة إضافة المستخدم
-    navigate("/officedashboard/usersOffice/add", { state: { userData: user } });
+  const handleUpdate = (user: AnyRec) => {
+    navigate(`/officedashboard/users/edit/${user.Id}`, { state: { userData: user } });
   };
 
   const handleDelete = async (user: AnyRec) => {
@@ -71,6 +75,7 @@ export default function UsersOffice() {
       Office_Id: officeId,
     };
     await deleteUser(deleteUserInput);
+
   };
 
   return (
@@ -79,8 +84,12 @@ export default function UsersOffice() {
         title="مستخدمو المكتب"
         data={(rows as AnyRec[]) || []}
         columns={columns as any}
-        totalRows={rows?.length || 0}
+        totalRows={totalRows}
         loading={loading}
+        page={page}
+        startIndex={offset + 1}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
         headerAction={
           <HStack spacing={3}>
             <SharedButton variant="brandGradient" to="/officedashboard/usersOffice/add">

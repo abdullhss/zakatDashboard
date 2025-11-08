@@ -8,6 +8,7 @@ import type { NormalizedSummary, AnyRec } from '../../../../api/apiClient';
 export interface TransferData {
     rows: AnyRec[];
     totalRows: number | null;
+    decrypted : any ;
 }
 
 /**
@@ -35,6 +36,7 @@ export function useGetTransferMoney(
             return {
                 rows: summary.rows,
                 totalRows: summary.totalRows,
+                decrypted : summary.decrypted
             } as TransferData;
         },
         staleTime: 60000, 

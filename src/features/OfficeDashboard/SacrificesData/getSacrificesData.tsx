@@ -61,8 +61,8 @@ export default function SacrificeDataTypes() {
   ); 
 
   // ✅ استخدام تعريف واحد للـ rows و totalRows
-  const allRows = (data?.rows ?? []) as Row[];
-  const allTotalRows = data?.totalRows ?? allRows.length;
+  const allRows = data?.rows ;
+  const allTotalRows = Number(data?.decrypted.data.Result[0].SacrificesCount) || 1;
   
   const upd = useUpdateSacrificesData();
 
@@ -88,7 +88,7 @@ export default function SacrificeDataTypes() {
       // تحديث البيانات بعد النجاح
       await data?.refetch();
     } catch (e: any) {
-      toast({ status: "error", title: "فشل تنفيذ العملية", description: e?.message || "حاول مرة أخرى" });
+//       toast({ status: "error", title: "فشل تنفيذ العملية", description: e?.message || "حاول مرة أخرى" });
     }
   };
 
@@ -188,7 +188,7 @@ export default function SacrificeDataTypes() {
         page={page}
         pageSize={limit}
         onPageChange={setPage}
-        totalRows={allTotalRows} // استخدام allTotalRows
+        totalRows={allTotalRows}
       />
       
       {filteredRows.length === 0 && !isLoading && (

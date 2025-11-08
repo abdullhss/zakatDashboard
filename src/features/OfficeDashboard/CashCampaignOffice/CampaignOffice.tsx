@@ -27,27 +27,10 @@ export default function Campaigns() {
   const { data, isLoading, isError, error, refetch, isFetching } =
     useGetCampaignQuery(offset, PAGE_SIZE);
 
-  // 🛑 استخراج وتحليل البيانات (المنطق الذي تم تعديله في الـ Hook)
   const serverRows = (data?.rows ?? []) as CampaignRow[];
-  const serverTotalRows = data?.totalRows ?? serverRows.length;
-
   // فلترة تلقائية حسب الدور O
-  const filteredRows: CampaignRow[] = useMemo(
-    () => filterRowsByOffice(serverRows, officeId),
-    [serverRows, officeId]
-  );
 
-  // ترقيم الصفحات:
-  const visibleRows: CampaignRow[] = useMemo(() => {
-    if (!isOffice()) return serverRows;
-    const start = offset;
-    const end = start + PAGE_SIZE;
-    return filteredRows.slice(start, end);
-  }, [serverRows, filteredRows, offset]);
-
-  const totalRowsForTable = useMemo(() => {
-    return isOffice() ? filteredRows.length : serverTotalRows;
-  }, [filteredRows.length, serverTotalRows]);
+    const totalRows = Number(data?.decrypted.data.Result[0].CampaignsCount) || 1
 
   const updateTx = useUpdateCampaignData();
   const busyRowId = useRef<CampaignRow["Id"] | null>(null);
@@ -124,9 +107,9 @@ export default function Campaigns() {
     <Box>
       <DataTable
         title={`قائمة الحملات${isOffice() ? " - مكتبك فقط" : ""}`}
-        data={visibleRows as unknown as AnyRec[]}
+        data={data?.rows || []}
         columns={columns}
-        totalRows={totalRowsForTable}
+        totalRows={totalRows}
         stickyHeader
         page={page}
         pageSize={PAGE_SIZE}
@@ -134,7 +117,7 @@ export default function Campaigns() {
         startIndex={offset + 1}
       />
 
-      {visibleRows.length === 0 && !isLoading && (
+      {data?.rows.length === 0 && !isLoading && (
         <Text mt={3} color="gray.500">لا توجد بيانات.</Text>
       )}
     </Box>

@@ -86,9 +86,9 @@ export default function TransferData() {
     offset,
     limit
   );
-
+  
   const rows = data?.rows ?? [];
-  const totalRows = data?.totalRows ?? 0;
+  const totalRows = Number(data?.decrypted?.data.Result[0].TransferMoneysCount) || 1;
 
   if (isLoading && !isFetching) {
     return (

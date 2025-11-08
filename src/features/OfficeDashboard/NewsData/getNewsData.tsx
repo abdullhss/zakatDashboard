@@ -210,17 +210,17 @@ export default function GetNewsData() {
     limit
   );
 
-  const { rows, totalRows } = useMemo(() => {
+  const { rows } = useMemo(() => {
     if (!data) return { rows: [], totalRows: 0 };
     if (Array.isArray((data as any).rows)) {
       return {
         rows: (data as any).rows as AnyRec[],
-        totalRows: Number((data as any).totalRows ?? (data as any).rows.length) || 0,
       };
     }
     return normalizeServerPayload(data, offset, limit);
   }, [data, offset, limit]);
 
+  const totalRows = Number(data?.decrypted.data.Result[0].NewsCount) || 1 ;
   const navigate = useNavigate();
 
   const goToType = useCallback(

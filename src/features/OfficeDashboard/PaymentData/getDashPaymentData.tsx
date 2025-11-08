@@ -13,18 +13,18 @@ import { useGetOffices } from '../../MainDepartment/Offices/hooks/useGetOffices'
 import { useAddPaymentApproval } from './hooks/useAddPayment'; // هوك الموافقة
 
 const PAGE_SIZE = 10;
-const BASE_ATTACHMENT_URL = "https://framework.md-license.com:8093/attachments/"; 
+const BASE_ATTACHMENT_URL = "https://framework.md-license.com:8093/ZakatImages/"; 
 
 // ===================================
 // تعريف الأعمدة (لضمان وجودها عند البدء)
 // ===================================
 const PAYMENT_COLUMNS_BASE: Column[] = [
-    { key: "Id", header: "# المعاملة", width: "10%", render: (row: AnyRec) => row.Id ?? '—', },
+    { key: "Id", header: "رقم المعاملة", width: "10%", render: (row: AnyRec) => row.Id ?? '—', },
     { key: "OfficeName", header: "المكتب", width: "10%", render: (row: AnyRec) => row.OfficeName ?? '—' },
     { key: "PaymentDate", header: "تاريخ الدفع", width: "10%", render: (row: AnyRec) => row.PaymentDate ? new Date(row.PaymentDate).toLocaleDateString("ar-EG") : '—', },
     { key: "PaymentValue", header: "المبلغ", width: "10%", render: (row: AnyRec) => (<Text fontWeight="700" color="green.600">{row.PaymentValue ?? '0'} د.ل.</Text>) },
     { key: "PaymentWayName", header: "طريقة الدفع", width: "10%", render: (row: AnyRec) => row.PaymentWayName ?? '—' },
-    { key: "IsApproved", header: "الحالة", width: "10%", render: (row: AnyRec) => row.IsApproved ? 'موافقة' : 'مرفوض' },
+    { key: "IsApproved", header: "الحالة", width: "10%", render: (row: AnyRec) => row.IsApproved ? 'موافقة' : 'معلقة' },
     { key: "GeneralUser_Id", header: "مقدم الطلب", width: "10%", render: (row: AnyRec) => row.GeneralUser_Id ?? '—' }, 
     { key: "ActionName", header: "نوع الخدمة", width: "10%", render: (row: AnyRec) => row.ActionName ?? '—' }, 
     { key: "SubventionTypeName", header: "نوع الإعانة", width: "10%", render: (row: AnyRec) => row.SubventionTypeName ?? '—' }, 
@@ -50,6 +50,8 @@ export default function GetDashPaymentData() {
     const [isApproved, setIsApproved] = useState<boolean | null>(null); 
     const [statusFilter, setStatusFilter] = useState<number>(0); // 0=الكل
 
+    console.log(selectedPaymentDetails);
+    
     const approveMutation = useAddPaymentApproval();
 
     const { data: officesData, isLoading: loadingOffices, isError: isOfficesError } = useGetOffices(0, 100);
@@ -60,8 +62,9 @@ export default function GetDashPaymentData() {
         limit
     ); 
 
-    const rows = data?.rows ?? [];
-    const totalRows = data?.totalRows ?? 0;
+    const rows = data?.rows;
+
+    const totalRows = Number(data?.decrypted.data.Result[0].PaymentsCount) || 1;
 
     // منطق استخلاص صفوف الدفع (للتصفية المحلية)
     const formattedRows = useMemo(() => {
@@ -152,7 +155,7 @@ export default function GetDashPaymentData() {
         <Box p={6}>
             <HStack mb={4} spacing={3}>
                 {/* فلتر الحالة */}
-                <Select
+                {/* <Select
                     w="260px"
                     placeholder="تصفية حسب الحالة"
                     value={statusFilter}
@@ -161,7 +164,7 @@ export default function GetDashPaymentData() {
                     <option value={0}>كل الحالات</option>
                     <option value={1}>مقبول</option>
                     <option value={2}>مرفوض</option>
-                </Select>
+                </Select> */}
                 
                 {/* فلتر المكتب */}
                 {isM && (
@@ -187,6 +190,7 @@ export default function GetDashPaymentData() {
                 pageSize={limit}
                 onPageChange={setPage}
                 totalRows={totalRows}
+                viewHashTag={false}
             />
             
             {formattedRows.length === 0 && (
@@ -217,16 +221,16 @@ export default function GetDashPaymentData() {
                                 {selectedPaymentDetails.AttachmentPhotoName && (
                                     <Text colSpan={2}>
                                         <strong>وصل الدفع:</strong>{" "}
-                                        <Link href={`${BASE_ATTACHMENT_URL}${selectedPaymentDetails.AttachmentPhotoName}`} isExternal color="blue.500">
+                                        <Link href={`${BASE_ATTACHMENT_URL}${selectedPaymentDetails.AttachmentPhotoName}.jpg`} isExternal color="blue.500">
                                             عرض الوصل المرفق
                                         </Link>
                                     </Text>
                                 )}
                             </Grid>
                         </ModalBody>
-                        <HStack spacing={4} justify="center" mb={4}>
-                            <Button colorScheme="green" onClick={() => handleApprovalAction(true)} width="150px" isLoading={approveMutation.isPending} isDisabled={isApproved === true}>قبول</Button>
-                            <Button colorScheme="red" onClick={() => handleApprovalAction(false)} width="150px" isLoading={approveMutation.isPending} isDisabled={isApproved === false}>رفض</Button>
+                        <HStack spacing={4} justify="center" my={4}>
+                            <Button colorScheme="green" onClick={() => handleApprovalAction(true)} width="150px" isLoading={approveMutation.isPending}>قبول</Button>
+                            <Button colorScheme="red" onClick={() => handleApprovalAction(false)} width="150px" isLoading={approveMutation.isPending} >رفض</Button>
                         </HStack>
                     </ModalContent>
                 </Modal>

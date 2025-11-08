@@ -39,20 +39,21 @@ export default function AccountFields({
         <FieldRow label="الصلاحية">
           <FieldSelect
             placeholder={privLoading ? "جاري تحميل الصلاحيات..." : "اختر الصلاحية"}
-            value={String(GroupRight_Id ?? "")}
-            onChange={(e) => setGroupRightId(Number(e.target.value) || "")}
-            isDisabled={privLoading || privileges.length === 0 || UserType === "O"}
+            value={GroupRight_Id ? String(GroupRight_Id) : ""}
+            onChange={(e) => setGroupRightId(e.target.value)}
+            isDisabled={privLoading || privileges.length === 0}
           >
-            {UserType !== "O" ? (
-              privileges.map((p: any) => {
-                const id = Number(privIdOf(p));
-                const name = String(privNameOf(p));
-                return <option key={String(id)} value={String(id)}>{name}</option>;
-              })
-            ) : (
-              <option value="0" disabled>تُحدد داخليًا (مُرسلة بـ 0)</option>
-            )}
+            {privileges.map((p: any) => {
+              const id = String(privIdOf(p)); // 👈 خليه string
+              const name = String(privNameOf(p));
+              return (
+                <option key={id} value={id}>
+                  {name}
+                </option>
+              );
+            })}
           </FieldSelect>
+
 
           {!privLoading && privileges.length === 0 && UserType === "M" ? (
             <Text mt={1} fontSize="sm" color="orange.500">لا توجد صلاحيات متاحة للإدارة.</Text>

@@ -56,6 +56,7 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
   page,
   pageSize,
   onPageChange,
+  viewHashTag = true 
 }) => {
   const hasActions = !!(renderActions || onEditRow || onDeleteRow);
 
@@ -91,7 +92,7 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
             zIndex={1}
           >
             <Tr>
-              <TableHeadCell fontSize={18} textAlign={"center"}>#</TableHeadCell>
+              {viewHashTag&&<TableHeadCell fontSize={18} textAlign={"center"}>#</TableHeadCell>}
 
               {columns.map((col) => (
                 <TableHeadCell key={col.key} textAlign={"start"} fontSize={18} width={col.width}>
@@ -107,9 +108,9 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
             {data.map((row: AnyRec, index) => (
               <Tr key={(row as any).id ?? index}>
                 {/* numbering */}
-                <TableDataCell fontWeight="700" color="gray.700">
+                {viewHashTag&&<TableDataCell fontWeight="700" color="gray.700">
                   {startIndex + index}
-                </TableDataCell>
+                </TableDataCell>}
 
                 {/* data cells */}
                 {columns.map((col) => (

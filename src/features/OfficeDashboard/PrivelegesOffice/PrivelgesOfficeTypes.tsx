@@ -85,10 +85,12 @@ export default function Privileges() {
   const [deleteId, setDeleteId] = useState<string | number | null>(null);
   const cancelRef = useRef<any>(null);
 
-  // جلب البيانات
-  const { data, isLoading, isError, error, refetch } = useGetPrivilege(roleCode, 0, 500);
-  const { mutateAsync: deletePrivilege, isPending: deleting } = useDeletePrivilege();
+  const offset = (page - 1) * PAGE_SIZE;
 
+  // جلب البيانات
+  const { data, isLoading, isError, error, refetch } = useGetPrivilege(roleCode, offset, PAGE_SIZE);
+  const { mutateAsync: deletePrivilege, isPending: deleting } = useDeletePrivilege();
+  
   // تجهيز البيانات
   const rows: Row[] = useMemo(() => {
     const src = (data?.rows ?? []) as AnyRec[];
@@ -108,14 +110,13 @@ export default function Privileges() {
     }));
   }, [data?.rows, roleCode]);
 
-  const totalRows =
-    typeof data?.totalRows === "number" ? data.totalRows : (rows.length ?? 0);
+  const totalRows = Number(data?.decrypted.data.Result[0].GroupRightsCount) || 1
 
   const titleClr = useColorModeValue("gray.700", "gray.100");
 
   // بناء لينك التعديل
   const buildUpdateUrl = (id: string | number, rc: "M" | "O") =>
-    `/maindashboard/privelges/update?groupId=${encodeURIComponent(
+    `/officedashboard/privelges/update?groupId=${encodeURIComponent(
       String(id)
     )}&featureType=${rc === "M" ? "1" : "2"}&role=${rc}`;
 
@@ -128,6 +129,8 @@ export default function Privileges() {
         toast({ title: "لا يمكن تحديد الصلاحية للتعديل", status: "warning" });
         return;
       }
+      console.log(buildUpdateUrl(id, roleCode), { state: { row } });
+      
       navigate(buildUpdateUrl(id, roleCode), { state: { row } });
     },
     [navigate, roleCode, toast]
@@ -204,7 +207,7 @@ export default function Privileges() {
         </HStack>
 
         <HStack spacing={3}>
-          <SharedButton variant="brandGradient" to={`/maindashboard/privelges/add`}>
+          <SharedButton variant="brandGradient" to={`/officedashboard/privelgesOffice/add`}>
             إضافة
           </SharedButton>
 
@@ -217,7 +220,7 @@ export default function Privileges() {
       {/* ======= الجدول ======= */}
       <DataTable
         title="صلاحيات المجموعات"
-        data={(rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) as unknown) as AnyRec[]}
+        data={rows}
         columns={columns}
         totalRows={totalRows}
         stickyHeader

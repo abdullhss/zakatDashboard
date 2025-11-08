@@ -13,10 +13,18 @@ import {
   HStack,
   SimpleGrid,
   Button,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
 } from "@chakra-ui/react";
 import { useGetOfficePayment } from "./hooks/useGetDashBankStatmentData";
 import { useGetDashBankData } from "../../MainDepartment/Offices/hooks/useGetDashBankData";
 import { getSession } from "../../../session";
+import DataTable from "../../../Components/Table/DataTable";
 
 function formatDateToMMDDYYYY(date: string | Date): string {
   const d = new Date(date);
@@ -132,7 +140,7 @@ export default function GetStatmentData() {
     isLoading: bankLoading,
     isError: bankError,
   } = useGetDashBankData(officeId);
-
+  
   const [selectedAccount, setSelectedAccount] = useState<string>("");
   const [fromDate, setFromDate] = useState("2025-01-01");
   const [toDate, setToDate] = useState("2025-12-31");
@@ -157,7 +165,7 @@ export default function GetStatmentData() {
     isError: statementError,
     error,
   } = useGetOfficePayment(params, offset, limit);
-
+  
   if (bankLoading)
     return (
       <Flex justify="center" p={10}>
@@ -179,7 +187,56 @@ export default function GetStatmentData() {
   );
 
   const rows = statementData?.rows ?? [];
-
+  const PAYMENTS_COLUMNS: any[] = [
+    {
+      key: "PaymentDate",
+      header: "التاريخ",
+      render: (row: any) => {
+        const dateStr = row.PaymentDate;
+        return dateStr
+          ? new Date(dateStr).toLocaleDateString("en-GB") // اليوم/الشهر/السنة
+          : "—";
+      },
+    },
+    {
+      key: "PaymentDesc",
+      header: "الوصف",
+      render: (row: any) => row.PaymentDesc ?? "—",
+    },
+    {
+      key: "DebitValue",
+      header: "القبض",
+      render: (row: any) => (
+        <Text fontWeight="600" color="green.600">
+          {row.DebitValue ?? 0}
+        </Text>
+      ),
+    },
+    {
+      key: "CreditValue",
+      header: "الصرف",
+      render: (row: any) => (
+        <Text fontWeight="600" color="red.600">
+          {row.CreditValue ?? 0}
+        </Text>
+      ),
+    },
+    {
+      key: "NetValue",
+      header: "الصافي",
+      render: (row: any) => {
+        const debit = row.DebitValue ?? 0;
+        const credit = row.CreditValue ?? 0;
+        const net = debit - credit;
+        return (
+          <Text fontWeight="bold" color={net >= 0 ? "green.700" : "red.700"}>
+            {net}
+          </Text>
+        );
+      },
+    },
+  ];
+  
   return (
     <Box p={6} dir="rtl">
       <VStack align="stretch" spacing={6}>
@@ -260,22 +317,17 @@ export default function GetStatmentData() {
                 </Button>
               </Flex>
 
-              <Box borderWidth="1px" borderRadius="xl" overflow="hidden">
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={3} p={4}>
-                  {rows.map((row: any, i: number) => (
-                    <React.Fragment key={i}>
-                      <Text>🔹 رقم العملية: {row.Id ?? "—"}</Text>
-                      <Text>📅 التاريخ: {row.PaymentDate ?? "—"}</Text>
-                      <Text>🧾 الوصف: {row.PaymentDesc ?? "—"}</Text>
-                      <Text>💰 القبض: {row.DebitValue ?? 0}</Text>
-                      <Text>💸 الصرف: {row.CreditValue ?? 0}</Text>
-                      <Text>
-                        ⚖️ الصافي:{" "}
-                        {(row.DebitValue ?? 0) - (row.CreditValue ?? 0)}
-                      </Text>
-                    </React.Fragment>
-                  ))}
-                </SimpleGrid>
+              <Box borderWidth="1px" borderRadius="xl" overflow="hidden" p={4}>
+                <DataTable
+                  columns={PAYMENTS_COLUMNS}
+                  data={rows}
+                  page={page}
+                  pageSize={limit}
+                  onPageChange={setPage}
+                  totalRows={Number(statementData?.decrypted.data.Result[0].OfficePaymentsCount) || 1}
+                >
+
+                </DataTable>
               </Box>
             </>
           ) : (

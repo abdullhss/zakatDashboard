@@ -28,11 +28,6 @@ const PAGE_SIZE = 10;
 
 const OFFICE_PAYMENT_COLUMNS: Column[] = [
     {
-        key: "Id",
-        header: "#",
-        render: (row: AnyRec) => row.Id ?? '—',
-    },
-    {
         key: "PaymentValue",
         header: "المبلغ",
         render: (row: AnyRec) => (
@@ -77,7 +72,8 @@ export default function GetPaymentData() {
         currentOfficeId
     ); 
     
-    const rawRows = data?.rows?.[0]?.OfficePaymentsData;
+    const rawRows = Number(data?.decrypted.data.Result[0].OfficePaymentsCount) || 1 ;
+    
     let rows: AnyRec[] = [];
 
     if (rawRows && typeof rawRows === 'string') {
@@ -91,7 +87,7 @@ export default function GetPaymentData() {
         rows = data.rows as AnyRec[];
     }
     
-    const totalRows = parseInt(data?.totalRows ?? data?.rows?.[0]?.OfficePaymentsCount ?? 0, 10);
+    const totalRows = rawRows;
 
     if (isLoading && !isFetching) {
         return <Flex justify="center" p={10}><Spinner size="xl" /></Flex>;
@@ -105,7 +101,8 @@ export default function GetPaymentData() {
             </Alert>
         );
     }
-
+    console.log(totalRows);
+    
     return (
         <Box p={6} dir="rtl">
             <VStack align="stretch" spacing={6}>
@@ -117,7 +114,7 @@ export default function GetPaymentData() {
                 <Box width="100%" overflowX="auto">
                     <DataTable
                         title="قائمة المدفوعات الصادرة"
-                        data={rows as AnyRec[]}
+                        data={rows}
                         columns={OFFICE_PAYMENT_COLUMNS}
                         startIndex={offset + 1}
                         page={page}

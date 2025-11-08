@@ -39,6 +39,7 @@ export function useGetNewsData(
             return {
               rows: summary.rows,
               totalRows: summary.totalRows,
+                decrypted:summary.decrypted
             } as NewsData;
       },
       staleTime: 60000

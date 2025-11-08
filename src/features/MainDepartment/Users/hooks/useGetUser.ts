@@ -28,11 +28,13 @@ export function useGetUsers(opts: UseGetUsersOptions = {}) {
   const [lastSummary, setLastSummary] = useState<NormalizedSummary | null>(null);
   const [dec , setDec] = useState<any>(null);
 
+  const mainUser = localStorage.getItem("mainUser")
+  const officeID = mainUser&&JSON.parse(mainUser).Office_Id
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const summary = await getWorkUsersData(startNum, count, encSQLRaw, dataToken);
+      const summary = await getWorkUsersData(startNum, count, encSQLRaw, dataToken , officeID );
       setDec(summary.decrypted)
       
       setLastSummary(summary);
