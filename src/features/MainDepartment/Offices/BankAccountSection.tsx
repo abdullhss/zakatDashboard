@@ -3,21 +3,23 @@ import {
   Box, HStack, VStack, Grid, GridItem, Text,
   IconButton, Divider, useColorModeValue,
 } from "@chakra-ui/react";
+import { useBanksQuery } from "../Banks/hooks/useGetBanks";
+import { useGetAccountTypes } from "./hooks/useGetAccountTypes";
 
 const FIELD_RADIUS = "10px";
 const INNER_BORDER = "#B7B7B7";
 
 type Props = {
   index?: number | string;
-  bankName: string;
+  bankName: string | number;       // ✅ خليها تقبل ID
   accountNumber: string | number;
   openingBalance: string | number;
-  accountType: string;
-  serviceType: string;
+  accountType: string | number;    // ✅ نفس الشيء
+  serviceType: string | number;
   hasCard: boolean;
   onDelete?: () => void;
   onEdit?: () => void;
-  onAdd?: () => void;   // ✅ زرار إضافة
+  onAdd?: () => void;
 };
 
 export default function BankAccountSection({
@@ -34,6 +36,26 @@ export default function BankAccountSection({
 }: Props) {
   const outerBorder = useColorModeValue("background.border", "gray.600");
 
+  /* البنوك */
+  const { data: banksData } = useBanksQuery(0, 200);
+
+  /* أنواع الحسابات */
+  const { data: accTypesData } = useGetAccountTypes(0, 200);
+
+  // ✅ تحويل IDs لأسماء حقيقية
+  const bankNameDisplay =
+    banksData?.rows.find((b: any) => b.Id === Number(bankName))?.BankName || "—";
+
+  const accountTypeDisplay =
+    accTypesData?.rows.find((a: any) => a.id === Number(accountType))?.name || "—";
+
+  const serviceTypeDisplay =
+    Number(serviceType) === 1
+      ? "صدقة"
+      : Number(serviceType) === 2
+      ? "زكاة"
+      : "—";
+
   return (
     <Box
       bg="background.surface"
@@ -45,18 +67,13 @@ export default function BankAccountSection({
     >
       {/* Header */}
       <HStack justify="space-between" mb={3} dir="rtl" w="full">
-        {/* يمين: الرقم + العنوان + زرار إضافة */}
         <HStack spacing={2}>
           <Text color="gray.600">{String(index)}</Text>
           <Text fontWeight="700" color="gray.800">
-            الحساب البنكي :  {accountNumber || "—"}
+            الحساب البنكي : {accountNumber || "—"}
           </Text>
-
-          {/* ✅ زرار إضافة صغير قدام العنوان */}
-
         </HStack>
 
-        {/* يسار: أيقونات التعديل/الحذف */}
         <HStack spacing={2}>
           <IconButton
             aria-label="حذف"
@@ -82,7 +99,7 @@ export default function BankAccountSection({
           <GridItem colSpan={[12, 12, 12, 2]}>
             <VStack spacing={1}>
               <Text color="gray.700">اسم البنك</Text>
-              <Text fontWeight="600">{bankName || "—"}</Text>
+              <Text fontWeight="600">{bankNameDisplay}</Text>
             </VStack>
           </GridItem>
 
@@ -107,14 +124,14 @@ export default function BankAccountSection({
           <GridItem colSpan={[12, 12, 12, 2]}>
             <VStack spacing={1}>
               <Text color="gray.700">نوع الحساب</Text>
-              <Text fontWeight="600">{accountType || "—"}</Text>
+              <Text fontWeight="600">{accountTypeDisplay}</Text>
             </VStack>
           </GridItem>
 
           <GridItem colSpan={[12, 12, 12, 3]}>
             <VStack spacing={1}>
               <Text color="gray.700">نوع الخدمة</Text>
-              <Text fontWeight="600">{serviceType || "—"}</Text>
+              <Text fontWeight="600">{serviceTypeDisplay}</Text>
             </VStack>
           </GridItem>
         </Grid>

@@ -7,6 +7,8 @@ import {
   DetailCard, SectionHeader, SectionTitle, TwoCols, KVRow, SectionDivider,
   TableCard, TableHeader, TableRow,
 } from "./styles/DetailUi";
+import { useBanksQuery } from "../Banks/hooks/useGetBanks";
+import { useGetAccountTypes } from "./hooks/useGetAccountTypes";
 
 /* ================== Types ================== */
 type Office = {
@@ -100,16 +102,24 @@ export default function OfficeAdded() {
   const lat = Number(office.officeLatitude || 24.7136);
   const lng = Number(office.officeLongitude || 46.6753);
 
+    /* البنوك */
+    const { data: banksData } = useBanksQuery(0, 200);
+  
+    /* أنواع الحسابات */
+    const { data: accTypesData } = useGetAccountTypes(0, 200);
+  
+    console.log(office);
+    
   return (
     <VStack align="stretch" spacing={6} p={4} dir="rtl">
       {/* ===== تفاصيل المكتب (مطابق لفيجما) ===== */}
       <DetailCard>
         <SectionHeader>
           <SectionTitle>تفاصيل المكتب</SectionTitle>
-          <HStack gap={3}>
+          {/* <HStack gap={3}>
             <Text fontSize="sm" color="gray.700">تفعيل ظهوره في التطبيق</Text>
             <Switch isChecked={office.isActive} isReadOnly />
-          </HStack>
+          </HStack> */}
         </SectionHeader>
 
         <div
@@ -144,7 +154,7 @@ export default function OfficeAdded() {
             <span>رقم الهاتف</span>
             <span>{office.phoneNum}</span>
           </div>
-          <div
+          {/* <div
             style={{
               width: "100%",              // w-full
               display: "flex",            // flex
@@ -154,7 +164,7 @@ export default function OfficeAdded() {
           >
             <span>المدينة</span>
             <span>{office.cityName}</span>
-          </div>
+          </div> */}
           <div
             style={{
               width: "100%",              // w-full
@@ -186,7 +196,7 @@ export default function OfficeAdded() {
           cells={[
             "اسم البنك",
             "رقم الحساب",
-            "الصرف التجاري الوطني",
+            // "الصرف التجاري الوطني",
             "رصيد افتتاحي",
             "نوع الحساب",
             "نوع الخدمة",
@@ -195,14 +205,15 @@ export default function OfficeAdded() {
 
         {/* البيانات */}
         {accounts.length === 0 ? (
-          <Box px={5} py={4} color="gray.500">لا توجد حسابات</Box>
+          <Box px={5} py={6} color="gray.500">لا توجد حسابات</Box>
         ) : accounts.map((a, i) => (
           <TableRow
             key={i}
             cells={[
-              a.bankName || String(a.bankId ?? "—"),
+                banksData?.rows.find((b: any) => b.Id === Number(a.bankName))?.BankName
+              ,
               a.accountNumber,
-              a.iban,
+              // a.iban,
               fmtCurrency(a.openingBalance),
               a.accountTypeName || accountTypeLabel(a.accountTypeId),
               a.serviceTypeName || serviceTypeLabel(a.serviceTypeId),
@@ -211,7 +222,7 @@ export default function OfficeAdded() {
         ))}
 
         {/* سطر خيارات البطاقة/التفعيل (اختياري للعرض أسفل الجدول) */}
-        <Box px={5} py={3} w="full" borderTopWidth="1px" borderColor="gray.100">
+        {/* <Box px={5} py={3} w="full" borderTopWidth="1px" borderColor="gray.100">
           <HStack justify="space-between">
             <HStack>
               <Text>بطاقة مصرفية</Text>
@@ -222,7 +233,7 @@ export default function OfficeAdded() {
               <Switch size="sm" isChecked={!!accounts[0]?.isActive} isReadOnly />
             </HStack>
           </HStack>
-        </Box>
+        </Box> */}
       </TableCard>
 
       {/* تابز مخفية (للتمدد لاحقًا) */}

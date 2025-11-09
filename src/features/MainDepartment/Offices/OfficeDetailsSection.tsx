@@ -121,6 +121,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
     }
   }, [defaultValues, reset]);
 
+  
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -158,7 +159,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
   useImperativeHandle(ref, () => ({
     submit: async () => ((await trigger()) ? (getValues() as OfficeDetailsValues) : null),
   }));
-
+  
   const [mapPos, setMapPos] = useState<MapLatLng>(() => {
     const lat = Number(defaultValues?.officeLatitude);
     const lng = Number(defaultValues?.officeLongitude);
@@ -242,6 +243,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
             <FormControl isInvalid={!!errors.cityId}>
               <FormLabel>المدينة</FormLabel>
               <FieldSelect
+                px={10}
                 placeholder={citiesLoading ? "جارِ تحميل المدن…" : "برجاء اختيار المدينة"}
                 icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px"
                 disabled={citiesLoading || citiesError}
@@ -258,13 +260,6 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
                   ))
                 }
               </FieldSelect>
-
-              {selectedCityLabel && (
-                <Text mt={2} fontSize="sm" color="gray.600">
-                  المدينة الحالية: <Text as="span" fontWeight="600">{selectedCityLabel}</Text>
-                </Text>
-              )}
-
               <FormErrorMessage>{errors.cityId?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>

@@ -10,6 +10,7 @@ import SwitchComp from "../../../Components/SwitchComp/Switch";
 import { useMemo, forwardRef, useImperativeHandle } from "react";
 import { useBanksQuery } from "../../MainDepartment/Banks/hooks/useGetBanks";
 import { useGetAccountTypes } from "./hooks/useGetAccountTypes";
+import { useToast } from "@chakra-ui/react";
 
 const FIELD_HEIGHT = "65px";
 const FIELD_RADIUS = "10px";
@@ -47,11 +48,12 @@ type Props = {
   /** اختياري كـ fallback؛ لو مبعِتّش حاجة هنا، هنجلب من الـ API */
   accountTypes?: Option[];
   serviceTypes: Option[];
+  displayAccounts : any;
 };
 
 const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
-  ({ index = 1, defaultValues, accountTypes: accountTypesProp, serviceTypes }, ref) => {
-    const { register, formState: { errors }, watch, trigger, getValues } =
+  ({ index = 1, defaultValues, accountTypes: accountTypesProp, serviceTypes ,  displayAccounts }, ref) => {
+    const { register, formState: { errors }, watch, trigger, getValues , reset } =
       useForm<BankDetailsValues>({
         resolver: zodResolver(BankSchema),
         defaultValues: {
@@ -60,10 +62,42 @@ const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
         },
         mode: "onBlur",
       });
+      
+      const toast = useToast();
+      useImperativeHandle(ref, () => ({
+        submit: async () => {
+          const valid = await trigger();
+          if (!valid) return null;
 
-    useImperativeHandle(ref, () => ({
-      submit: async () => (await trigger() ? (getValues() as BankDetailsValues) : null),
-    }));
+          const values = getValues() as BankDetailsValues;
+
+          // تحقق من التكرار
+          const exists = displayAccounts.some(acc => 
+            acc.bankId === values.bankId && acc.accountNumber === values.accountNumber
+          );
+
+          if (exists) {
+            toast({
+              title: "خطأ",
+              description: "الحساب موجود بالفعل لنفس البنك",
+              status: "error",
+              duration: 4000,
+              isClosable: true,
+            });
+            return null;
+          }
+          reset({
+                bankId: "",
+                accountNumber: "",
+                openingBalance: "",
+                accountTypeId: "",
+                serviceTypeId: "",
+                hasCard: false,
+                isEnabled: true,
+              });
+          return values;
+        },
+      }));
 
     /* البنوك */
     const { data: banksData, isLoading: banksLoading, isError: banksError, error: banksErr } =
@@ -100,6 +134,7 @@ const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
             <FormControl isInvalid={!!errors.bankId}>
               <FormLabel>اسم البنك</FormLabel>
               <FieldSelect
+                px={8}
                 placeholder={banksLoading ? "جارٍ تحميل البنوك…" : "اختر البنك"}
                 icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px"
                 disabled={banksLoading || banksError} {...register("bankId")}
@@ -140,6 +175,7 @@ const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
             <FormControl isInvalid={!!errors.accountTypeId}>
               <FormLabel>نوع الحساب</FormLabel>
               <FieldSelect
+                px={8}
                 placeholder={accTypesLoading ? "جارٍ تحميل أنواع الحساب…" : "اختر نوع الحساب"}
                 icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px"
                 disabled={accTypesLoading || accTypesError}
@@ -162,7 +198,9 @@ const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
           <GridItem colSpan={[12, 4]}>
             <FormControl isInvalid={!!errors.serviceTypeId}>
               <FormLabel>نوع الخدمة</FormLabel>
-              <FieldSelect placeholder="اختر نوع الخدمة" icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px" {...register("serviceTypeId")}>
+              <FieldSelect 
+              px={8}
+              placeholder="اختر نوع الخدمة" icon={<ChevronDownIcon />} iconColor="gray.500" iconSize="20px" {...register("serviceTypeId")}>
                 {serviceTypes.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </FieldSelect>
               <FormErrorMessage>{errors.serviceTypeId?.message}</FormErrorMessage>

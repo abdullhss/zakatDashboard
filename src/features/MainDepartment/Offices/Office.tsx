@@ -180,7 +180,6 @@ export default function Office() {
           const r = row as OfficeRow;
           return (
             <HStack justify="center" spacing={2}>
-              <Switch isChecked={r.isActive} isReadOnly />
               <Text color="gray.600">{r.isActive ? "مفعل" : "غير مفعل"}</Text>
             </HStack>
           );

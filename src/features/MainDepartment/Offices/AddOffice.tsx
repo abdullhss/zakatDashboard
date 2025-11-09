@@ -320,7 +320,8 @@ export default function AddOffice() {
 
     try {
       const res = await updateMutation.mutateAsync(payload);
-      if ((res as any).success) {
+      
+      if (res.decrypted.result=="200") {
         toast({ title: "تم حفظ التعديلات.", status: "success" });
         navigate("/maindashboard/offices");
       } else {
@@ -403,7 +404,7 @@ export default function AddOffice() {
 
       <Collapse in={isAddOpen} animateOpacity>
         <Box ref={formAnchorRef}>
-          <BankDetailsSection ref={bankRef} serviceTypes={serviceTypes} />
+          <BankDetailsSection ref={bankRef} displayAccounts={displayAccounts} serviceTypes={serviceTypes} />
           <HStack justify="flex-end" mt={3} spacing={3}>
             <Button variant="ghost" onClick={() => setIsAddOpen(false)}>إلغاء</Button>
             <Button colorScheme={isEdit ? "teal" : undefined} onClick={handleAddBankInEdit}>

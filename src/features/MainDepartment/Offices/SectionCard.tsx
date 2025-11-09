@@ -45,7 +45,7 @@ const SectionCard: React.FC<Props> = ({ title, actions, children, ...rest }) => 
         borderBottom="1px solid"
         borderColor={CARD_BORDER}
       >
-        <Icon as={ChevronDownIcon} color="gray.600" />
+        {/* <Icon as={ChevronDownIcon} color="gray.600" /> */}
         <Text fontWeight="700" fontSize="md" color="gray.700">
           {title}
         </Text>
