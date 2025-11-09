@@ -142,6 +142,8 @@ export default function Office() {
     useGetOffices(offset , limit, userId);
     
     const totalRows = Number(data?.decrypted.data.Result[0].OfficesCount) || 1;
+    const offciesData = data?.decrypted.data.Result[0].OfficesData ? JSON.parse(data?.decrypted.data.Result[0].OfficesData) : [];
+    
   const rows = useMemo<OfficeRow[]>(() => {
     const src = (data?.rows as AnyRec[]) ?? [];
     return src.map((r) => ({
@@ -236,7 +238,7 @@ export default function Office() {
             onDeleted={() => refetch()}
             onEdited={(r) =>
               navigate(`/maindashboard/offices/add?edit=${r.id}`, {
-                state: { mode: "edit", row: r },
+                state: { mode: "edit", row: offciesData.find((o: AnyRec) => Number(o.Id ?? o.id) === r.id) },
               })
             }
           />

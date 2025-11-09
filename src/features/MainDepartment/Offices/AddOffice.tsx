@@ -42,6 +42,7 @@ export default function AddOffice() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [bankAccounts, setBankAccounts] = useState<BankDetailsValues[]>([]);
   const formAnchorRef = useRef<HTMLDivElement | null>(null);
+  const [photoId, setPhotoId] = useState("");
 
   // وضع التعديل
   const location = useLocation();
@@ -49,6 +50,8 @@ export default function AddOffice() {
   const editId = qs.get("edit");
   const isEdit = Boolean(editId || location.state?.mode === "edit");
 
+  console.log(location.state?.row);
+  
   // صف قادم من اللستة
   const row = location.state?.row as
     | {
@@ -72,27 +75,29 @@ export default function AddOffice() {
     if (!row) return undefined;
 
     const photoIdFromRow =
-      (row as any).OfficePhotoName_Id ??
-      (row as any).photoId ??
-      "";
+      (row as any).OfficePhotoName_Id ?? (row as any).photoId ?? "";
 
     const photoNameForPreview =
-      (row as any).OfficePhotoName ??
-      (row as any).photoName ??
-      "";
+      (row as any).OfficePhotoName ?? (row as any).photoName ?? "";
+      console.log(photoIdFromRow);
+      console.log(photoNameForPreview);
 
+      
     return {
-      officeName: row.companyName ?? "",
-      phoneNum: row.phone ?? "",
-      cityId: String(row.city ?? row.cityId ?? ""),
-      address: row.address ?? "",
-      isActive: Boolean(row.isActive),
-      officeLatitude: row.latitude != null ? String(row.latitude) : "",
-      officeLongitude: row.longitude != null ? String(row.longitude) : "",
-      officePhotoName: String(photoIdFromRow || ""),                           // ← نخزن الـID
-      ...(photoNameForPreview ? { officePhotoDisplayName: String(photoNameForPreview) } : {}), // للمعاينة
+      officeName: row.OfficeName ?? "",
+      phoneNum: row.PhoneNum ?? "",
+      cityId: String(row.City_Id ?? ""),
+      address: row.Address ?? "",
+      isActive: Boolean(row.IsActive),
+      officeLatitude: row.OfficeLatitude != null ? String(row.OfficeLatitude) : "",
+      officeLongitude: row.OfficeLongitude != null ? String(row.OfficeLongitude) : "",
+      officePhotoName: String(photoIdFromRow || ""), // نخزن ID الصورة
+      ...(photoNameForPreview
+        ? { officePhotoDisplayName: String(photoNameForPreview) }
+        : {}), // للمعاينة
     } as any;
   }, [row]);
+
 
   // 👇 ثبّت الـID الأصلي في ref عند دخول وضع التعديل
   useEffect(() => {
@@ -242,7 +247,8 @@ export default function AddOffice() {
     const bankCols = BANK_COLS;
 
     const MultiColumnsNames = officeCols + "^" + Array(bankAccounts.length).fill(bankCols).join("^");
-
+    console.log( office );
+    
     const officePart = [
       "0",
       scrub(office.officeName),
@@ -254,6 +260,7 @@ export default function AddOffice() {
       office.isActive ? "1" : "0",
       scrub((office as any).officePhotoName) || "", // ID بعد الرفع
     ].join("#");
+    console.log( officePart);
 
     const bankParts = bankAccounts.map((b) => {
       const nb = normalizeBank(b);
@@ -335,7 +342,7 @@ export default function AddOffice() {
   if (banksLoading && isEdit) {
     return <Flex justify="center" p={10}><Spinner size="xl" /></Flex>;
   }
-
+  console.log(displayAccounts);
   return (
     <Box p={4} dir="rtl">
       <Heading size="md" mb={4}>{isEdit ? "تعديل مكتب" : "إضافة مكتب"}</Heading>
@@ -345,7 +352,7 @@ export default function AddOffice() {
         ref={officeRef}
         defaultValues={defaultValues}
         // 👇 أي تغيير في صورة المكتب يحدّث الـref
-        onPhotoIdChange={(id) => { photoIdRef.current = id; }}
+        onPhotoIdChange={setPhotoId}
       />
 
       <SectionDivider my={8} />
@@ -383,11 +390,11 @@ export default function AddOffice() {
           <BankAccountSection
             key={(b.serverId ?? i) as any}
             index={i + 1}
-            bankName={b.bankNameLabel ?? b.bankId}
+            bankName={b.bankId}
             accountNumber={b.accountNumber}
             openingBalance={b.openingBalance}
-            accountType={b.accountTypeLabel ?? b.accountTypeId}
-            serviceType={b.serviceTypeLabel ?? b.serviceTypeId}
+            accountType={b.accountTypeId}
+            serviceType={b.serviceTypeId}
             hasCard={!!b.hasCard}
             onDelete={
               isEdit

@@ -26,8 +26,9 @@ export default function GroupRightFeaturesPage() {
   // 1) بيانات صلاحيات هذه المجموعة
   const groupQuery = useGetGroupRightFeature(roleCode, groupRightId);
   const groupRows = groupQuery.data?.rows ?? [];
-  const groupTotalRows = groupQuery.data?.totalRows ?? groupRows.length;
-
+  const groupTotalRows = groupQuery.data?.totalRows ?? groupRows.length;  
+  console.log(groupQuery.data);
+  
   // 2) الميزات العامة (لبناء فهرس اسم/كود → Id)
   const generalQuery = useGetFeatures(roleCode as any);
   const generalRows = generalQuery.data?.rows ?? [];

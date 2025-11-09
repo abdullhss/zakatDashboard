@@ -87,14 +87,22 @@ const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
             return null;
           }
           reset({
-                bankId: "",
-                accountNumber: "",
-                openingBalance: "",
-                accountTypeId: "",
-                serviceTypeId: "",
-                hasCard: false,
-                isEnabled: true,
-              });
+            bankId: "",
+            accountNumber: "",
+            openingBalance: "",
+            accountTypeId: "",
+            serviceTypeId: "",
+            hasCard: false,
+            isEnabled: true,
+          }, {
+            keepDefaultValues: true,
+            keepDirty: false,
+            keepTouched: false,
+            keepIsSubmitted: false,
+            keepIsValid: false,
+            keepSubmitCount: false
+          });
+
           return values;
         },
       }));

@@ -20,12 +20,6 @@ const PAGE_SIZE = 10;
 
 const TRANSFER_COLUMNS: Column[] = [
   {
-    key: "Id",
-    header: "#",
-    width: "5%",
-    render: (row: AnyRec) => row.Id ?? "—",
-  },
-  {
     key: "TransferDate",
     header: "تاريخ التحويل",
     width: "15%",

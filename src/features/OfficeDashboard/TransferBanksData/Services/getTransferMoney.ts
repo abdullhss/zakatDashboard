@@ -17,8 +17,14 @@ export async function getTransferMoney(
     
     const sqlStartNum = startNum + 1; // Start index for SQL (1-based)
 
+    let officeID = 0;
+    const role = localStorage.getItem("role")
+    if(role == "O"){
+      officeID = JSON.parse(localStorage.getItem("mainUser") || "").Office_Id
+    }
+
     // بناء ParametersValues: @StartNum#@Count
-    const procedureValues = `${sqlStartNum}#${count}`; 
+    const procedureValues = `${officeID}#${sqlStartNum}#${count}`; 
     
     const ProcedureName = PROCEDURE_NAMES.GET_TRANSFER_MONEYS_DATA; 
 

@@ -93,10 +93,10 @@ export default function SideBarMainDepartment() {
 
       {/* ✅ الجزء السفلي */}
       <Box mt={4} borderTop="1px solid" borderColor="gray.100" py={4} px={2}>
-        <ActionButton as={NavLink} to="settings">
+        {/* <ActionButton as={NavLink} to="settings">
           الإعدادات
           <Icon as={FiSettings} boxSize={5} />
-        </ActionButton>
+        </ActionButton> */}
         <LogoutButton />
       </Box>
     </StyledSideBar>

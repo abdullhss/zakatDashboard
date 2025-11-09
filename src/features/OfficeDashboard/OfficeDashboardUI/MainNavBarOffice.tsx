@@ -101,7 +101,7 @@ export default function MainNavBarOfficeDepartment() {
       {renderLink("privelgesOffice", "الصلاحيات", RiShieldKeyholeLine)}
 
       {/* الخدمات */}
-      {renderLink("campaignOffice", "الخدمات", RiServiceLine)}
+      {/* {renderLink("campaignOffice", "الخدمات", RiServiceLine)} */}
 
       {/* الأخبار */}
       {renderLink("newsdata", "الأخبار", RiNewspaperLine)}

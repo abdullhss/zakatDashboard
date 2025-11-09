@@ -54,10 +54,10 @@ export default function SideBarOfficeDepartment() {
       <Box flexGrow={1} />
 
       <Box mt={4} borderTop="1px solid" borderColor="gray.100" pt={4}>
-        <ActionButton as={NavLink} to="settings">
+        {/* <ActionButton as={NavLink} to="settings">
           الإعدادات
           <Icon as={FiSettings} boxSize={5} />
-        </ActionButton>
+        </ActionButton> */}
 
         {/* <ActionButton onClick={handleLogout} color="red.500" _hover={{ bg: "red.50", color: "red.600" }}>
           تسجيل الخروج

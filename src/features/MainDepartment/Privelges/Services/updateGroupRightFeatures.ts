@@ -39,6 +39,12 @@ export async function upsertOneGroupRightFeature(
   const activeBit = isActive ? 1 : 0;
   const wantedAction = detailId ? 1 : 0;
 
+    let officeID = 0;
+    const role = localStorage.getItem("role")
+    if(role == "O"){
+      officeID = JSON.parse(localStorage.getItem("mainUser") || "").Office_Id
+    }
+
   const columnsValues = detailId
     ? `${detailId}#${groupRightId}#${featureId}#${activeBit}`     // Update
     : `0#${groupRightId}#${featureId}#${activeBit}`;              // Insert
@@ -49,7 +55,7 @@ export async function upsertOneGroupRightFeature(
     WantedAction: wantedAction,
     PointId: 0,
   };
-
+  
   // للتشخيص
   console.log("[ERP] MultiTransaction Input (plain) =>", payload);
 

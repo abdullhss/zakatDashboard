@@ -110,14 +110,14 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
 
     setValue("officePhotoName", fileId, { shouldDirty: false, shouldValidate: false });
     setPreviewUrl(buildPhotoUrl(displayNameOrId));
-
     // 👇 بلغ الأب بالـID الحالي (مهم جدًا عشان fallback في وضع التعديل)
     if (fileId && onPhotoIdChange) onPhotoIdChange(fileId);
   }, [defaultValues?.officePhotoName, (defaultValues as any)?.officePhotoDisplayName, setValue, onPhotoIdChange]);
 
   useEffect(() => {
     if (defaultValues && Object.keys(defaultValues).length > 0) {
-      reset((prev) => ({ ...prev, ...defaultValues }));
+      const { officePhotoName, ...rest } = defaultValues;
+      reset((prev) => ({ ...prev, ...rest })); // متعملش reset للصورة
     }
   }, [defaultValues, reset]);
 
@@ -346,7 +346,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
                 sx={{ h: "auto", py: 2 }}
               />
 
-              <input type="hidden" {...register("officePhotoName")} />
+              <input   style={{ display: "none" }} {...register("officePhotoName")} />
 
               {uploading && (
                 <Text mt={2} fontSize="sm" color="gray.600">

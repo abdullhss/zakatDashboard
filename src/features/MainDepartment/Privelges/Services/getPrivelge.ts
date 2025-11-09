@@ -36,7 +36,12 @@ export async function getPrivileges(
   const role = String(roleOrType ?? "M").trim().toUpperCase() || "M";
   const start1 = Math.max(1, start + 1);
   const safeCount = Math.max(1, count);
-  const procedureValues = `${role}#${start1}#${safeCount}`;
+  let officeID = 0;
+  if(role == "O"){
+    officeID = JSON.parse(localStorage.getItem("mainUser") || "").Office_Id
+  }
+  
+  const procedureValues = `${officeID}#${role}#${start1}#${safeCount}`;
 
   const exec: ExecutionResult = await executeProcedure(
     PROCEDURE_NAMES.GET_GROUP_RIGHT_DATA,

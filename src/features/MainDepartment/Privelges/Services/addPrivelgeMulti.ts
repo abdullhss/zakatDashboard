@@ -96,12 +96,18 @@ export async function addGroupRightWithFeatures(
     return analyzeExecution(res);
   }
 
+      let officeID = 0;
+    const role = localStorage.getItem("role")
+    if(role == "O"){
+      officeID = JSON.parse(localStorage.getItem("mainUser") || "").Office_Id
+    }
+
   // إنشاء مجموعة جديدة + ربط الميزات
   const roleCode = String(groupRightType ?? "M").toUpperCase();
   const name = sanitizeName(groupRightName ?? "");
   if (!name) throw new Error("اسم المجموعة مطلوب.");
 
-  const masterValues = `0#${name}#${roleCode}`;
+  const masterValues = `0#${name}#${roleCode}#${officeID}`;
 
   // هنا بنكرر الـ D_TABLE بعدد الـ features فقط
   const tables: MultiTablePart[] = [
