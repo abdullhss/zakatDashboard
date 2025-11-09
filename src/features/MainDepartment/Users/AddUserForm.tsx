@@ -131,15 +131,15 @@ export default function AddUserPage() {
   }, [isEdit, editRow, isOfficeSession, sessionOfficeId]);
 
   // default/clear privilege per type
-  useEffect(() => {
-    if (UserType === "O") {
-      return;
-    }
-    if (UserType === "M" && !privLoading && privileges.length && !GroupRight_Id) {
-      const firstId = Number(privIdOf(privileges[0])) || 0;
-      if (firstId) setGroupRightId(firstId);
-    }
-  }, [privLoading, privileges, GroupRight_Id, UserType]);
+  // useEffect(() => {
+  //   if (UserType === "O") {
+  //     return;
+  //   }
+  //   if (UserType === "M" && !privLoading && privileges.length && (GroupRight_Id === "" || GroupRight_Id === null)) {
+  //     const firstId = Number(privIdOf(privileges[0])) || 0;
+  //     if (firstId) setGroupRightId(firstId);
+  //   }
+  // }, [privLoading, privileges, GroupRight_Id, UserType]);
 
   // validation memo (كما هو)
   const validation = useMemo(() => {
@@ -281,6 +281,7 @@ export default function AddUserPage() {
 
          
             <AccountFields
+              isEdit={isEdit}
               isOfficeSession={isOfficeSession}
               UserType={UserType} setUserType={setUserType}
               privLoading={privLoading}

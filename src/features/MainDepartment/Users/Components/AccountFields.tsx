@@ -5,6 +5,7 @@ import { privIdOf, privNameOf } from "../helpers/mappers";
 import { useEffect } from "react";
 
 type Props = {
+  isEdit: boolean;
   isOfficeSession: boolean;
   UserType: "M" | "O" | "";
   setUserType: (v: "M" | "O" | "") => void;
@@ -15,14 +16,18 @@ type Props = {
   setGroupRightId: (v: number | "") => void;
 };
 export default function AccountFields({
+  isEdit,
   isOfficeSession,
   UserType, setUserType,
   privLoading, privileges, GroupRight_Id, setGroupRightId,
 }: Props) {
+console.log(GroupRight_Id);
 
-  useEffect(() => {
+useEffect(() => {
+  if (!isEdit) {
     setGroupRightId("0");
-  }, [UserType]);
+  }
+}, [UserType, isEdit]);
 
   return (
     <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }} gap={6}>
@@ -45,9 +50,8 @@ export default function AccountFields({
                 <GridItem>
                   <FieldRow label="الصلاحية">
                     <FieldSelect
-                      defaultValue={"0"}
-                      value={GroupRight_Id ? String(GroupRight_Id) : "0"}
-                      onChange={(e) => setGroupRightId(e.target.value)}
+                      value={GroupRight_Id !== "" ? String(GroupRight_Id) : "0"}
+                      onChange={(e) => setGroupRightId(Number(e.target.value))}
                       isDisabled={privLoading || privileges.length === 0}
                     >
                       <option value="0">اختر الصلاحية</option>
