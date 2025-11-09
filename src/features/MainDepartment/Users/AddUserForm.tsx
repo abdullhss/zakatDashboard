@@ -44,7 +44,11 @@ export default function AddUserPage() {
   const location = useLocation() as any;
   const passedRow = location?.state?.row ?? null;
   const { row: fetchedRow, isLoading: isFetchingUser } = useGetUserById(isEdit ? id : undefined);
+  console.log(fetchedRow);
+  
   const editRow = passedRow || fetchedRow || null;
+  console.log(editRow);
+  
 
   // mutations
   const { loading: adding, submit: submitAdd } = useAddUser();
@@ -104,8 +108,8 @@ export default function AddUserPage() {
   // fill edit data
   useEffect(() => {
     if (!isEdit || !editRow) return;
-    setFullName(editRow.FullName ?? editRow.Name ?? editRow.name ?? "");
-    setUserName(editRow.UserName ?? editRow.LoginName ?? "");
+    setFullName(editRow.UserName);
+    setUserName(editRow.LoginName);
     setEmail(editRow.Email ?? "");
     setPhoneNum(editRow.PhoneNum ?? editRow.Mobile ?? editRow.Phone ?? "");
     setPassword("");

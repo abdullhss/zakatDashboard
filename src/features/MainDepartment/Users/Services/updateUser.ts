@@ -44,7 +44,7 @@ export async function updateUser(input: UpdateUserInput): Promise<NormalizedSumm
 
   // ترتيب الأعمدة لازم يطابق الدوكيومنت
   const ColumnsNames =
-    "Id#UserName#Email#PhoneNum#LoginName#Password#GroupRight_Id#UserType#Office_Id";
+    "Id#UserName#Email#PhoneNum#LoginName#GroupRight_Id#UserType#Office_Id";
 
   const ColumnsValues = [
     toNonNull(Id),
@@ -52,7 +52,6 @@ export async function updateUser(input: UpdateUserInput): Promise<NormalizedSumm
     toNonNull(Email),
     toNonNull(PhoneNum),
     toNonNull(LoginName ?? UserName),
-    toNonNull(Password ?? ""),           // فاضية = لا تغيير
     toNonNull(GroupRight_Id),
     toNonNull(UserType),
     toNonNull(Office_Id),

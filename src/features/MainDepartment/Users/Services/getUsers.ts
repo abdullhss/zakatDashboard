@@ -34,7 +34,7 @@ export async function getWorkUsersData(
   const countParam = Math.max(1, c);
 
   const encSQL = buildEncSQL(encSQLRaw || "");
-  const procedureValues = `${startParam}#${countParam}#${encSQL}#${officeID}`;
+  const procedureValues = `${startParam}#${countParam}#${'$????'}#${officeID}`;
   console.log(procedureValues);
   
   const execRes = await executeProcedure(
@@ -42,6 +42,8 @@ export async function getWorkUsersData(
     procedureValues,
     dataToken
   );
+  console.log(procedureValues);
+  
   console.log(analyzeExecution(execRes));
   
   return analyzeExecution(execRes);

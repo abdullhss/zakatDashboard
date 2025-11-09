@@ -63,7 +63,8 @@ export default function Users() {
     encSQLRaw,
     auto: true,
   });
-
+  console.log(dec);
+  
   // حذف
   const { loading: deleting, submit: deleteSubmit } = useDeleteUser();
 

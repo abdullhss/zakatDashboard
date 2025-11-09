@@ -29,7 +29,8 @@ export function useGetUsers(opts: UseGetUsersOptions = {}) {
   const [dec , setDec] = useState<any>(null);
 
   const mainUser = localStorage.getItem("mainUser")
-  const officeID = mainUser&&JSON.parse(mainUser).Office_Id
+  const userRole = localStorage.getItem("role")
+  const officeID = (mainUser && userRole=="O") ? JSON.parse(mainUser).Office_Id : 0
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
