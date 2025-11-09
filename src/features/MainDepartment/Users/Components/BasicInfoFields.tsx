@@ -75,7 +75,7 @@ export default function BasicInfoFields({
       </GridItem>
 
       {
-       isEditPage &&(
+        !isEditPage &&(
           <>
               <GridItem>
                 <FieldRow label="كلمة المرور">

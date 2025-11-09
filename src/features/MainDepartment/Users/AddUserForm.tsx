@@ -102,29 +102,29 @@ export default function AddUserPage() {
   }, [privData]);
 
   // fill edit data
-  // useEffect(() => {
-  //   if (!isEdit || !editRow) return;
-  //   setFullName(editRow.FullName ?? editRow.Name ?? editRow.name ?? "");
-  //   setUserName(editRow.UserName ?? editRow.LoginName ?? "");
-  //   setEmail(editRow.Email ?? "");
-  //   setPhoneNum(editRow.PhoneNum ?? editRow.Mobile ?? editRow.Phone ?? "");
-  //   setPassword("");
-  //   setConfirmPassword("");
+  useEffect(() => {
+    if (!isEdit || !editRow) return;
+    setFullName(editRow.FullName ?? editRow.Name ?? editRow.name ?? "");
+    setUserName(editRow.UserName ?? editRow.LoginName ?? "");
+    setEmail(editRow.Email ?? "");
+    setPhoneNum(editRow.PhoneNum ?? editRow.Mobile ?? editRow.Phone ?? "");
+    setPassword("");
+    setConfirmPassword("");
 
-  //   const uType = String(editRow.UserType ?? "").toUpperCase() as "M" | "O" | "";
-  //   setUserType(isOfficeSession ? "O" : uType);
+    const uType = String(editRow.UserType ?? "").toUpperCase() as "M" | "O" | "";
+    setUserType(isOfficeSession ? "O" : uType);
 
-  //   if (isOfficeSession) {
-  //     setOfficeId(sessionOfficeId);
-  //   } else {
-  //     if (uType === "O") setOfficeId(editRow.Office_Id ?? editRow.OfficeId ?? "");
-  //     else setOfficeId("");
-  //   }
+    if (isOfficeSession) {
+      setOfficeId(sessionOfficeId);
+    } else {
+      if (uType === "O") setOfficeId(editRow.Office_Id ?? editRow.OfficeId ?? "");
+      else setOfficeId("");
+    }
 
-  //   const gid = Number(editRow.GroupRight_Id ?? 0) || "";
-  //   setGroupRightId(gid);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [isEdit, editRow, isOfficeSession, sessionOfficeId]);
+    const gid = Number(editRow.GroupRight_Id ?? 0) || "";
+    setGroupRightId(gid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit, editRow, isOfficeSession, sessionOfficeId]);
 
   // default/clear privilege per type
   useEffect(() => {
@@ -144,19 +144,24 @@ export default function AddUserPage() {
     const phoneOk = isValidLibyaPhone(PhoneNum);
     const passProvided = !!Password;
 
-    const passRequired = !isEdit || passProvided;
-    const passStrong = passProvided ? strongPassword(Password) : true;
-    const passMatch = passProvided ? Password === ConfirmPassword : true;
+    const passRequired = !isEdit;
+    const passStrong = !passProvided ? true : strongPassword(Password);
+    const passMatch = !passProvided ? true : Password === ConfirmPassword;
 
     const typeOk = !!UserType;
     const privOk = (UserType === "M") ? (GroupRight_Id !== "" && GroupRight_Id != null) : true;
     const officeOk = (UserType === "O") ? !!(isOfficeSession ? sessionOfficeId : Office_Id) : true;
 
-    const allOk =
-  userNameOk && emailOk && phoneOk &&
-  passStrong && passMatch &&
-  (!isEdit ? passRequired : true) && // 👈 شرط مخصص لحالة Edit
-  typeOk && privOk && officeOk;
+    const  allOk =
+    userNameOk &&
+    emailOk &&
+    phoneOk &&
+    typeOk &&
+    privOk &&
+    officeOk &&
+    passStrong &&
+    passMatch &&
+    (isEdit ? true : passProvided); // مطلوب فقط في الإضافة
 
 
     return { userNameOk, emailOk, phoneOk, passStrong, passMatch, typeOk, privOk, officeOk, allOk, passProvided, passRequired };
@@ -185,7 +190,8 @@ export default function AddUserPage() {
     if (!validation.typeOk) return toast({ title: "اختر نوع الحساب", status: "warning" });
     if (UserType === "M" && !validation.privOk) return toast({ title: "اختر الصلاحية", status: "warning" });
     if (!validation.officeOk) return toast({ title: "اختر المكتب", status: "warning" });
-    // if (isEdit && !validation.passProvided) return toast({ title: "كلمة المرور مطلوبة للتحديث.", status: "warning" });
+    if (!isEdit && !validation.passProvided)
+      return toast({ title: "كلمة المرور مطلوبة", status: "warning" });
     if (validation.passProvided && !validation.passStrong)
       return toast({
         title: "كلمة المرور ضعيفة",
