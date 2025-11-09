@@ -78,9 +78,9 @@ export function useAddUser(opts: Options = {}) {
         const phoneOk = /^\d{7,20}$/.test(phoneNum);
         if (!emailOk) throw new Error("صيغة البريد الإلكتروني غير صحيحة.");
         if (!phoneOk) throw new Error("صيغة رقم الهاتف غير صحيحة.");
-        if (userType === "M" && !groupRightId) {
-          throw new Error("من فضلك اختر الصلاحية.");
-        }
+        // if (userType === "M" && !groupRightId) {
+        //   throw new Error("من فضلك اختر الصلاحية.");
+        // }
         if (userType === "O" && !officeId) {
           throw new Error("من فضلك اختر المكتب.");
         }

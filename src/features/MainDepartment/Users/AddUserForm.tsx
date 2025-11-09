@@ -153,7 +153,7 @@ export default function AddUserPage() {
     const passMatch = !passProvided ? true : Password === ConfirmPassword;
 
     const typeOk = !!UserType;
-    const privOk = (UserType === "M") ? (GroupRight_Id !== "" && GroupRight_Id != null) : true;
+    const privOk = true;
     const officeOk = (UserType === "O") ? !!(isOfficeSession ? sessionOfficeId : Office_Id) : true;
 
     const  allOk =
@@ -211,7 +211,7 @@ export default function AddUserPage() {
         const idVal = Number(updatedUserId.id);
         await submitUpdate({
           Id: idVal,
-          UserName: UserName.trim(),
+          UserName: FullName.trim(),
           Email: Email.trim(),
           PhoneNum: normalizePhone(PhoneNum),
           LoginName: UserName.trim(),

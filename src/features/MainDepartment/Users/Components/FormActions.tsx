@@ -15,7 +15,7 @@ export default function FormActions({
 }: Props) {
   return (
     <HStack justify="flex-start" spacing={4} pt={2}>
-      <Button type="submit" isLoading={busy} isDisabled={busy || !allOk} colorScheme="teal">
+      <Button type="submit" isLoading={busy} isDisabled={busy} colorScheme="teal">
         {isEdit ? "تحديث" : "إضافة"}
       </Button>
 
