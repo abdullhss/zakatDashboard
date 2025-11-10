@@ -103,22 +103,22 @@ export default function LawsData() {
         {
             key: "LawDate", header: "تاريخ الإصدار", width: "15%", render: (row: AnyRec) => formatDate(row.LawDate) ?? '—',
         },
-        {
-            key: "Actions",
-            header: "الإجراءات",
-            width: "10%",
-            render: (row: AnyRec) => (
-                <Menu placement="bottom-start" isLazy>
-                    <MenuButton as={IconButton} aria-label="إجراءات" icon={<BsThreeDotsVertical />} size="sm" variant="ghost" onClick={(e) => e.stopPropagation()} />
-                    <Portal>
-                        <MenuList>
-                            <MenuItem onClick={() => handleEdit(row)} isDisabled={deleteMutation.isPending}>تعديل</MenuItem>
-                            <MenuItem color="red.600" onClick={() => handleDelete(row)} isDisabled={deleteMutation.isPending}>حذف</MenuItem>
-                        </MenuList>
-                    </Portal>
-                </Menu>
-            ),
-        },
+//         {
+//             key: "Actions",
+//             header: "الإجراءات",
+//             width: "10%",
+//             render: (row: AnyRec) => (
+//                 <Menu placement="bottom-start" isLazy>
+//                     <MenuButton as={IconButton} aria-label="إجراءات" icon={<BsThreeDotsVertical />} size="sm" variant="ghost" onClick={(e) => e.stopPropagation()} />
+//                     <Portal>
+//                         <MenuList>
+//                             <MenuItem onClick={} isDisabled={deleteMutation.isPending}>تعديل</MenuItem>
+//                             <MenuItem color="red.600" onClick={} isDisabled={deleteMutation.isPending}>حذف</MenuItem>
+//                         </MenuList>
+//                     </Portal>
+//                 </Menu>
+//             ),
+//         },
     ], [handleEdit, handleDelete, deleteMutation.isPending]); 
 
     if (isOperationLoading) {
@@ -158,6 +158,8 @@ export default function LawsData() {
                 page={page} 
                 pageSize={limit} 
                 onPageChange={setPage}
+                onDeleteRow={(row) => handleDelete(row)}
+                onEditRow={(row) => handleEdit(row)}
             />
             
             {rows.length === 0 && !isOperationLoading && (

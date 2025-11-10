@@ -20,6 +20,7 @@ import { useDeleteSubventionType } from "./hooks/useDeleteSubvention";
 
 // ✅ استيراد خدمة المشاريع (عدّل المسار لو مختلف عندك)
 import { fetchProjects } from "../../OfficeDashboard/Projects/Services/getProjects";
+import { AddIcon } from "@chakra-ui/icons";
 
 type Row = {
   id: number | string;
@@ -346,12 +347,12 @@ export default function SubventionTypes() {
 
           return (
             <Flex alignItems="center">
-              <Switch
+{/*               <Switch
                 isChecked={r.isActive}
                 isDisabled={loading}
                 mr={3}
                 onChange={() => handleStatusToggle(r)} // فيه فحص ارتباط عند الإلغاء
-              />
+              /> */}
               <Text as="span" color="gray.600">
                 {r.isActive ? "مفعل" : "غير مفعل"}
               </Text>
@@ -359,21 +360,21 @@ export default function SubventionTypes() {
           );
         },
       },
-      {
-        key: "actions",
-        header: "الإجراءات",
-        render: (row: AnyRec) => {
-          const r = row as Row;
-          return (
-            <SubventionRowActions
-              row={r}
-              onDeleted={refetch}
-              onEdited={openEdit}
-              onStatusToggle={handleStatusToggle}
-            />
-          );
-        },
-      },
+//       {
+//         key: "actions",
+//         header: "الإجراءات",
+//         render: (row: AnyRec) => {
+//           const r = row as Row;
+//           return (
+//             <SubventionRowActions
+//               row={r}
+//               onDeleted={refetch}
+//               onEdited={openEdit}
+//               onStatusToggle={handleStatusToggle}
+//             />
+//           );
+//         },
+//       },
     ],
     [updateStatus.isPending, updateStatus.variables, manageMutation.isPending, refetch]
   );
@@ -392,14 +393,15 @@ export default function SubventionTypes() {
         pageSize={PAGE_SIZE}
         totalRows={totalRows}
         onPageChange={setPage}
+        onEditRow={openEdit}
+        onDeleteRow={refetch}
         headerAction={
           <SharedButton
             variant="brandGradient"
             onClick={openAdd}
             leftIcon={
               <Box
-                bg="white"
-                color="brand.900"
+                color="white"
                 w="22px"
                 h="22px"
                 display="flex"
@@ -410,7 +412,7 @@ export default function SubventionTypes() {
                 fontSize="18px"
                 rounded="sm"
               >
-                ＋
+                <AddIcon/>
               </Box>
             }
           >

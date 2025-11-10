@@ -224,7 +224,6 @@ export default function Office() {
         startIndex={offset + 1}
         headerAction={
           <SharedButton
-            size="sm"
             leftIcon={<AddIcon />}
             to="/maindashboard/offices/add"
             isLoading={isFetching}

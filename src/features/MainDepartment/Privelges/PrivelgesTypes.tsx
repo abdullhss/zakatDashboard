@@ -28,6 +28,7 @@ import type { AnyRec } from "../../../api/apiClient";
 import { useGetPrivilege } from "../../MainDepartment/Privelges/hooks/useGetPrivelge";
 import { getSession } from "../../../session";
 import { useDeletePrivilege } from "../../MainDepartment/Privelges/hooks/useDeletePrivilege";
+import { AddIcon } from "@chakra-ui/icons";
 
 type Row = {
   id: string | number;
@@ -158,19 +159,19 @@ export default function Privileges() {
           </Text>
         ),
       },
-      {
-        key: "actions",
-        header: "إجراءات",
-        width: "10%",
-        render: (row: AnyRec) => (
-          <RowActionsMenu
-            row={row as Row}
-            onDeleted={(r) => setDeleteId(r.id)}
-            onEdited={onEditRow}
-            deleting={deleting}
-          />
-        ),
-      },
+      // {
+      //   key: "actions",
+      //   header: "إجراءات",
+      //   width: "10%",
+      //   render: (row: AnyRec) => (
+      //     <RowActionsMenu
+      //       row={row as Row}
+      //       onDeleted={(r) => setDeleteId(r.id)}
+      //       onEdited={onEditRow}
+      //       deleting={deleting}
+      //     />
+      //   ),
+      // },
     ],
     [titleClr, deleting, onEditRow]
   );
@@ -192,27 +193,6 @@ export default function Privileges() {
 
   return (
     <Box>
-      {/* ======= الرأس ======= */}
-      <HStack justify="space-between" mb={3}>
-        <HStack>
-          {mainUser?.GroupRightName ? (
-            <Badge variant="outline" colorScheme="blue">
-              مجموعتي: {mainUser.GroupRightName}
-            </Badge>
-          ) : null}
-        </HStack>
-
-        <HStack spacing={3}>
-          <SharedButton variant="brandGradient" to={`/maindashboard/privelges/add`}>
-            إضافة
-          </SharedButton>
-
-          <Button colorScheme="teal" variant="outline" onClick={onRefresh}>
-            تحديث القائمة
-          </Button>
-        </HStack>
-      </HStack>
-
       {/* ======= الجدول ======= */}
       <DataTable
         title="صلاحيات المجموعات"
@@ -224,6 +204,33 @@ export default function Privileges() {
         page={page}
         pageSize={PAGE_SIZE}
         onPageChange={setPage}
+        onDeleteRow={(r) => setDeleteId(r.id)}
+        onEditRow={onEditRow}
+
+        headerAction={
+          <SharedButton
+            variant="brandGradient"
+            onClick={()=>{navigate("/maindashboard/privelges/add")}}
+            leftIcon={
+              <Box
+                color="white"
+                w="22px"
+                h="22px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                fontWeight="700"
+                lineHeight="1"
+                fontSize="18px"
+                rounded="sm"
+              >
+                <AddIcon/>
+              </Box>
+            }
+          >
+              إضافة صلاحية 
+          </SharedButton>
+        }
       />
 
       {rows.length === 0 && (

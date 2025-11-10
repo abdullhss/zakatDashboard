@@ -105,9 +105,9 @@ export default function Kafara() {
       display="flex"
       alignItems="flex-start"
       justifyContent="center"
-      px={{ base: 3, md: 6 }}
-      pt={{ base: "80px", md: "50px" }}
-      pb={{ base: 6, md: 10 }}
+      // px={{ base: 3, md: 6 }}
+      // pt={{ base: "80px", md: "50px" }}
+      // pb={{ base: 6, md: 10 }}
     >
       <Box
         bg={panelBg}
@@ -116,11 +116,10 @@ export default function Kafara() {
         rounded="15px"
         p="40px"
         w="100%"
-        mx="auto"
       >
         <VStack spacing="25px" align="stretch">
           <Text fontSize="2xl" fontWeight="700" textAlign="center" mb="10px">
-            قيمة الكفّارة الحالية
+            القيمة الحالية
           </Text>
 
           <Input

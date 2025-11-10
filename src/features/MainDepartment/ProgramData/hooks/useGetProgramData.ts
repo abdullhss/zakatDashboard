@@ -36,7 +36,6 @@ export function useGetProgramData(): UseQueryResult<ProgramData, Error> {
               rows: summary.rows,
               totalRows: summary.totalRows,
             } as ProgramData;
-      },
-      staleTime: Infinity, // البرامج لا تتغير كثيرًا
+      }
     });
 }

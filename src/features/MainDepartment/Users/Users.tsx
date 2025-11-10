@@ -9,6 +9,7 @@ import SharedButton from "../../../Components/SharedButton/Button";
 import type { AnyRec } from "../../../api/apiClient";
 import { useGetUsers } from "./hooks/useGetUser";
 import { useDeleteUser } from "./hooks/useDeleteUser";
+import { AddIcon } from "@chakra-ui/icons";
 
 /** بناء WHERE للبحث */
 function buildSearchSQL(q: string) {
@@ -169,8 +170,8 @@ export default function Users() {
               to="/maindashboard/users/add"
               leftIcon={
                 <Box
-                  bg="white"
-                  color="brand.900"
+                  // bg="white"
+                  color="white"
                   w="22px"
                   h="22px"
                   display="flex"
@@ -181,7 +182,7 @@ export default function Users() {
                   fontSize="18px"
                   rounded="sm"
                 >
-                  ＋
+                  <AddIcon/>
                 </Box>
               }
             >

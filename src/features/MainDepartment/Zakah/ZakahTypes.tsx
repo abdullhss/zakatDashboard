@@ -89,7 +89,6 @@ export default function ZakahTypes() {
         rounded="15px"
         p="24px"
         w="100%"
-        maxW="1060px"
       >
         <HStack justify="flex-start" mb="12px">
           <Text fontWeight="800" fontSize="24px" p="20px" color={titleClr}>

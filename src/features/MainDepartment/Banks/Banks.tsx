@@ -21,6 +21,7 @@ import FormModal, { type FieldConfig } from "../../../Components/ModalAction/For
 // ✅ استدعاء جلب المكاتب لاختبار الارتباط
 // لو مسار الخدمة مختلف عدّله حسب مشروعك
 import { getOffices } from "../Offices/Services/getOffice";
+import { AddIcon } from "@chakra-ui/icons";
 
 /* ----------------- دالة مساعدة: هل يوجد مكاتب مرتبطة بهذا البنك؟ ----------------- */
 async function hasOfficesForBank(bankId: number | string): Promise<boolean> {
@@ -271,7 +272,7 @@ export default function Banks() {
   }
 
   return (
-    <Box p={6}>
+    <Box>
       <FormModal
         isOpen={addModal.isOpen}
         onClose={addModal.onClose}
@@ -297,8 +298,7 @@ export default function Banks() {
             onClick={addModal.onOpen}
             leftIcon={
               <Box
-                bg="white"
-                color="brand.900"
+                color="white"
                 w="22px"
                 h="22px"
                 display="flex"
@@ -308,7 +308,7 @@ export default function Banks() {
                 lineHeight="1"
                 fontSize="18px"
               >
-                ＋
+                <AddIcon/>
               </Box>
             }
             isLoading={isFetching || addBank.isPending}

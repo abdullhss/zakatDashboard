@@ -224,20 +224,20 @@ export default function AssistanceDataTypes() {
         render: (r: AnyRec) =>
           (r as AssistanceRow).AssistanceDesc ?? (r as AssistanceRow).AssistanceName ?? "—",
       },
-      {
-        key: "__actions",
-        header: "الإجراءات",
-        width: "10%",
-        render: (r: AnyRec) => (
-          <SharedButton
-            variant="secondary"
-            onClick={() => openModal(r as AssistanceRow)}
-            leftIcon={<HiDotsHorizontal />}
-          >
-            إجراء
-          </SharedButton>
-        ),
-      },
+//       {
+//         key: "__actions",
+//         header: "الإجراءات",
+//         width: "10%",
+//         render: (r: AnyRec) => (
+//           <SharedButton
+//             variant="secondary"
+//             onClick={() => }
+//             leftIcon={<HiDotsHorizontal />}
+//           >
+//             إجراء
+//           </SharedButton>
+//         ),
+//       },
     ],
     [officeNameById, openModal]
   );
@@ -277,6 +277,7 @@ export default function AssistanceDataTypes() {
         pageSize={PAGE_SIZE}
         totalRows={totalRows}
         onPageChange={setPage}
+        onEditRow={(r)=>{openModal(r as AssistanceRow)}}
       />
 
       {isFetching && (

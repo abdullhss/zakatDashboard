@@ -17,6 +17,7 @@ import DeleteDialog from "./components/DeleteDialog";
 import { buildColumns } from "./components/columns";
 import { mapApiRowsToSacrificeRows, pickTotalRows } from "./helpers/mapApiRows";
 import type { SacrificeRow } from "./helpers/types";
+import { AddIcon } from "@chakra-ui/icons";
 
 const PAGE_SIZE = 10;
 
@@ -216,7 +217,7 @@ export default function SacrificeDataTypes() {
         onPageChange={setPage}
         headerAction={
           <SharedButton variant="brandGradient" onClick={addModal.onOpen}>
-            + إضافة نوع
+            <AddIcon/> إضافة نوع
           </SharedButton>
         }
       />

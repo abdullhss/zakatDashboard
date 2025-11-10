@@ -19,6 +19,7 @@ import FormModal, { type FieldConfig } from "../../../Components/ModalAction/For
 
 // ⚠️ تأكد من المسار حسب مشروعك (قد يكون: "../Offices/Services/getOffice")
 import { getOffices } from "../Offices/Services/getOffice";
+import { AddIcon } from "@chakra-ui/icons";
 
 /** دالة مساعدة: هل هناك مكاتب مرتبطة بهذه المدينة؟ */
 async function hasOfficesInCity(cityId: number | string): Promise<boolean> {
@@ -255,7 +256,7 @@ export default function Cities() {
   }
 
   return (
-    <Box p={6}>
+    <Box>
       <FormModal
         isOpen={addModal.isOpen}
         onClose={addModal.onClose}
@@ -294,8 +295,7 @@ export default function Cities() {
             isLoading={isFetching || addCity.isPending}
             leftIcon={
               <Box
-                bg="white"
-                color="brand.900"
+                color="white"
                 w="22px"
                 h="22px"
                 display="flex"
@@ -306,7 +306,7 @@ export default function Cities() {
                 fontSize="18px"
                 rounded="sm"
               >
-                ＋
+                <AddIcon/>
               </Box>
             }
           >

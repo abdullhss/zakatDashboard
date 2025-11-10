@@ -133,7 +133,7 @@ export default function MainNavBar() {
       {renderLink("assistanceData", "مراجعة طلب الإعانة", BsFillClipboardCheckFill)}
 
       {/* الخدمات والحملات */}
-      {renderLink("campaign", "الخدمات", RiServiceLine)}
+      {renderLink("campaign", "الحملات", RiServiceLine)}
 
       {/* بيانات الأضحيات */}
       {renderLink("sacrificeDataMain", "بيانات الأضاحي", GiSheep)}
