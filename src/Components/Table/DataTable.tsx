@@ -63,7 +63,7 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
   const total = typeof totalRows === "number" ? totalRows : data.length;
 
   return (
-    <TableCardContainer>
+    <TableCardContainer  w="100%">
       {/* Header */}
       <TableHeader>
         <Heading size="md" fontWeight="700" color="gray.700">

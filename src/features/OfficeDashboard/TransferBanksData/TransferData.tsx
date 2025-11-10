@@ -22,7 +22,6 @@ const TRANSFER_COLUMNS: Column[] = [
   {
     key: "TransferDate",
     header: "تاريخ التحويل",
-    width: "15%",
     render: (row: AnyRec) => {
       const dateStr = row.TransferDate;
       return dateStr
@@ -33,7 +32,6 @@ const TRANSFER_COLUMNS: Column[] = [
   {
     key: "From_AccountNum",
     header: "من حساب",
-    width: "25%",
     render: (row: AnyRec) => (
       <Text>
         {row.FromBankName ? `${row.FromBankName} - ` : ""}
@@ -44,7 +42,6 @@ const TRANSFER_COLUMNS: Column[] = [
   {
     key: "To_AccountNum",
     header: "إلى حساب",
-    width: "25%",
     render: (row: AnyRec) => (
       <Text>
         {row.ToBankName ? `${row.ToBankName} - ` : ""}
@@ -55,7 +52,6 @@ const TRANSFER_COLUMNS: Column[] = [
   {
     key: "TransferValue",
     header: "المبلغ",
-    width: "15%",
     render: (row: AnyRec) => (
       <Text fontWeight="600" color="teal.600">
         {row.TransferValue} د.ل.
@@ -65,7 +61,6 @@ const TRANSFER_COLUMNS: Column[] = [
   {
     key: "TransferByName",
     header: "المستخدم",
-    width: "15%",
     render: (row: AnyRec) => row.TransferByName ?? "—",
   },
 ];
@@ -102,7 +97,7 @@ export default function TransferData() {
   }
 
   return (
-    <Box p={6} dir="rtl">
+    <Box p={6} width={"100%"} dir="rtl">
       <VStack align="stretch" spacing={6}>
         <Heading size="lg" fontWeight="700" color="gray.800">
           سجلات تحويل الأموال
