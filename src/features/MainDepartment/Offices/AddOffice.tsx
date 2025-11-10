@@ -164,6 +164,10 @@ export default function AddOffice() {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | number | null>(null);
   const askDeleteServer = (serverId: string | number) => { setPendingDeleteId(serverId); confirm.onOpen(); };
   const doDeleteServer = async () => {
+    if(serverBankAccounts.length<=1){
+       toast({ title: "يجب أن يكون للمكتب حساب بنكي واحد على الأقل.", status: "error" });
+       return
+    }
     if (!pendingDeleteId) return;
     try {
       const res = await deleteBankAccount(pendingDeleteId);

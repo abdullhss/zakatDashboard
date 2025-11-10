@@ -10,7 +10,6 @@ export function buildColumns() {
     {
       key: "Name",
       header: "اسم النوع",
-      width: "44%",
       render: (r: AnyRec) => (
         <Text fontWeight="600" color="gray.700">
           {(r as SacrificeRow).Name}
@@ -20,8 +19,7 @@ export function buildColumns() {
     {
       key: "Price",
       header: "السعر",
-      width: "20%",
-      align: "center",
+      align: "right",
       render: (r: AnyRec) => (
         <Text color="gray.700">{formatLYD((r as SacrificeRow).Price)}</Text>
       ),
@@ -29,15 +27,14 @@ export function buildColumns() {
     {
       key: "IsActive",
       header: "الحالة",
-      width: "18%",
       align: "center",
       render: (r: AnyRec) => {
         const row = r as SacrificeRow;
         return (
-          <VStack spacing={1} align="center">
-            <Switch isChecked={row.IsActive} isReadOnly />
-            <Text as="span" fontSize="sm" color="gray.600">
-              {row.IsActive ? "مفعّل" : "غير مفعّل"}
+          <VStack align="right">
+            {/* <Switch isChecked={row.IsActive} isReadOnly /> */}
+            <Text as="span" color="gray.600">
+              {row.IsActive ? "مفعل" : "غير مفعل"}
             </Text>
           </VStack>
         );

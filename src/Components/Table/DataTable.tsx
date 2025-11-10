@@ -129,7 +129,7 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
                         renderActions(row, index)
                       ) : (
                         <Menu placement="bottom-end" isLazy>
-                          <MenuButton
+                          {/* <MenuButton
                             as={IconButton}
                             aria-label="خيارات"
                             icon={<BsThreeDotsVertical />}
@@ -139,6 +139,14 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
                             minW={ROW_H}
                             _hover={{ bg: "blackAlpha.50" }}
                             _active={{ bg: "blackAlpha.100" }}
+                          /> */}
+                          <MenuButton
+                            as={IconButton}
+                            aria-label="إجراءات"
+                            icon={<BsThreeDotsVertical />}
+                            size="sm"
+                            variant="brandOutline"
+                            onClick={(e) => e.stopPropagation()}
                           />
                           <MenuList>
                             <MenuItem

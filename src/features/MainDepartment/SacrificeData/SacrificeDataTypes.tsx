@@ -124,12 +124,22 @@ export default function SacrificeDataTypes() {
   const handleDelete = useCallback(
     async () => {
       if (!deletingRow?.Id) return;
-      await deleteSacrifice.mutateAsync(deletingRow.Id);
-      toast({
-        status: "success",
-        title: "تم الحذف",
-        description: `تم حذف النوع \"${deletingRow.Name}\"`,
-      });
+      const response = await deleteSacrifice.mutateAsync(deletingRow.Id);
+
+      if(response.code == 221){
+        toast({
+          status: "error",
+          title: "خطأ في الحذف",
+          description: `هذا النوع مرتبط ببيانات أخرى ولا يمكن حذفه`,
+        });
+      }
+      else{
+        toast({
+          status: "success",
+          title: "تم الحذف",
+          description: `تم حذف النوع \"${deletingRow.Name}\"`,
+        });
+      }
       delModal.onClose();
       setDeletingRow(null);
       refetch();

@@ -127,7 +127,7 @@ export default function MainNavBar() {
       {renderLink("zakatGold", "حاسبة الزكاة", AiOutlineCalculator)}
 
       {/* أنواع الأضحيات */}
-      {renderLink("sacirificeTypes", "أنواع الأضحيات", GiSheep)}
+      {renderLink("sacirificeTypes", "أنواع الأضاحي", GiSheep)}
 
       {/* مراجعة طلب الإعانة */}
       {renderLink("assistanceData", "مراجعة طلب الإعانة", BsFillClipboardCheckFill)}
@@ -136,7 +136,7 @@ export default function MainNavBar() {
       {renderLink("campaign", "الخدمات", RiServiceLine)}
 
       {/* بيانات الأضحيات */}
-      {renderLink("sacrificeDataMain", "بيانات الأضحيات", GiSheep)}
+      {renderLink("sacrificeDataMain", "بيانات الأضاحي", GiSheep)}
 
       {/* اللوائح */}
       {renderLink("laws", "اللوائح", MdOutlineRule)}
