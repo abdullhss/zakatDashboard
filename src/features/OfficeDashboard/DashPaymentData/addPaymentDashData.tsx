@@ -110,13 +110,19 @@ export default function AddPaymentData() {
       count: 999999,
     });
 
-  const { data: officeBanks, isLoading: banksLoading } = useGetOfficeBanksData({
+  const query = useGetOfficeBanksData({
     officeId: Number(officeId) || 0,
     accountTypeId: 2,
-    serviceTypeId: 0,
+    serviceTypeId: zakatOrSadqa === "Z" ? 1 : 2,
     paymentMethodId: 2,
     enabled: !!officeId,
   });
+  const { data: officeBanks, isLoading: banksLoading, refetch } = query;
+  useEffect(() => {
+    if (officeId) {
+      refetch();
+    }
+  }, [zakatOrSadqa]);
 
   const toBankOptions = useMemo(() => {
     return (
