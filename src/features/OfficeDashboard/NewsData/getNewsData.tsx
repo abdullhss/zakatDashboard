@@ -258,6 +258,7 @@ export default function GetNewsData() {
     try {
       await delNews.mutateAsync({ id });
       toast({ status: "success", title: "تم الحذف", description: `تم حذف الخبر رقم ${id}.` });
+      window.location.reload();
     } catch (e: any) {
       toast({
         status: "error",
@@ -327,7 +328,7 @@ export default function GetNewsData() {
         pageSize={limit}
         onPageChange={setPage}
         totalRows={totalRows}
-        onDeleteRow={(row)=>{onDelete(row)}}
+        onDeleteRow={ (row) => {handleDelete(row)} }
         onEditRow={ (row)=>{onEdit(row)}}
       />
 

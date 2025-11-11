@@ -136,12 +136,12 @@ export default function SacrificeDataTypes() {
         const isApproved = row.IsApproved === true || String(row.IsApproved).toLowerCase() === 'true';
         return (
           <HStack spacing={3}>
-            <Switch 
+{/*             <Switch 
               isChecked={isApproved} 
               isReadOnly 
               size="sm"
               colorScheme={isApproved ? "green" : "red"}
-            />
+            /> */}
             <Text as="span" color="gray.600">
               {isApproved ? "مقبول" : "مرفوض"}
             </Text>

@@ -281,7 +281,7 @@ export default function AddProjectForm() {
           <Text fontSize="lg" fontWeight="700">
             {isEdit ? "تعديل مشروع" : "بيانات المشروع"}
           </Text>
-          <Button variant="ghost" onClick={() => navigate(-1)}>رجوع</Button>
+          {/* <Button variant="ghost" onClick={() => navigate(-1)}>رجوع</Button> */}
         </HStack>
 
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr 300px" }} gap={4}>

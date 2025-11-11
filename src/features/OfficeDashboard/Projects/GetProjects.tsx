@@ -153,6 +153,24 @@ export default function Projects() {
         ),
       },
       {
+        key: "Description",
+        header: "وصف المشروع",
+        render: (row: AnyRec) => (
+          <Text fontWeight="600" color="gray.800">
+            {row.Description ?? "—"}
+          </Text>
+        ),
+      },
+      {
+        key: "SubventionTypeName",
+        header: "نوع المشروع",
+        render: (row: AnyRec) => (
+          <Text fontWeight="600" color="gray.800">
+            {row.SubventionTypeName ?? "—"}
+          </Text>
+        ),
+      },
+      {
         key: "WantedAmount",
         header: "المبلغ المطلوب",
         render: (row: AnyRec) => (
@@ -170,18 +188,18 @@ export default function Projects() {
           </Text>
         ),
       },
-      {
-        key: "Actions",
-        header: "الخيارات",
-        render: (row: AnyRec) => (
-          <Menu>
-            <MenuButton as={IconButton} icon={<MdMoreVert />} aria-label="More options" />
-            <MenuList>
-              <MenuItem onClick={() => handleEdit(row)}>تعديل</MenuItem>
-            </MenuList>
-          </Menu>
-        ),
-      },
+      // {
+      //   key: "Actions",
+      //   header: "الخيارات",
+      //   render: (row: AnyRec) => (
+      //     <Menu>
+      //       <MenuButton as={IconButton} icon={<MdMoreVert />} aria-label="More options" />
+      //       <MenuList>
+      //         <MenuItem onClick={() => handleEdit(row)}>تعديل</MenuItem>
+      //       </MenuList>
+      //     </Menu>
+      //   ),
+      // },
     ],
     []
   );
@@ -227,6 +245,7 @@ export default function Projects() {
         pageSize={PAGE_SIZE}
         onPageChange={setPage}
         totalRows={totalRows}
+        onEditRow={(row)=>{ handleEdit(row)}}
         headerAction={
           <SharedButton
             to="/officedashboard/projects/add"
