@@ -128,7 +128,6 @@ const lockName = false;
         await addMutation.mutateAsync({
           groupRightId,
           featureIds,
- 
           pointId: 0,
         });
         nav("/officedashboard/privelgesOffice"); // أو قائمة الإدارة لو انت M
@@ -142,6 +141,7 @@ const lockName = false;
           groupRightName: (lockName ? (officeName || "") : groupRightName.trim()),
           groupRightType: role,   // "M" أو "O" من الـ session
           featureIds,
+          allFeatures: data.rows,
 
           pointId: 0,
         });

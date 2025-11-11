@@ -4,6 +4,8 @@ import {
   PROCEDURE_NAMES,
   type NormalizedSummary,
 } from "../../../../api/apiClient";
+import { getSession } from "../../../../session";
+import { useGetFeatures } from "../hooks/useGetFeaturesData";
 
 // Helpers
 const caretJoin = (...parts: string[]) =>
@@ -29,6 +31,7 @@ export type AddGroupRightWithFeaturesPayload = {
   featureIds: Array<string | number>;
   isActive?: boolean;
   pointId?: string | number;
+  allFeatures?: any[];
 };
 
 const M_TABLE = PROCEDURE_NAMES.GROUP_RIGHT;    // "M8VBuM2f3OsFRzuHNORBqQ=="
@@ -50,7 +53,6 @@ function composeMultiTx(
   console.log("[ERP] MultiTransaction Input (plain) =>", payload);
   return payload;
 }
-
 export async function addGroupRightWithFeatures(
   payload: AddGroupRightWithFeaturesPayload
 ): Promise<NormalizedSummary> {
@@ -61,9 +63,12 @@ export async function addGroupRightWithFeatures(
     featureIds,
     isActive = true,
     pointId = 0,
+    allFeatures = [],
   } = payload;
 
-  if (!featureIds?.length) {
+  const role = localStorage.getItem("role");
+
+  if (!featureIds?.length && !allFeatures?.length) {
     return analyzeExecution({
       result: "200",
       error: "",
@@ -77,14 +82,17 @@ export async function addGroupRightWithFeatures(
 
   // حالة إضافة تفاصيل لمجموعة موجودة
   if (groupRightId != null && groupRightId !== "") {
-    const detailValues = pipeJoin(
-      featureIds.map((fid) => `0#${groupRightId}#${fid}#${activeBit}`)
+    // الفيتشرز اللي معمولة true
+    const activeDetails = featureIds.map(
+      (fid) => `0#${groupRightId}#${fid}#true`
     );
 
-    const tables = featureIds.map(() => ({
-      tableName: D_TABLE,
-      columnsValues: "", // القيم هتتجمع من detailValues تحت
-    }));
+    // الفيتشرز اللي مش معمولة true
+    const inactiveFeatures = allFeatures
+      ?.filter((f) => !featureIds.includes(f.Id))
+      ?.map((f) => `0#${groupRightId}#${f.Id}#false`) || [];
+
+    const detailValues = pipeJoin([...activeDetails, ...inactiveFeatures]);
 
     const multi = composeMultiTx(
       [{ tableName: D_TABLE, columnsValues: detailValues }],
@@ -96,26 +104,37 @@ export async function addGroupRightWithFeatures(
     return analyzeExecution(res);
   }
 
-      let officeID = 0;
-    const role = localStorage.getItem("role")
-    if(role == "O"){
-      officeID = JSON.parse(localStorage.getItem("mainUser") || "").Office_Id
-    }
-
   // إنشاء مجموعة جديدة + ربط الميزات
+  let officeID = 0;
+  if (role == "O") {
+    officeID = JSON.parse(localStorage.getItem("mainUser") || "{}")?.Office_Id ?? 0;
+  }
+
   const roleCode = String(groupRightType ?? "M").toUpperCase();
   const name = sanitizeName(groupRightName ?? "");
   if (!name) throw new Error("اسم المجموعة مطلوب.");
 
   const masterValues = `0#${name}#${roleCode}#${officeID}`;
 
-  // هنا بنكرر الـ D_TABLE بعدد الـ features فقط
+  // الفيتشرز اللي معمولة true
+  const activeFeatures = featureIds.map((fid) => ({
+    tableName: D_TABLE,
+    columnsValues: `0#0#${fid}#true`,
+  }));
+
+  // الفيتشرز اللي معمولة false (يعني الباقي)
+  const inactiveFeatures =
+    allFeatures
+      ?.filter((f) => !featureIds.includes(f.Id))
+      ?.map((f) => ({
+        tableName: D_TABLE,
+        columnsValues: `0#0#${f.Id}#false`,
+      })) || [];
+
   const tables: MultiTablePart[] = [
     { tableName: M_TABLE, columnsValues: masterValues },
-    ...featureIds.map((fid) => ({
-      tableName: D_TABLE,
-      columnsValues: `0#0#${fid}#${activeBit}`,
-    })),
+    ...activeFeatures,
+    ...inactiveFeatures,
   ];
 
   const multi = composeMultiTx(tables, 0, pointId);
