@@ -127,7 +127,7 @@ export default function AddPaymentData() {
   const toBankOptions = useMemo(() => {
     return (
       officeBanks?.rows?.map((b: any) => ({
-        id: b.BankId ?? b.Id,
+        id: b.Bank_Id,
         name: b.BankName ?? "—",
         accountNum: b.AccountNum ?? "",
       })) ?? []
@@ -153,27 +153,29 @@ export default function AddPaymentData() {
     }
 
     try {
-      const payload = {
-        paymentDate: form.paymentDate,
-        paymentValue: Number(form.paymentValue),
-        actionId: Number(form.actionId),
-        subventionTypeId: Number(form.subventionTypeId) || 0,
-        projectId: Number(form.projectId) || 0,
-        bankId: Number(form.bankId) || 0,
-        accountNum: form.accountNum,
-        usersCount: Number(form.usersCount) || 1,
-        zakahName: form.zakahName,
-        officeId: Number(officeId),
-      };
+      console.log(form);
+      
+      // const payload = {
+      //   paymentDate: form.paymentDate,
+      //   paymentValue: Number(form.paymentValue),
+      //   actionId: Number(form.actionId),
+      //   subventionTypeId: Number(form.subventionTypeId) || 0,
+      //   projectId: Number(form.projectId) || 0,
+      //   bankId: Number(form.bankId) || 0,
+      //   accountNum: form.accountNum,
+      //   usersCount: Number(form.usersCount) || 1,
+      //   zakahName: form.zakahName,
+      //   officeId: Number(officeId),
+      // };
 
-      await addPaymentMutation.mutateAsync(payload as any);
+      // await addPaymentMutation.mutateAsync(payload as any);
 
-      toast({
-        status: "success",
-        title: "تم الحفظ",
-        description: "تم تسجيل المدفوعات بنجاح",
-      });
-      navigate(-1);
+      // toast({
+      //   status: "success",
+      //   title: "تم الحفظ",
+      //   description: "تم تسجيل المدفوعات بنجاح",
+      // });
+      // navigate(-1);
     } catch (e: any) {
       toast({
         status: "error",
@@ -213,7 +215,7 @@ export default function AddPaymentData() {
           <GridItem>
             <FormControl mb={4} isRequired>
               <FormLabel>نوع العملية</FormLabel>
-              <Select
+              <Select mx={-3} px={3}
                 placeholder="اختر نوع العملية"
                 value={form.actionId}
                 onChange={(e) => {
@@ -237,6 +239,7 @@ export default function AddPaymentData() {
                 <FormControl mb={4}>
                   <FormLabel>نوع الزكاة</FormLabel>
                   <Select
+                  mx={-3} px={3}
                     placeholder="اختر نوع الزكاة"
                     value={form.zakatTypeId}
                     onChange={(e) => {
@@ -256,7 +259,7 @@ export default function AddPaymentData() {
                 {Number(form.zakatTypeId) === 1 && (
                   <FormControl mb={4}>
                     <FormLabel>نوع الإعانة</FormLabel>
-                    <Select
+                    <Select mx={-3} px={3}
                       placeholder="اختر نوع الإعانة"
                       value={form.subventionTypeId}
                       onChange={(e) => update("subventionTypeId", e.target.value)}
@@ -279,7 +282,7 @@ export default function AddPaymentData() {
                 {projectsLoading ? (
                   <Spinner size="md" />
                 ) : (
-                  <Select
+                  <Select mx={-3} px={3}
                     placeholder="اختر المشروع"
                     value={form.projectId}
                     onChange={(e) => update("projectId", e.target.value)}
@@ -337,16 +340,18 @@ export default function AddPaymentData() {
               {banksLoading ? (
                 <Spinner size="sm" />
               ) : (
-                <Select
+                <Select mx={-3} px={3}
                   placeholder="اختر الحساب البنكي"
                   value={form.bankId}
-                  onChange={(e) => update("bankId", e.target.value)}
+                  onChange={(e) => {console.log(e.target.value);
+                   update("bankId", e.target.value);}}
                 >
-                  {toBankOptions.map((b) => (
+                  {toBankOptions.map((b) => { console.log(b);
+                   return(
                     <option key={b.id} value={b.id}>
                       {b.name} — {b.accountNum}
                     </option>
-                  ))}
+                  )})}
                 </Select>
               )}
             </FormControl>

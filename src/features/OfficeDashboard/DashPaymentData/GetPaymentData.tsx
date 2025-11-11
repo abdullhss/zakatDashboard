@@ -107,13 +107,13 @@ export default function GetPaymentData() {
         <Box p={6} dir="rtl">
             <VStack align="stretch" spacing={6}>
                 <Heading size="lg" fontWeight="700" color="gray.800">
-                    مدفوعات المكتب
+                    مصروفات المكتب
                 </Heading>
 
                 {/* لف الجدول داخل Box عريض مع scroll افقي */}
                 <Box width="100%" overflowX="auto">
                     <DataTable
-                        title="قائمة المدفوعات الصادرة"
+                        title="قائمة المصروفات"
                         data={rows}
                         columns={OFFICE_PAYMENT_COLUMNS}
                         startIndex={offset + 1}
@@ -127,7 +127,7 @@ export default function GetPaymentData() {
                                 variant="brandGradient"
                                 leftIcon={<Icon as={AddIcon} />}
                             >
-                                إضافة مدفوعات
+                                إضافة مصروفات
                             </SharedButton>
                         }
                         tableProps={{ width: "100%", minWidth: "1000px" }}
