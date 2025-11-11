@@ -80,19 +80,15 @@ export async function addGroupRightWithFeatures(
 
   const activeBit = isActive ? "true" : "false";
 
-  // حالة إضافة تفاصيل لمجموعة موجودة
+  // === حالة تعديل مجموعة موجودة ===
   if (groupRightId != null && groupRightId !== "") {
-    // الفيتشرز اللي معمولة true
-    const activeDetails = featureIds.map(
-      (fid) => `0#${groupRightId}#${fid}#true`
-    );
+    // ابعت كل الفيتشرز، اللي في featureIds يكون true، والباقي false
+    const allDetails = allFeatures.map((f) => {
+      const isActive = featureIds.includes(Number(f.Id)) ? "true" : "false";
+      return `0#${groupRightId}#${f.Id}#${isActive}`;
+    });
 
-    // الفيتشرز اللي مش معمولة true
-    const inactiveFeatures = allFeatures
-      ?.filter((f) => !featureIds.includes(f.Id))
-      ?.map((f) => `0#${groupRightId}#${f.Id}#false`) || [];
-
-    const detailValues = pipeJoin([...activeDetails, ...inactiveFeatures]);
+    const detailValues = pipeJoin(allDetails);
 
     const multi = composeMultiTx(
       [{ tableName: D_TABLE, columnsValues: detailValues }],
@@ -104,7 +100,8 @@ export async function addGroupRightWithFeatures(
     return analyzeExecution(res);
   }
 
-  // إنشاء مجموعة جديدة + ربط الميزات
+  // === حالة إنشاء مجموعة جديدة ===
+  // === حالة إنشاء مجموعة جديدة ===
   let officeID = 0;
   if (role == "O") {
     officeID = JSON.parse(localStorage.getItem("mainUser") || "{}")?.Office_Id ?? 0;
@@ -116,29 +113,22 @@ export async function addGroupRightWithFeatures(
 
   const masterValues = `0#${name}#${roleCode}#${officeID}`;
 
-  // الفيتشرز اللي معمولة true
-  const activeFeatures = featureIds.map((fid) => ({
-    tableName: D_TABLE,
-    columnsValues: `0#0#${fid}#true`,
-  }));
-
-  // الفيتشرز اللي معمولة false (يعني الباقي)
-  const inactiveFeatures =
-    allFeatures
-      ?.filter((f) => !featureIds.includes(f.Id))
-      ?.map((f) => ({
-        tableName: D_TABLE,
-        columnsValues: `0#0#${f.Id}#false`,
-      })) || [];
+  // هنا التصحيح
+  const allFeaturesFinal = allFeatures.map((f) => {
+    const isActive = featureIds.map(String).includes(String(f.Id)) ? "true" : "false";
+    return {
+      tableName: D_TABLE,
+      columnsValues: `0#0#${f.Id}#${isActive}`,
+    };
+  });
 
   const tables: MultiTablePart[] = [
     { tableName: M_TABLE, columnsValues: masterValues },
-    ...activeFeatures,
-    ...inactiveFeatures,
+    ...allFeaturesFinal,
   ];
 
   const multi = composeMultiTx(tables, 0, pointId);
-
   const res = await doMultiTransaction(multi);
   return analyzeExecution(res);
+
 }

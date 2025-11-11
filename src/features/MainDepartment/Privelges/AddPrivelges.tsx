@@ -115,6 +115,9 @@ const lockName = false;
   const addMutation   = useAddGroupRightWithFeatures();
   const isSubmitting  = addMutation.isPending;
 
+
+
+  
   const handleAdd = async () => {
     const featureIds = selectedIds;
     if (!featureIds.length) {
@@ -142,9 +145,10 @@ const lockName = false;
           groupRightType: role,   // "M" أو "O" من الـ session
           featureIds,
           allFeatures: data.rows,
-
           pointId: 0,
         });
+          // console.log(data.rows);
+          // console.log(featureIds);
         // رجّع لقائمة الصلاحيات المناسبة
         nav(role === "O" ? "/officedashboard/privelgesOffice" : "/maindashboard/privelges");
       }
