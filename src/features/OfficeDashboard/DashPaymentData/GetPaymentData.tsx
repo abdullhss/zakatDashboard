@@ -42,14 +42,19 @@ const OFFICE_PAYMENT_COLUMNS: Column[] = [
         render: (row: AnyRec) => row.PaymentDate ? row.PaymentDate.split('T')[0] : '—',
     },
     {
-        key: "ActionName",
-        header: "الوصف / النوع",
-        render: (row: AnyRec) => row.ActionName ?? row.PaymentDesc ?? '—',
+        key: "PaymentDesc",
+        header: "الوصف",
+        render: (row: AnyRec) => row.PaymentDesc || '—',
+    },
+    {
+        key: "SubventionTypeName",
+        header: "النوع",
+        render: (row: AnyRec) =>  row.SubventionTypeName || '—',
     },
     {
         key: "BankName",
         header: "البنك",
-        render: (row: AnyRec) => row.BankName ?? '—',
+        render: (row: AnyRec) => ( row.BankName + '—' + row.AccountNum ) || '—',
     },
 ];
 

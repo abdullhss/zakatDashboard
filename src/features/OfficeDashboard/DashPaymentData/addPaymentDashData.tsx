@@ -153,29 +153,28 @@ export default function AddPaymentData() {
     }
 
     try {
-      console.log(form);
       
-      // const payload = {
-      //   paymentDate: form.paymentDate,
-      //   paymentValue: Number(form.paymentValue),
-      //   actionId: Number(form.actionId),
-      //   subventionTypeId: Number(form.subventionTypeId) || 0,
-      //   projectId: Number(form.projectId) || 0,
-      //   bankId: Number(form.bankId) || 0,
-      //   accountNum: form.accountNum,
-      //   usersCount: Number(form.usersCount) || 1,
-      //   zakahName: form.zakahName,
-      //   officeId: Number(officeId),
-      // };
+      const payload = {
+        paymentDate: form.paymentDate,
+        paymentValue: Number(form.paymentValue),
+        actionId: Number(form.actionId),
+        subventionTypeId: Number(form.subventionTypeId) || 0,
+        projectId: Number(form.projectId) || 0,
+        bankId: Number(form.bankId) || 0,
+        accountNum: form.accountNum,
+        usersCount: Number(form.usersCount) || 1,
+        zakahName: form.zakahName,
+        officeId: Number(officeId),
+      };
 
-      // await addPaymentMutation.mutateAsync(payload as any);
+      await addPaymentMutation.mutateAsync(payload as any);
 
-      // toast({
-      //   status: "success",
-      //   title: "تم الحفظ",
-      //   description: "تم تسجيل المدفوعات بنجاح",
-      // });
-      // navigate(-1);
+      toast({
+        status: "success",
+        title: "تم الحفظ",
+        description: "تم تسجيل المدفوعات بنجاح",
+      });
+      navigate(-1);
     } catch (e: any) {
       toast({
         status: "error",
