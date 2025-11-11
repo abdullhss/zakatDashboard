@@ -1,4 +1,5 @@
 // src/features/MainDepartment/Banks/Services/addBank.ts
+import { useToast } from "@chakra-ui/react";
 import { doTransaction, PROCEDURE_NAMES, analyzeExecution } from "../../../../api/apiClient";
 import type { NormalizedSummary, ExecutionResult } from "../../../../api/apiClient";
 
@@ -46,6 +47,12 @@ export async function addBank(
     });
 
     last = res;
+    console.log(res);
+    if(res.code == 201){
+      // toast({ status: "success", title: "تمت الإضافة", description: "تمت إضافة البنك بنجاح" });
+      alert("فشل الإضافة: البنك موجود بالفعل.");
+    }
+
     if (!isServerError(res)) {
       return analyzeExecution(res);
     }

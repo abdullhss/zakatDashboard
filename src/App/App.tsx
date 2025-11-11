@@ -63,7 +63,6 @@ export default function App() {
     const now = Date.now();
     const lastVisit = localStorage.getItem("lastVisit");
 
-    // لو أول مرة يدخل أو فات أكتر من 60 دقيقة (3600000 ms)
     if (!lastVisit || now - lastVisit > 60 * 60 * 1000) {
       localStorage.clear();
     }
