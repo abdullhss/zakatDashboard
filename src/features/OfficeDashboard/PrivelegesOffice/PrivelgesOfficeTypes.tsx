@@ -140,9 +140,14 @@ export default function Privileges() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deletePrivilege(deleteId);
+      const res =await deletePrivilege(deleteId);
+      if(res.code == 221){
+        toast({ title: "المجموعه مستخدمة ولا يمكن حذفها", status: "error" });
+        return
+      }
       toast({ title: "تم حذف الصلاحية بنجاح", status: "success" });
-      setDeleteId(null);
+
+        setDeleteId(null);
       refetch();
     } catch {
       toast({ title: "فشل في حذف الصلاحية", status: "error" });

@@ -28,7 +28,7 @@ const PAYMENT_COLUMNS_BASE: Column[] = [
     { key: "GeneralUser_Id", header: "مقدم الطلب", width: "10%", render: (row: AnyRec) => row.GeneralUser_Id ?? '—' }, 
     { key: "ActionName", header: "نوع الخدمة", width: "10%", render: (row: AnyRec) => row.ActionName ?? '—' }, 
     { key: "SubventionTypeName", header: "نوع الإعانة", width: "10%", render: (row: AnyRec) => row.SubventionTypeName ?? '—' }, 
-    { key: "AttachmentPhotoName", header: "الوصل", width: "10%", render: (row: AnyRec) => row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}`} isExternal color="blue.500">وصل</Link> : '—', },
+    { key: "AttachmentPhotoName", header: "الوصل", width: "10%", render: (row: AnyRec) => row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}.jpg`} isExternal color="blue.500">وصل</Link> : '—', },
 ];
 
 
@@ -202,7 +202,7 @@ export default function GetDashPaymentData() {
                 <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} isCentered size="xl">
                     <ModalOverlay />
                     <ModalContent>
-                        <ModalHeader fontWeight="700">تفاصيل المعاملة: #{selectedPaymentDetails.Id}</ModalHeader>
+                        <ModalHeader mt={6} fontWeight="700">تفاصيل المعاملة: #{selectedPaymentDetails.Id}</ModalHeader>
                         <ModalCloseButton isDisabled={approveMutation.isPending} />
                         <ModalBody>
                              <Grid templateColumns="repeat(2, 1fr)" gap={3}>
