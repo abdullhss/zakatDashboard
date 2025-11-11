@@ -12,6 +12,7 @@ import {
   MenuList,
   MenuItem,
   IconButton,
+  Tfoot,
 } from "@chakra-ui/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 
@@ -21,7 +22,7 @@ import {
   TableHeader,
   TableHeadCell,
   TableDataCell,
-  ROW_H, // ✅ هيشتغل دلوقتي لأنه بقى متصدّر من TableStyles
+  ROW_H,
 } from "./TableStyles";
 
 import Pagination from "./Pagination";
@@ -32,6 +33,8 @@ type ExtraProps = {
   renderActions?: (row: AnyRec, index: number) => React.ReactNode;
   totalRows?: number;
   stickyHeader?: boolean;
+  /** ✅ صف الإجماليات الاختياري */
+  totals?: Record<string, React.ReactNode>;
 };
 
 export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
@@ -40,30 +43,23 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
   columns,
   headerAction,
   startIndex = 1,
-
-  // actions
   onEditRow,
   onDeleteRow,
   renderActions,
-
-  // totals
   totalRows,
-
-  // UX
   stickyHeader = true,
-
-  // pagination (اختياري)
   page,
   pageSize,
   onPageChange,
-  viewHashTag = true 
+  viewHashTag = true,
+  totals,
 }) => {
   const hasActions = !!(renderActions || onEditRow || onDeleteRow);
-
   const total = typeof totalRows === "number" ? totalRows : data.length;
+  const hasTotals = totals && Object.keys(totals).length > 0;
 
   return (
-    <TableCardContainer  w="100%">
+    <TableCardContainer w="100%">
       {/* Header */}
       <TableHeader>
         <Heading size="md" fontWeight="700" color="gray.700">
@@ -92,36 +88,47 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
             zIndex={1}
           >
             <Tr>
-              {viewHashTag&&<TableHeadCell fontSize={18} textAlign={"center"}>#</TableHeadCell>}
-
+              {viewHashTag && (
+                <TableHeadCell fontSize={18} textAlign="center">
+                  #
+                </TableHeadCell>
+              )}
               {columns.map((col) => (
-                <TableHeadCell key={col.key} textAlign={"start"} fontSize={18} width={col.width}>
+                <TableHeadCell
+                  key={col.key}
+                  textAlign="start"
+                  fontSize={18}
+                  width={col.width}
+                >
                   {col.header}
                 </TableHeadCell>
               ))}
-
-              {hasActions && <TableHeadCell fontSize={18} width="64px">إجراءات</TableHeadCell>}
+              {hasActions && (
+                <TableHeadCell fontSize={18} width="64px">
+                  إجراءات
+                </TableHeadCell>
+              )}
             </Tr>
           </Thead>
 
           <Tbody>
             {data.map((row: AnyRec, index) => (
               <Tr key={(row as any).id ?? index}>
-                {/* numbering */}
-                {viewHashTag&&<TableDataCell fontWeight="700" color="gray.700">
-                  {startIndex + index}
-                </TableDataCell>}
-
-                {/* data cells */}
+                {viewHashTag && (
+                  <TableDataCell fontWeight="700" color="gray.700">
+                    {startIndex + index}
+                  </TableDataCell>
+                )}
                 {columns.map((col) => (
-                  <TableDataCell fontWeight="500" fontSize={16} textAlign={"start"} key={col.key}>
-                    {col.render
-                      ? col.render(row, index)
-                      : (row as any)[col.key]}
+                  <TableDataCell
+                    fontWeight="500"
+                    fontSize={16}
+                    textAlign="start"
+                    key={col.key}
+                  >
+                    {col.render ? col.render(row, index) : (row as any)[col.key]}
                   </TableDataCell>
                 ))}
-
-                {/* actions */}
                 {hasActions && (
                   <TableDataCell>
                     <Flex justify="flex-end">
@@ -129,17 +136,6 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
                         renderActions(row, index)
                       ) : (
                         <Menu placement="bottom-end" isLazy>
-                          {/* <MenuButton
-                            as={IconButton}
-                            aria-label="خيارات"
-                            icon={<BsThreeDotsVertical />}
-                            variant="ghost"
-                            border="none"
-                            boxSize={ROW_H}  
-                            minW={ROW_H}
-                            _hover={{ bg: "blackAlpha.50" }}
-                            _active={{ bg: "blackAlpha.100" }}
-                          /> */}
                           <MenuButton
                             as={IconButton}
                             aria-label="إجراءات"
@@ -171,6 +167,27 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
               </Tr>
             ))}
           </Tbody>
+
+          {/* ✅ إجمالي القيم */}
+          {hasTotals && (
+            <Tfoot>
+              <Tr bg="background.subtle">
+                {viewHashTag && <TableDataCell></TableDataCell>}
+                {columns.map((col) => (
+                  <TableDataCell
+                    key={col.key}
+                    fontWeight="700"
+                    fontSize={16}
+                    textAlign="start"
+                    color="gray.800"
+                  >
+                    {totals[col.key] ?? ""}
+                  </TableDataCell>
+                ))}
+                {hasActions && <TableDataCell></TableDataCell>}
+              </Tr>
+            </Tfoot>
+          )}
         </Table>
       </Box>
 

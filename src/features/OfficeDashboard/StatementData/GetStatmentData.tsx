@@ -198,6 +198,18 @@ export default function GetStatmentData() {
           : "—";
       },
     },
+    
+    {
+      key: "UserName",
+      header: "المستخدم",
+      render: (row: any) => row.UserName ?? "—",
+    },
+    
+    {
+      key: "SubventionTypeName",
+      header: "النوع",
+      render: (row: any) => row.SubventionTypeName ?? "—",
+    },
     {
       key: "PaymentDesc",
       header: "الوصف",
@@ -254,6 +266,8 @@ export default function GetStatmentData() {
             اختر رقم الحساب البنكي:
           </Text>
           <Select
+            mx={-3}
+            px={3}
             placeholder="اختر رقم الحساب"
             value={selectedAccount}
             onChange={(e) => setSelectedAccount(e.target.value)}
@@ -304,32 +318,68 @@ export default function GetStatmentData() {
           </Alert>
         ) : selectedAccount ? (
           rows.length > 0 ? (
-            <>
-              <Flex justify="end" mb={3}>
-                <Button
-                  colorScheme="green"
-                  size="sm"
-                  onClick={() =>
-                    printAllOperations(rows, officeName, fromDate, toDate)
-                  }
-                >
-                  🖨️ طباعة كشف الحساب بالكامل
-                </Button>
-              </Flex>
+              <>
+                <Flex justify="end" mb={3}>
+                  <Button
+                    colorScheme="green"
+                    size="sm"
+                    onClick={() =>
+                      printAllOperations(rows, officeName, fromDate, toDate)
+                    }
+                  >
+                    🖨️ طباعة كشف الحساب بالكامل
+                  </Button>
+                </Flex>
 
-              <Box borderWidth="1px" borderRadius="xl" overflow="hidden" p={4}>
-                <DataTable
-                  columns={PAYMENTS_COLUMNS}
-                  data={rows}
-                  page={page}
-                  pageSize={limit}
-                  onPageChange={setPage}
-                  totalRows={Number(statementData?.decrypted.data.Result[0].OfficePaymentsCount) || 1}
-                >
+                {/* ✅ نحسب الإجماليات */}
+                {(() => {
+                  const totalDebit = rows.reduce(
+                    (sum, r) => sum + (Number(r.DebitValue) || 0),
+                    0
+                  );
+                  const totalCredit = rows.reduce(
+                    (sum, r) => sum + (Number(r.CreditValue) || 0),
+                    0
+                  );
+                  const totalNet = totalDebit - totalCredit;
 
-                </DataTable>
-              </Box>
-            </>
+                  return (
+                    <Box borderWidth="1px" borderRadius="xl" overflow="hidden" p={4}>
+                      <DataTable
+                        columns={PAYMENTS_COLUMNS}
+                        data={rows}
+                        page={page}
+                        pageSize={limit}
+                        onPageChange={setPage}
+                        totalRows={
+                          Number(statementData?.decrypted.data.Result[0].OfficePaymentsCount) || 1
+                        }
+                        totals={{
+                          PaymentDate: "الإجمالي:",
+                          DebitValue: (
+                            <Text fontWeight="bold" color="green.700">
+                              {totalDebit.toFixed(2)}
+                            </Text>
+                          ),
+                          CreditValue: (
+                            <Text fontWeight="bold" color="red.700">
+                              {totalCredit.toFixed(2)}
+                            </Text>
+                          ),
+                          NetValue: (
+                            <Text
+                              fontWeight="bold"
+                              color={totalNet >= 0 ? "green.700" : "red.700"}
+                            >
+                              {totalNet.toFixed(2)}
+                            </Text>
+                          ),
+                        }}
+                      />
+                    </Box>
+                  );
+                })()}
+              </>
           ) : (
             <Text color="gray.500" textAlign="center">
               لا توجد بيانات متاحة لهذا الحساب في هذا النطاق الزمني.

@@ -167,19 +167,17 @@ export default function Privileges() {
           </Text>
         ),
       },
-      {
-        key: "actions",
-        header: "إجراءات",
-        width: "10%",
-        render: (row: AnyRec) => (
-          <RowActionsMenu
-            row={row as Row}
-            onDeleted={(r) => setDeleteId(r.id)}
-            onEdited={onEditRow}
-            deleting={deleting}
-          />
-        ),
-      },
+      // {
+      //   key: "actions",
+      //   header: "إجراءات",
+      //   width: "10%",
+      //   render: (row: AnyRec) => (
+      //     <RowActionsMenu
+      //       row={row as Row}
+      //       deleting={deleting}
+      //     />
+      //   ),
+      // },
     ],
     [titleClr, deleting, onEditRow]
   );
@@ -216,9 +214,9 @@ export default function Privileges() {
             إضافة
           </SharedButton>
 
-          <Button colorScheme="teal" variant="outline" onClick={onRefresh}>
+          {/* <Button colorScheme="teal" variant="outline" onClick={onRefresh}>
             تحديث القائمة
-          </Button>
+          </Button> */}
         </HStack>
       </HStack>
 
@@ -233,6 +231,8 @@ export default function Privileges() {
         page={page}
         pageSize={PAGE_SIZE}
         onPageChange={setPage}
+        onDeleteRow={(r) => setDeleteId(r.id)}
+        onEditRow={onEditRow}
       />
 
       {rows.length === 0 && (

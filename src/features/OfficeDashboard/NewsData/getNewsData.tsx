@@ -11,6 +11,7 @@ import { useDeleteNewsData } from "./hooks/useDeleteNewsData";
 import { getSession } from "../../../session";
 import { FiMoreVertical, FiFileText, FiImage } from "react-icons/fi";
 import SharedButton from "../../../Components/SharedButton/Button";
+import { AddIcon } from "@chakra-ui/icons";
 
 const PAGE_SIZE = 10;
 
@@ -299,8 +300,8 @@ export default function GetNewsData() {
           variant="brandGradient"
           leftIcon={
             <Box
-              bg="white"
-              color="brand.900"
+              // bg=""
+              color="white"
               w="22px"
               h="22px"
               display="flex"
@@ -311,7 +312,7 @@ export default function GetNewsData() {
               fontSize="18px"
               borderRadius="md"
             >
-              ＋
+              <AddIcon/>
             </Box>
           }
         >

@@ -16,6 +16,7 @@ import type { AnyRec, Column } from "../../../Components/Table/TableTypes";
 import { HandelFile } from "../../../HandleFile.js";
 import { getSession } from "../../../session";
 import { buildProjectPhotoUrl } from "./helpers/photos.js";
+import { AddIcon } from "@chakra-ui/icons";
 
 const PAGE_SIZE = 10;
 
@@ -252,8 +253,8 @@ export default function Projects() {
             variant="brandGradient"
             leftIcon={
               <Box
-                bg="white"
-                color="brand.900"
+                // bg=""
+                color="white"
                 w="22px"
                 h="22px"
                 display="flex"
@@ -264,7 +265,7 @@ export default function Projects() {
                 fontSize="18px"
                 borderRadius="md"
               >
-                ＋
+                <AddIcon/>
               </Box>
             }
           >
