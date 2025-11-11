@@ -56,8 +56,21 @@ import AddPaymentData from "../features/OfficeDashboard/DashPaymentData/addPayme
 import GetStatmentData from "../features/OfficeDashboard/StatementData/GetStatmentData";
 import ContactUsNow from "../features/MainDepartment/AboutUs/ContactUsNow";
 import PrivacyPolicy from "../features/MainDepartment/ProgramData/PrivaryPolicy";
+import { useEffect } from "react";
 
 export default function App() {
+  useEffect(() => {
+    const now = Date.now();
+    const lastVisit = localStorage.getItem("lastVisit");
+
+    // لو أول مرة يدخل أو فات أكتر من 60 دقيقة (3600000 ms)
+    if (!lastVisit || now - lastVisit > 60 * 60 * 1000) {
+      localStorage.clear();
+    }
+
+    // حدّث وقت آخر زيارة
+    localStorage.setItem("lastVisit", now);
+  }, []);
   return (
     <BrowserRouter>
       <Routes>
