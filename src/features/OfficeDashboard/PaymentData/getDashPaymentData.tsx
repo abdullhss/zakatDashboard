@@ -25,8 +25,9 @@ const PAYMENT_COLUMNS_BASE: Column[] = [
     { key: "PaymentValue", header: "المبلغ", width: "10%", render: (row: AnyRec) => (<Text fontWeight="700" color="green.600">{row.PaymentValue ?? '0'} د.ل.</Text>) },
     { key: "PaymentWayName", header: "طريقة الدفع", width: "10%", render: (row: AnyRec) => row.PaymentWayName ?? '—' },
     { key: "IsApproved", header: "الحالة", width: "10%", render: (row: AnyRec) => row.IsApproved ? 'موافقة' : 'معلقة' },
-    { key: "GeneralUser_Id", header: "مقدم الطلب", width: "10%", render: (row: AnyRec) => row.GeneralUser_Id ?? '—' }, 
+    { key: "GeneralUser_Id", header: "مقدم الطلب", width: "10%", render: (row: AnyRec) => row.UserName ?? '—' }, 
     { key: "ActionName", header: "نوع الخدمة", width: "10%", render: (row: AnyRec) => row.ActionName ?? '—' }, 
+    { key: "ProjectName", header: "اسم المشروع", width: "10%", render: (row: AnyRec) => row.ProjectName ?? '—' }, 
     { key: "SubventionTypeName", header: "نوع الإعانة", width: "10%", render: (row: AnyRec) => row.SubventionTypeName ?? '—' }, 
     { key: "AttachmentPhotoName", header: "الوصل", width: "10%", render: (row: AnyRec) => row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}.jpg`} isExternal color="blue.500">وصل</Link> : '—', },
 ];
@@ -213,8 +214,9 @@ export default function GetDashPaymentData() {
                                 <Text><strong>طريقة الدفع:</strong> {selectedPaymentDetails.PaymentWayName}</Text>
                                 <Text><strong>نوع الخدمة:</strong> {selectedPaymentDetails.ActionName}</Text>
                                 <Text><strong>نوع الإعانة:</strong> {selectedPaymentDetails.SubventionTypeName}</Text>
-                                <Text><strong>اسم مقدم الطلب:</strong> {selectedPaymentDetails.GeneralUser_Id}</Text>
+                                <Text><strong>اسم مقدم الطلب:</strong> {selectedPaymentDetails.UserName}</Text>
                                 <Text><strong>المكتب:</strong> {selectedPaymentDetails.OfficeName}</Text>
+                                <Text><strong>اسم المشروع:</strong> {selectedPaymentDetails.ProjectName}</Text>
                                 <Text><strong>حالة الموافقة:</strong> {isApproved ? 'موافقة' : 'مرفوض'}</Text> {/* استخدام الحالة المُخزَّنة */}
 
                                 {/* رابط الوصل */}
