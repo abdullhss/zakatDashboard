@@ -207,7 +207,7 @@ export default function AddPaymentData() {
         }}
       >
         <Text fontSize="lg" fontWeight="700" mb={4}>
-          إضافة مدفوعات مكتبك
+          إضافة مصروفات مكتبك
         </Text>
 
         <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6}>
@@ -305,7 +305,7 @@ export default function AddPaymentData() {
           {/* العمود الثاني */}
           <GridItem>
             <FormControl mb={4}>
-              <FormLabel>تاريخ الدفع</FormLabel>
+              <FormLabel>تاريخ الصرف</FormLabel>
               <Input
                 type="date"
                 value={form.paymentDate}
@@ -314,7 +314,7 @@ export default function AddPaymentData() {
             </FormControl>
 
             <FormControl mb={4}>
-              <FormLabel>قيمة الدفع (د.ل)</FormLabel>
+              <FormLabel>قيمة الصرف(د.ل)</FormLabel>
               <Input
                 type="number"
                 value={form.paymentValue}
