@@ -212,6 +212,7 @@ export default function AddNewsForm() {
           title: "تم إضافة الخبر",
           description: `Photo#${photoId || "-"}  |  Attach#${attachId || "-"}`,
         });
+        navigate(-1)
       } else {
         // ===== تعديل =====
         const res = await updateNewsData({
@@ -237,6 +238,7 @@ export default function AddNewsForm() {
           title: "تم تعديل الخبر بنجاح",
           description: `Photo#${photoId || "-"}  |  Attach#${attachId || "-"}`,
         });
+        navigate(-1)
       }
 
       // navigate("/officedashboard/newsdata");
@@ -269,10 +271,10 @@ export default function AddNewsForm() {
     <Box p={6}>
       <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
         <HStack justify="space-between" mb={4}>
-          <Text fontSize="lg" fontWeight="700">
+          <Text fontSize="xl" fontWeight="700">
             {isEdit ? "تعديل خبر" : "إضافة خبر"}
           </Text>
-          <Button variant="ghost" onClick={() => navigate(-1)}>رجوع</Button>
+          {/* <Button variant="ghost" onClick={() => navigate(-1)}>رجوع</Button> */}
         </HStack>
 
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr 300px" }} gap={4}>
@@ -307,6 +309,7 @@ export default function AddNewsForm() {
             <FormControl mb={4} isRequired>
               <FormLabel>نوع الخبر</FormLabel>
               <Select
+                mx={-3} px={3}
                 placeholder="اختر نوع الخبر"
                 value={form.newsType}
                 onChange={e => update("newsType", e.target.value)}
@@ -381,7 +384,7 @@ export default function AddNewsForm() {
           </GridItem>
         </Grid>
 
-        <FormControl mt={4}>
+        {/* <FormControl mt={4}>
           <FormLabel>نص الخبر الكامل</FormLabel>
           <Textarea
             placeholder="النص"
@@ -389,7 +392,7 @@ export default function AddNewsForm() {
             value={form.newsContents}
             onChange={(e) => update("newsContents", e.target.value)}
           />
-        </FormControl>
+        </FormControl> */}
 
         <HStack mt={6} spacing={4}>
           <SharedButton variant="brandGradient" onClick={onSubmit}>

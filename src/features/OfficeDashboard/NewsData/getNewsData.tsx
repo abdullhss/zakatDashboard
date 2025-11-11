@@ -122,7 +122,8 @@ const makeColumns = ({ startIndex, goToType, onEdit, onDelete }: MakeColsArgs): 
         <HStack spacing={2}>
           <Icon as={FiImage} />
           <Link href={url} target="_blank" rel="noopener noreferrer">
-            {`${name}${ext || ""}`}
+            {/* {`${name}${ext || ""}`} */}
+            عرض
           </Link>
         </HStack>
       ) : (
@@ -162,35 +163,35 @@ const makeColumns = ({ startIndex, goToType, onEdit, onDelete }: MakeColsArgs): 
     width: "7%",
     render: (row: AnyRec) => (
       <HStack>
-        <Switch isChecked={!!row.IsActive} isReadOnly />
-        <Text fontSize="sm">{row.IsActive ? "مفعل" : "غير مفعل"}</Text>
+        {/* <Switch isChecked={!!row.IsActive} isReadOnly /> */}
+        <Text >{row.IsActive ? "مفعل" : "غير مفعل"}</Text>
       </HStack>
     ),
   },
-  {
-    key: "Actions",
-    header: "",
-    width: "3%",
-    render: (row: AnyRec) => (
-      <Menu>
-        <Tooltip label="إجراءات">
-          <MenuButton
-            as={IconButton}
-            size="sm"
-            aria-label="actions"
-            icon={<FiMoreVertical />}
-            variant="ghost"
-          />
-        </Tooltip>
-        <MenuList>
-          <MenuItem onClick={() => onEdit(row)}>تعديل</MenuItem>
-          <MenuItem color="red.500" onClick={() => onDelete(row)}>
-            حذف
-          </MenuItem>
-        </MenuList>
-      </Menu>
-    ),
-  },
+  // {
+  //   key: "Actions",
+  //   header: "",
+  //   width: "3%",
+  //   render: (row: AnyRec) => (
+  //     <Menu>
+  //       <Tooltip label="إجراءات">
+  //         <MenuButton
+  //           as={IconButton}
+  //           size="sm"
+  //           aria-label="actions"
+  //           icon={<FiMoreVertical />}
+  //           variant="ghost"
+  //         />
+  //       </Tooltip>
+  //       <MenuList>
+  //         <MenuItem onClick={() =>}>تعديل</MenuItem>
+  //         <MenuItem color="red.500" onClick={() => }>
+  //           حذف
+  //         </MenuItem>
+  //       </MenuList>
+  //     </Menu>
+  //   ),
+  // },
 ];
 
 export default function GetNewsData() {
@@ -326,6 +327,8 @@ export default function GetNewsData() {
         pageSize={limit}
         onPageChange={setPage}
         totalRows={totalRows}
+        onDeleteRow={(row)=>{onDelete(row)}}
+        onEditRow={ (row)=>{onEdit(row)}}
       />
 
       {rows.length === 0 && !isLoading && (
