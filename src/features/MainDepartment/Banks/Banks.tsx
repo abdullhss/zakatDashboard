@@ -227,7 +227,7 @@ export default function Banks() {
   const { data, isLoading, isError, error, isFetching, refetch } =
     useBanksQuery(offset, limit);
 
-  const addBank = useAddBank();
+  const addBank = useAddBank(toast);
 
   const banksData = data?.rows || [];
   console.log(data);

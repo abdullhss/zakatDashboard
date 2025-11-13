@@ -125,9 +125,15 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // ✅ عرض الصورة فورًا قبل الرفع
+    const localPreview = URL.createObjectURL(file);
+    setPreviewUrl(localPreview);
+
     try {
       setUploading(true);
       setProgress(0);
+
       const hf = new HandelFile();
       const up = await hf.UploadFileWebSite({
         action: "Add",
@@ -136,25 +142,36 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
         SessionID: getSessionId(),
         onProgress: (p: number) => setProgress(p),
       });
+
       if (up?.error) throw new Error(String(up.error));
 
       const newId = String(up.id ?? "");
+
       setValue("officePhotoName", newId, { shouldDirty: true, shouldValidate: true });
-      setPreviewUrl(buildPhotoUrl(newId));
+
+      // ✅ بعد الرفع نبدل الصورة بـ URL الحقيقي من السيرفر
+      // setPreviewUrl(buildPhotoUrl(newId));
+
       await trigger("officePhotoName");
 
-      // 👇 أهم خطوة: نبلغ الأب فورًا بالـID الجديد
       if (onPhotoIdChange) onPhotoIdChange(newId);
 
       toast({ title: "تم رفع الصورة بنجاح.", status: "success" });
     } catch (err: any) {
-      toast({ title: "فشل رفع الصورة", description: err?.message || "Upload failed", status: "error" });
+      toast({
+        title: "فشل رفع الصورة",
+        description: err?.message || "Upload failed",
+        status: "error",
+      });
+      // ⚠️ لو فشل الرفع، نحذف المعاينة المؤقتة
+      setPreviewUrl("");
     } finally {
       setUploading(false);
       setProgress(0);
       (e.target as HTMLInputElement).value = "";
     }
   };
+
 
   useImperativeHandle(ref, () => ({
     submit: async () => ((await trigger()) ? (getValues() as OfficeDetailsValues) : null),

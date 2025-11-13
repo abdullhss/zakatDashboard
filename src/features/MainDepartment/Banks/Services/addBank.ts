@@ -23,7 +23,8 @@ const isServerError = (res: ExecutionResult) =>
  */
 export async function addBank(
   input: BankInput,
-  pointId: number | string = 0
+  toast ?: any,
+  pointId: number | string = 0,
 ): Promise<NormalizedSummary> {
   const name = (input.bankName ?? "").trim();
 
@@ -45,12 +46,18 @@ export async function addBank(
       ColumnsNames:  a.ColumnsNames,
       PointId: pointId,
     });
-
+    
     last = res;
     console.log(res);
     if(res.code == 201){
       // toast({ status: "success", title: "تمت الإضافة", description: "تمت إضافة البنك بنجاح" });
-      alert("فشل الإضافة: البنك موجود بالفعل.");
+      toast({
+        title: "فشل الإضافة",
+        description: "البنك موجود بالفعل.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
 
     if (!isServerError(res)) {
