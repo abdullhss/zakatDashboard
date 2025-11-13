@@ -53,6 +53,7 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
   onPageChange,
   viewHashTag = true,
   totals,
+  runEdit = false,
 }) => {
   const hasActions = !!(renderActions || onEditRow || onDeleteRow);
   const total = typeof totalRows === "number" ? totalRows : data.length;
@@ -142,9 +143,18 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
                             icon={<BsThreeDotsVertical />}
                             size="sm"
                             variant="brandOutline"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={
+                              ()=>{
+                                    if(runEdit && onEditRow){
+                                      onEditRow(row, index)
+                                  }
+                                  else{
+                                    (e) => e.stopPropagation()
+                                  }
+                                }
+                              }
                           />
-                          <MenuList>
+                          { !(runEdit && onEditRow) &&<MenuList>
                             <MenuItem
                               onClick={() => onEditRow?.(row, index)}
                               isDisabled={!onEditRow}
@@ -158,7 +168,7 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
                             >
                               حذف
                             </MenuItem>
-                          </MenuList>
+                          </MenuList>}
                         </Menu>
                       )}
                     </Flex>

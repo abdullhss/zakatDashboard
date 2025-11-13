@@ -27,6 +27,7 @@ export interface DataTableProps {
   pageSize: number;
   // ==========================================
   viewHashTag ?: boolean
+  runEdit ?: boolean
 }
 
 

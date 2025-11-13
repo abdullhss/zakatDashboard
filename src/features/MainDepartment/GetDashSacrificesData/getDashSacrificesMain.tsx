@@ -51,8 +51,20 @@ export default function GetSacrificeDataMain() {
   const offset = useMemo(() => (page - 1) * limit, [page, limit]);
 
   const toast = useToast();
+  var OfficeIdOrMain = null;
+  if(localStorage.getItem("role") == "O"){
+    const data = JSON.parse(localStorage.getItem("mainUser") || "{}");
+    OfficeIdOrMain = data.Office_Id ;
+    console.log(OfficeIdOrMain);
+    
+  } 
+  else{
+    OfficeIdOrMain = 0 ;
+  }
+  console.log(OfficeIdOrMain);
+  
   const { data, isLoading, isError, error, isFetching } =
-    useGetSacrificesDashData(0 /* إدارة تشوف الكل */, offset, limit);
+    useGetSacrificesDashData(OfficeIdOrMain, offset, limit);
 
   const rows = (data?.rows ?? []) as Row[];
   const totalRows = Number(data?.decrypted.data.Result[0].SacrificesCount) || 1;
@@ -83,38 +95,75 @@ export default function GetSacrificeDataMain() {
     }
   };
 
-  const COLUMNS: Column[] = useMemo(() => [
-    {
-      key: "ApplicantName",
-      header: "اسم مقدم الطلب",
-      render: (row: AnyRec) => {
-        const r = row as Row;
-        return r.UserName ?? r.ApplicantName ?? (r.GeneralUser_Id ? `مستخدم رقم ${r.GeneralUser_Id}` : "—");
+  const role = localStorage.getItem("role");
+
+  const COLUMNS: Column[] = useMemo(() => {
+    const baseColumns: Column[] = [
+      {
+        key: "ApplicantName",
+        header: "اسم مقدم الطلب",
+        render: (row: AnyRec) => {
+          const r = row as Row;
+          return (
+            r.UserName ??
+            r.ApplicantName ??
+            (r.GeneralUser_Id ? `مستخدم رقم ${r.GeneralUser_Id}` : "—")
+          );
+        },
       },
-    },
-    { key: "OfficeName", header: "المكتب", width: "16%", render: (row: AnyRec) => (row as Row).OfficeName ?? "—" },
-    { key: "SacrificeOrderDate", header: "تاريخ الطلب", width: "16%", render: (row: AnyRec) => formatApiDate((row as Row).SacrificeOrderDate) },
-    {
-      key: "SacrificeTotalAmount",
-      header: "الإجمالي",
-      render: (row: AnyRec) => {
-        const r = row as Row;
-        const v = r.SacrificeTotalAmount ?? r.TotalAmount ?? 0;
-        return <Text fontWeight="600">{String(v)} د.ل</Text>;
+      {
+        key: "OfficeName",
+        header: "المكتب",
+        width: "16%",
+        render: (row: AnyRec) => (row as Row).OfficeName ?? "—",
       },
-    },
-    {
-      key: "__actions",
-      header: "الإجراء",
-      render: (row: AnyRec) => (
-        <ActionButtons
-          onApprove={() => approveOrReject(row as Row, true)}
-          onReject={() => approveOrReject(row as Row, false)}
-          disabled={upd.isPending || isFetching}
-        />
-      ),
-    },
-  ], [upd.isPending, isFetching]);
+      {
+        key: "SacrificeOrderDate",
+        header: "تاريخ الطلب",
+        width: "16%",
+        render: (row: AnyRec) =>
+          formatApiDate((row as Row).SacrificeOrderDate),
+      },
+      {
+        key: "SacrificeTotalAmount",
+        header: "الإجمالي",
+        render: (row: AnyRec) => {
+          const r = row as Row;
+          const v = r.SacrificeTotalAmount ?? r.TotalAmount ?? 0;
+          return <Text fontWeight="600">{String(v)} د.ل</Text>;
+        },
+      },
+    ];
+
+    // لو الدور "O" نضيف عمود الإجراء
+    if (role === "O") {
+      baseColumns.push({
+        key: "__actions",
+        header: "الإجراء",
+        render: (row: AnyRec) => (
+          <ActionButtons
+            onApprove={() => approveOrReject(row as Row, true)}
+            onReject={() => approveOrReject(row as Row, false)}
+            disabled={upd.isPending || isFetching}
+          />
+        ),
+      });
+    }
+    else{
+      baseColumns.push({
+        key: "status",
+        header: "الحالة",
+        render: (row: AnyRec) => {
+          return(
+            <span>{row.Status}</span>
+          )
+      },
+      })
+      
+    }
+
+    return baseColumns;
+  }, [role, upd.isPending, isFetching]);
 
   if (isLoading || (isFetching && rows.length === 0)) {
     return <Flex justify="center" p={10}><Spinner size="xl" /></Flex>;

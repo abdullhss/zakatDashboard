@@ -136,7 +136,7 @@ export default function MainNavBar() {
       {renderLink("campaign", "الحملات", RiServiceLine)}
 
       {/* بيانات الأضحيات */}
-      {renderLink("sacrificeDataMain", "بيانات الأضاحي", GiSheep)}
+      {renderLink("sacrificeDataMain", "طلبات الأضاحي", GiSheep)}
 
       {/* اللوائح */}
       {renderLink("laws", "اللوائح", MdOutlineRule)}

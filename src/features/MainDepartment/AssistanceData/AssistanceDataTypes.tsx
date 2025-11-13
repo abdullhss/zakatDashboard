@@ -74,7 +74,9 @@ function getApplicantName(r: AssistanceRow): string {
 }
 
 export default function AssistanceDataTypes() {
-  const [officeId, setOfficeId] = useState<number | string>(0);
+  const [officeId, setOfficeId] = useState<number | string>(()=>
+        localStorage.getItem("role")=="O" ? JSON.parse(localStorage.getItem("mainUser") || "{}").Office_Id : 0 
+);
   const [subventionTypeId, setSubventionTypeId] = useState<number | string>(0);
   const [page, setPage] = useState(1);
   const offset = (page - 1) * PAGE_SIZE;
@@ -242,6 +244,16 @@ export default function AssistanceDataTypes() {
     [officeNameById, openModal]
   );
 
+        if(localStorage.getItem("role")=="M"){
+                columns.push({
+                        key: "Status",
+                        header: "الحالة",
+                        width: "22%",
+                        render: (r: AnyRec) =>
+                          (r as AssistanceRow).Status,
+                })
+        }
+
   if (showInitialSpinner) {
     return (
       <Flex justify="center" p={10}>
@@ -258,7 +270,8 @@ export default function AssistanceDataTypes() {
 
   return (
     <Box p={4}>
-      <AssistanceFiltersInline
+      {
+        localStorage.getItem("role")=="M" ? (<AssistanceFiltersInline
         officeId={officeId}
         setOfficeId={(v) => { setPage(1); setOfficeId(v); }}
         subventionTypeId={subventionTypeId}
@@ -266,20 +279,36 @@ export default function AssistanceDataTypes() {
         officeOptions={officeOptions}
         subventionOptions={subventionOptions}
         isDisabled={filtersDisabled}
-      />
+      />) : null
+}
 
-      <DataTable
-        title="طلبات الإعانة"
-        data={rows as unknown as AnyRec[]}
-        columns={columns}
-        startIndex={offset + 1}
-        page={page}
-        pageSize={PAGE_SIZE}
-        totalRows={totalRows}
-        onPageChange={setPage}
-        onEditRow={(r)=>{openModal(r as AssistanceRow)}}
-      />
-
+        {
+                localStorage.getItem("role")=="O"?(
+                        <DataTable
+                        title="طلبات الإعانة"
+                        data={rows as unknown as AnyRec[]}
+                        columns={columns}
+                        startIndex={offset + 1}
+                        page={page}
+                        pageSize={PAGE_SIZE}
+                        totalRows={totalRows}
+                        onPageChange={setPage}
+                        runEdit = {true}
+                        onEditRow={(r)=>{openModal(r as AssistanceRow)}}
+                      />
+                ) : (
+                        <DataTable
+                        title="طلبات الإعانة"
+                        data={rows as unknown as AnyRec[]}
+                        columns={columns}
+                        startIndex={offset + 1}
+                        page={page}
+                        pageSize={PAGE_SIZE}
+                        totalRows={totalRows}
+                        onPageChange={setPage}
+                        />
+                )
+        }
       {isFetching && (
         <Flex mt={3} align="center" gap={2}>
           <Spinner size="sm" />
