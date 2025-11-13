@@ -129,8 +129,8 @@ export default function GetSacrificeDataMain() {
         header: "الإجمالي",
         render: (row: AnyRec) => {
           const r = row as Row;
-          const v = r.SacrificeTotalAmount ?? r.TotalAmount ?? 0;
-          return <Text fontWeight="600">{String(v)} د.ل</Text>;
+          const v = r.SacrificeOrderTotalAmount ?? "-";
+          return v!="-"&&<Text fontWeight="600">{String(v)} د.ل</Text>;
         },
       },
     ];

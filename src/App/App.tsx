@@ -133,7 +133,7 @@ export default function App() {
     <Route path="paymentData" element={<GetDashPaymentData />} />
     <Route path="newsdata" element={<GetNewsData />} />
     <Route path="newsdata/add" element={<AddNewsData />} />
-    <Route path="news-types" element={<NewsTypesPage />} />
+    <Route path="news-types" element={<NewsTypesPage />}  />
     <Route path="payment-details/:paymentId" element={<PaymentDetails />} />
     <Route path="transferdata" element={<TransferData />} />
     <Route path="transferdata/add" element={<AddTransferData />} />
