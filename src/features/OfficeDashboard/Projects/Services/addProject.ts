@@ -17,6 +17,8 @@ export type AddProjectInput = {
   importanceId?: number | string;
   isActive?: boolean;
   projectPhotoName?: string; // ← هنرسل الـ id هنا (لو موجود)
+  IsUrgent: string;
+  ViewInMainScreen: string;
 };
 
 export async function addProject(input: AddProjectInput) {
@@ -43,6 +45,8 @@ export async function addProject(input: AddProjectInput) {
     int(officeId, 0),                            // Office_Id
     to01(input.isActive ?? true),                // IsActive
     (input.projectPhotoName ?? "").trim(),       // ProjectPhotoName ← هنا بنبعت الـ id
+    input.IsUrgent?"True" : "False", // IsUrgent
+    input.ViewInMainScreen?"True" : "False", // ViewInMainScreen
   ];
 
   const ColumnsValues = cols.join("#");

@@ -151,6 +151,13 @@ export default function MainNavBar() {
       {renderLink("whoarewe", "من نحن؟", FiInfo)}
 
       {renderLink("privarypolicy", "سياسة الخصوصية", FiInfo)}
+
+      {renderLink("UrgentProjects", "المشاريع العاجلة", MdOutlineAssignmentTurnedIn)}
+
+      {renderLink("CommonQuestions", "الاسئلة الشائعة", MdOutlineAssignmentTurnedIn)}
+      
+      {renderLink("UsersQuestions", "اسئلة المستخدمين", MdOutlineAssignmentTurnedIn)}
+
     </NavList>
   );
 }

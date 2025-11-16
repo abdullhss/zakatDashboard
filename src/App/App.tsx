@@ -57,7 +57,10 @@ import GetStatmentData from "../features/OfficeDashboard/StatementData/GetStatme
 import ContactUsNow from "../features/MainDepartment/AboutUs/ContactUsNow";
 import PrivacyPolicy from "../features/MainDepartment/ProgramData/PrivaryPolicy";
 import { useEffect } from "react";
-
+import UrgentProjects from "../features/MainDepartment/UrgentProject/UrgentProjects";
+import UsersQuestions from "../features/MainDepartment/UsersQuestions/UsersQuestions";
+import CommonQuestions from "../features/MainDepartment/CommonQuestions/CommonQuestions";
+import AddQuestion from "../features/MainDepartment/CommonQuestions/AddQuestion";
 export default function App() {
   useEffect(() => {
     const now = Date.now();
@@ -111,6 +114,10 @@ export default function App() {
             <Route path="whoarewe" element={<WhoAreWe />} />
             <Route path="ContactUs" element={ <ContactUsNow />}/>
             <Route path="privarypolicy" element={<PrivacyPolicy />} />
+            <Route path="UrgentProjects" element={<UrgentProjects/>} />
+            <Route path="CommonQuestions" element={<CommonQuestions />} />
+            <Route path="CommonQuestions/add" element={<AddQuestion />} />
+            <Route path="UsersQuestions" element={<UsersQuestions />} />
           </Route>
         </Route>
 
@@ -140,7 +147,6 @@ export default function App() {
     <Route path="dashpayment" element={<GetPaymentData />} />
     <Route path="dashpayment/add" element={<AddPaymentData />} />
     <Route path="statement" element={<GetStatmentData />} />
-    
     <Route path="sacrificeDataMain" element={<GetSacrificeDataMain />} />
     <Route path="assistanceData" element={<AssistanceDataTypes />} />
 

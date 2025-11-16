@@ -14,6 +14,8 @@ export interface UpdatePayload {
   importanceId: number;
   isActive: boolean;
   photoName: string; // ← هنا بنبعت الـID
+  IsUrgent: string;
+  ViewInMainScreen: string;
 }
 
 const scrub = (v: unknown) => String(v ?? "").replace(/#/g, "");
@@ -24,7 +26,7 @@ export async function updateProject(payload: UpdatePayload): Promise<NormalizedS
   const currentOfficeId = officeId ?? 0;
 
   const columnsNames =
-    "Id#ProjectName#ProjectDesc#SubventionType_Id#ProjectWantedAmount#ProjectOpeningBalance#ProjectRemainingAmount#AllowZakat#Importance_Id#Office_Id#IsActive#ProjectPhotoName";
+    "Id#ProjectName#ProjectDesc#SubventionType_Id#ProjectWantedAmount#ProjectOpeningBalance#ProjectRemainingAmount#AllowZakat#Importance_Id#Office_Id#IsActive#ProjectPhotoName#IsUrgent#ViewInMainScreen";
 
   const columnsValues =
     `${payload.id}#` +
@@ -38,7 +40,10 @@ export async function updateProject(payload: UpdatePayload): Promise<NormalizedS
     `${payload.importanceId}#` +
     `${currentOfficeId}#` +
     `${payload.isActive ? 1 : 0}#` +
-    `${scrub(payload.photoName)}`;
+    `${scrub(payload.photoName)}` +
+    `#${payload.IsUrgent ? "True" : "False"}` +
+    `#${payload.ViewInMainScreen ? "True" : "False"}`
+    ;
 
   console.log("🧩 ColumnsValues for update:", columnsValues);
 

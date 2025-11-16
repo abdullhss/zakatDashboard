@@ -17,9 +17,12 @@ type FeatureRow = AnyRec & {
 };
 
 export default function GroupRightFeaturesPage() {
+  const location = useLocation();
   const toast = useToast();
   const query = new URLSearchParams(location.search);
-
+  const row = location.state?.row;
+  
+  
   const groupRightId = Number(query.get("groupId")) || 0;
   const roleCode = (query.get("role") || "M").toUpperCase(); // "M" | "O"
 
@@ -130,7 +133,7 @@ export default function GroupRightFeaturesPage() {
   return (
     <Box p={6}>
       <DataTable
-        title={`صلاحيات الميزات للمجموعة رقم: ${groupRightId} (النوع: ${roleCode})`}
+        title={`صلاحيات المجموعة: ${row?.name || "—"}`}
         data={groupRows as unknown as AnyRec[]}
         columns={COLUMNS as any}
         totalRows={groupTotalRows}

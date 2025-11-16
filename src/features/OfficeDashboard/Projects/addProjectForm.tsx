@@ -27,6 +27,8 @@ type FormShape = {
   acceptZakah: boolean;
   isActive: boolean;
   description: string;
+  IsUrgent: boolean;
+  ViewInMainScreen: boolean;
 };
 
 export default function AddProjectForm() {
@@ -57,6 +59,8 @@ export default function AddProjectForm() {
     acceptZakah: true,
     isActive: true,
     description: "",
+    IsUrgent: false,
+    ViewInMainScreen: false,
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -96,6 +100,8 @@ export default function AddProjectForm() {
       acceptZakah: !!(incoming.AllowZakat ?? true),
       isActive: !!(incoming.IsActive ?? true),
       description: incoming.Description ?? incoming.ProjectDesc ?? "",
+      IsUrgent: !!(incoming.IsUrgent ?? false),
+      ViewInMainScreen: !!(incoming.ViewInMainScreen ?? false),
     });
 
     // للعرض (الأولوية لاسم العرض لو موجود)
@@ -206,6 +212,8 @@ export default function AddProjectForm() {
           importanceId: 0,
           isActive: !!form.isActive,
           projectPhotoName: photoIdToSend || "",
+          IsUrgent: !!form.IsUrgent,
+          ViewInMainScreen: false,
         };
         await addProject.mutateAsync(payload);
         toast({
@@ -240,6 +248,8 @@ export default function AddProjectForm() {
           importanceId: 0,
           isActive: !!form.isActive,
           photoName: photoIdToSend || "", // ← دايمًا ID
+          IsUrgent: !!form.IsUrgent,
+          ViewInMainScreen: form.ViewInMainScreen,
         };
         const res = await updateProject.mutateAsync(payload);
         if ((res as any)?.success === false) {
@@ -366,6 +376,13 @@ export default function AddProjectForm() {
                 onChange={(e) => update("isActive", e.target.checked)}
               >
                 نشط
+              </Checkbox>
+
+              <Checkbox
+                isChecked={form.IsUrgent}
+                onChange={(e) => update("IsUrgent", e.target.checked)}
+              >
+                مستعجل
               </Checkbox>
             </HStack>
           </GridItem>
