@@ -62,6 +62,7 @@ export type OfficeDetailsHandle = { submit: () => Promise<OfficeDetailsValues | 
 type Props = {
   defaultValues?: Partial<OfficeDetailsValues> & { cityId?: string | number; officePhotoDisplayName?: string };
   onPhotoIdChange?: (id: string) => void;
+  onExtraPhotoIdChange ?: any 
 };
 
 function getSessionId(): string {
@@ -79,7 +80,7 @@ function getSessionId(): string {
 }
 
 export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSection(
-  { defaultValues, onPhotoIdChange },
+  { defaultValues, onPhotoIdChange , onExtraPhotoIdChange },
   ref
 ) {
   const toast = useToast();
@@ -98,6 +99,56 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [extraPhotoId, setExtraPhotoId] = useState("");
+  const [headerPreviewUrl, setHeaderPreviewUrl] = useState<string>("");
+
+  useEffect(() => {
+  if (defaultValues?.officeHeaderPhotoNamePreview) {
+    setHeaderPreviewUrl("https://framework.md-license.com:8093/ZakatImages/" + defaultValues.officeHeaderPhotoNamePreview + ".jpg");
+  }
+}, [defaultValues?.officeHeaderPhotoNamePreview]);
+console.log(headerPreviewUrl);
+
+  const handleExtraPhotoUpload = async (file: File) => {
+    try {
+      // 👈 اعرض المعاينة مباشرة قبل الرفع
+      const localPreview = URL.createObjectURL(file);
+      setHeaderPreviewUrl(localPreview);
+
+      setUploading(true);
+      setProgress(0);
+
+      const hf = new HandelFile();
+      const up = await hf.UploadFileWebSite({
+        action: "Add",
+        file,
+        fileId: "",
+        SessionID: getSessionId(),
+        onProgress: (p: number) => setProgress(p),
+      });
+
+      if (up?.error) throw new Error(String(up.error));
+
+      const newId = String(up.id ?? "");
+
+      setExtraPhotoId(newId);
+
+      toast({ title: "تم رفع صورة الخلفية بنجاح", status: "success" });
+
+      if (onExtraPhotoIdChange) onExtraPhotoIdChange(newId);
+
+    } catch (err: any) {
+      toast({
+        title: "فشل رفع صورة الخلفية",
+        description: err?.message || "Upload failed",
+        status: "error",
+      });
+      setHeaderPreviewUrl(""); // امسح لو فشل
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
+  };
 
   // في وضع التعديل: نحط الـID في الحقل المخفي ونبني المعاينة
   useEffect(() => {
@@ -174,7 +225,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
 
 
   useImperativeHandle(ref, () => ({
-    submit: async () => ((await trigger()) ? (getValues() as OfficeDetailsValues) : null),
+    submit: async () => ((await trigger()) ? ({...getValues() , extraPhotoId }) : null),
   }));
   
   const [mapPos, setMapPos] = useState<MapLatLng>(() => {
@@ -235,6 +286,8 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
     return "";
   }, [cityOptions, cityIdCurrent, defaultValues?.cityId]);
 
+  console.log(defaultValues);
+  
   return (
     <VStack align="stretch" spacing={5}>
       <SectionCard title="بيانات المكتب">
@@ -371,6 +424,42 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
                 </Text>
               )}
             </FormControl>
+
+            <FormControl mt={6}>
+              <FormLabel>صورة الخلفية</FormLabel>
+              {headerPreviewUrl ? (
+                <Box mb={3}>
+                  <Image
+                    src={headerPreviewUrl}
+                    alt="صورة الخلفية"
+                    maxH="140px"
+                    rounded="md"
+                    border="1px solid #e2e8f0"
+                    objectFit="cover"
+                  />
+                </Box>
+              ) : (
+                <Text mb={2} fontSize="sm" color="gray.500">
+                  لم يتم اختيار صورة.
+                </Text>
+              )}
+              {extraPhotoId && (
+                <Text mt={2} fontSize="sm" color="green.600">
+                  تم رفع صورة الخلفية (ID): {extraPhotoId}
+                </Text>
+              )}
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleExtraPhotoUpload(file); // هنضيفها حالًا
+                  }
+                }}
+              />
+            </FormControl>
+
           </GridItem>
         </Grid>
 

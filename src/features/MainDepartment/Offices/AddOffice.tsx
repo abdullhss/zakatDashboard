@@ -43,6 +43,7 @@ export default function AddOffice() {
   const [bankAccounts, setBankAccounts] = useState<BankDetailsValues[]>([]);
   const formAnchorRef = useRef<HTMLDivElement | null>(null);
   const [photoId, setPhotoId] = useState("");
+  const [extraPhotoId, setExtraPhotoId] = useState("");
 
   // وضع التعديل
   const location = useLocation();
@@ -95,6 +96,7 @@ export default function AddOffice() {
       ...(photoNameForPreview
         ? { officePhotoDisplayName: String(photoNameForPreview) }
         : {}), // للمعاينة
+        officeHeaderPhotoNamePreview: row.HeaderPhotoName,
     } as any;
   }, [row]);
 
@@ -247,7 +249,7 @@ export default function AddOffice() {
     const MultiTableName = [OFFICE_TABLE, ...Array(bankAccounts.length).fill(BANK_TABLE)].join("^");
 
     const officeCols =
-      "Id#OfficeName#OfficeLatitude#OfficeLongitude#City_Id#PhoneNum#Address#IsActive#OfficePhotoName";
+      "Id#OfficeName#OfficeLatitude#OfficeLongitude#City_Id#PhoneNum#Address#IsActive#OfficePhotoName#HeaderPhotoName";
     const bankCols = BANK_COLS;
 
     const MultiColumnsNames = officeCols + "^" + Array(bankAccounts.length).fill(bankCols).join("^");
@@ -263,6 +265,7 @@ export default function AddOffice() {
       scrub((office as any).address) || "",
       office.isActive ? "1" : "0",
       scrub((office as any).officePhotoName) || "", // ID بعد الرفع
+      extraPhotoId!=""?extraPhotoId:""
     ].join("#");
     console.log( officePart);
 
@@ -327,8 +330,10 @@ export default function AddOffice() {
       photoId: photoIdToSend,   // دايمًا ID
       pointId: 0,
       dataToken: "Zakat", // ✅ تمرير DataToken
+      HeaderPhotoName: extraPhotoId || "",
     } as const;
-
+    console.log(payload);
+    
     try {
       const res = await updateMutation.mutateAsync(payload);
       
@@ -357,6 +362,7 @@ export default function AddOffice() {
         defaultValues={defaultValues}
         // 👇 أي تغيير في صورة المكتب يحدّث الـref
         onPhotoIdChange={setPhotoId}
+        onExtraPhotoIdChange={setExtraPhotoId}
       />
 
       <SectionDivider my={8} />
