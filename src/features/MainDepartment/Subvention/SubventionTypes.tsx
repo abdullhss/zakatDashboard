@@ -197,6 +197,7 @@ export default function SubventionTypes() {
     acceptZakat: boolish(
       r.AllowZakat ?? r.allowZakat ?? r.AcceptZakat ?? r.acceptZakat ?? r.IsZakat ?? r.isZakat ?? false
     ),
+SadkaType:r.SadkaType
   }));
     console.log(data?.decrypted.data.Result[0].SubventionTypesCount);
     const totalRows = Number(data?.decrypted.data.Result[0].SubventionTypesCount) || 1;
@@ -264,11 +265,23 @@ export default function SubventionTypes() {
       colSpan: 1,
       defaultValue: false,
     },
+    {
+        name: "SadkaType",
+        label: "نوع الصدقة",
+        type: "radio" as const,
+        colSpan: 1,
+        options: [
+        { label: "صدقة عامة", value: "G" },
+        { label: "صدقة جارية", value: "R" },
+        ],
+    },
   ] as const;
 
   const manageFields = addFields;
 
   const handleAddSubmit = async (values: any) => {
+    console.log(values);
+    
     try {
       await addMutation.mutateAsync({
         name: values?.name?.trim?.() || "",
@@ -278,6 +291,7 @@ export default function SubventionTypes() {
         offices: "",
         allowZakat: !!values?.acceptZakat,
         pointId: 0 as any,
+        SadkaType : values.SadkaType 
       } as any);
 
       toast({ status: "success", title: "تمت إضافة تصنيف الإعانة." });
@@ -289,6 +303,8 @@ export default function SubventionTypes() {
   };
 
   const handleManageSubmit = async (values: any) => {
+    console.log(values);
+    
     if (!editRow) return;
     try {
       await manageMutation.mutateAsync({
@@ -297,6 +313,7 @@ export default function SubventionTypes() {
         isActive: !!values?.isActive,
         allowZakat: !!values?.acceptZakat,
         pointId: 0,
+        SadkaType:values.SadkaType
       });
       toast({ status: "success", title: "تم حفظ التعديلات." });
       manageModal.onClose();
@@ -449,6 +466,7 @@ export default function SubventionTypes() {
           name: editRow.name,
           isActive: editRow.isActive,
           acceptZakat: !!editRow.acceptZakat,
+            SadkaType : editRow.SadkaType
         } : undefined}
         isSubmitting={manageMutation.isPending}
         maxW="640px"

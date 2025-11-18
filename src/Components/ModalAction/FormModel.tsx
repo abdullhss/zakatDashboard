@@ -10,7 +10,7 @@ import {
 import { AiFillCloseSquare } from "react-icons/ai";
 import SharedButton from "../SharedButton/Button";
 
-export type FieldType = "input" | "textarea" | "switch" | "checkbox" | "hidden";
+export type FieldType = "input" | "textarea" | "switch" | "checkbox" | "hidden" | "radio";
 
 export type FieldConfig = {
   name: string;
@@ -18,6 +18,7 @@ export type FieldConfig = {
   placeholder?: string;
   required?: boolean;
   type?: FieldType;
+  options?: { label: string; value: any }[]; // لإضافة خيارات الـ radio
   inputProps?: React.ComponentProps<typeof Input> & { dir?: "rtl" | "ltr" };
   colSpan?: number;
   error?: string;
@@ -123,7 +124,23 @@ export default function FormModal<TValues extends Record<string, any> = Record<s
           <Box key={f.name} gridColumn={span === 2 ? "1 / -1" : undefined}>
             <FormControl isRequired={f.required} isInvalid={!!f.error}>
               {f.label && <FormLabel fontWeight="600">{f.label}</FormLabel>}
-              {type === "textarea" ? (
+                {type === "radio" ? (
+                    <Box>
+                      {f.options?.map((opt) => (
+                        <label key={opt.value} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <input
+                            type="radio"
+                            name={f.name}
+                            value={opt.value}
+                            checked={(values as any)[f.name] === opt.value}
+                            onChange={() => update(f.name, opt.value)}
+                          />
+                          <span>{opt.label}</span>
+                        </label>
+                      ))}
+                    </Box>
+                ) 
+              :type === "textarea" ? (
                 <Textarea {...(textCommon as any)} />
               ) : type === "switch" ? (
                 <HStack borderWidth="1px" borderRadius="md" p={3} justify="space-between">

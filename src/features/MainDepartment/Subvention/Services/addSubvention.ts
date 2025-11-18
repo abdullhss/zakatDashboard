@@ -11,7 +11,8 @@ export type AddSubventionTypeInput = {
   limit?: number | string;     
   offices?: number | string;  
   isActive?: boolean;          
-  allowZakat?: boolean;       
+  allowZakat?: boolean;
+  SadkaType:string   
 };
 
 export async function addSubventionType(
@@ -24,10 +25,11 @@ export async function addSubventionType(
     offices = "",
     isActive = true,
     allowZakat = false, 
+    SadkaType
   } = input;
 
   const ColumnsNames =
-    "Id#SubventionTypeName#SubventionTypeDesc#SubventionTypeLimit#Offices#IsActive#AllowZakat";
+    "Id#SubventionTypeName#SubventionTypeDesc#SubventionTypeLimit#Offices#IsActive#AllowZakat#SadkaType";
 
   const columnsValues = [
     "0",                      
@@ -36,9 +38,13 @@ export async function addSubventionType(
     String(limit ?? ""),
     String(offices ?? ""),
     isActive ? "1" : "0",
-    allowZakat ? "1" : "0",   
+    allowZakat ? "1" : "0",
+    SadkaType
   ].join("#");
-
+  console.log(ColumnsNames);
+  console.log(columnsValues);
+  
+  
   const result = await doTransaction({
     TableName: PROCEDURE_NAMES.SUBVENTION_TYPE_TABLE_NAME,
     WantedAction: 0,        

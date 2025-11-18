@@ -17,12 +17,13 @@ export type UpdateSubventionPayload = {
   isActive?: boolean;   // IsActive
   allowZakat?: boolean; // AllowZakat
   pointId?: number | string;
+  SadkaType:string
 };
 
 export async function updateSubvention(
   payload: UpdateSubventionPayload
 ): Promise<NormalizedSummary> {
-  const { id, name, isActive, allowZakat, pointId = 0 } = payload;
+  const { id, name, isActive, allowZakat, pointId = 0 , SadkaType} = payload;
 
   if (id == null) {
     throw new Error("Missing id");
@@ -44,6 +45,10 @@ export async function updateSubvention(
   if (typeof allowZakat !== "undefined") {
     colNames.push("AllowZakat");
     colValues.push(allowZakat ? "1" : "0");
+  }
+  if (typeof SadkaType !== "undefined") {
+    colNames.push("SadkaType");
+    colValues.push(SadkaType);
   }
 
   const result = await doTransaction({
