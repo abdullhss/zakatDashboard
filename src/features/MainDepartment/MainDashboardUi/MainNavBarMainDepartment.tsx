@@ -19,7 +19,7 @@ import {
   RiGovernmentLine,
 } from "react-icons/ri";
 import { TbCategory2 } from "react-icons/tb";
-import { GiSheep } from "react-icons/gi";
+import { GiBowlOfRice, GiFoodChain, GiSheep } from "react-icons/gi";
 import { MdOutlineAssignmentTurnedIn, MdOutlineRule } from "react-icons/md";
 import { AiOutlineCalculator } from "react-icons/ai";
 import { BsFillClipboardCheckFill } from "react-icons/bs";
@@ -157,6 +157,8 @@ export default function MainNavBar() {
       {renderLink("CommonQuestions", "الاسئلة الشائعة", MdOutlineAssignmentTurnedIn)}
       
       {renderLink("UsersQuestions", "اسئلة المستخدمين", MdOutlineAssignmentTurnedIn)}
+
+      {renderLink("FitrZakat", "زكاة الفطر", GiBowlOfRice)}
 
     </NavList>
   );

@@ -16,7 +16,7 @@ import {
   RiNewspaperLine,
 } from "react-icons/ri";
 import { TbCategory2 } from "react-icons/tb";
-import { GiChecklist, GiSheep } from "react-icons/gi";
+import { GiChecklist, GiFoodChain, GiSheep } from "react-icons/gi";
 import { MdOutlineWork } from "react-icons/md";
 import { BsCashCoin } from "react-icons/bs";
 
@@ -129,6 +129,8 @@ export default function MainNavBarOfficeDepartment() {
       
       {/* طلبات الاضاحي */}
       {renderLink("assistanceData", "طلبات الاعانة", GiChecklist)}
+
+      {renderLink("fitrZakat", "زكاة الفطر", GiFoodChain)}
     </NavList>
   );
 }

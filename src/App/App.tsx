@@ -61,6 +61,10 @@ import UrgentProjects from "../features/MainDepartment/UrgentProject/UrgentProje
 import UsersQuestions from "../features/MainDepartment/UsersQuestions/UsersQuestions";
 import CommonQuestions from "../features/MainDepartment/CommonQuestions/CommonQuestions";
 import AddQuestion from "../features/MainDepartment/CommonQuestions/AddQuestion";
+import FitrZakat from "../features/OfficeDashboard/FitrZakat/FitrZakat.jsx";
+import AddFitrZakat from "../features/OfficeDashboard/FitrZakat/AddFitrZakat"
+import FitrZakatMain from "../features/MainDepartment/ZakatFitr/FitrZakat"
+
 export default function App() {
   useEffect(() => {
     const now = Date.now();
@@ -118,6 +122,7 @@ export default function App() {
             <Route path="CommonQuestions" element={<CommonQuestions />} />
             <Route path="CommonQuestions/add" element={<AddQuestion />} />
             <Route path="UsersQuestions" element={<UsersQuestions />} />
+            <Route path="FitrZakat" element={<FitrZakatMain />} />
           </Route>
         </Route>
 
@@ -149,6 +154,8 @@ export default function App() {
     <Route path="statement" element={<GetStatmentData />} />
     <Route path="sacrificeDataMain" element={<GetSacrificeDataMain />} />
     <Route path="assistanceData" element={<AssistanceDataTypes />} />
+    <Route path="fitrZakat" element={<FitrZakat />} />
+    <Route path="fitrZakat/add" element={<AddFitrZakat />} />
 
 
   </Route>
