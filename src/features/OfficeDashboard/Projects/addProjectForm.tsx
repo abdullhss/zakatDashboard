@@ -215,14 +215,24 @@ export default function AddProjectForm() {
           IsUrgent: !!form.IsUrgent,
           ViewInMainScreen: false,
         };
-        await addProject.mutateAsync(payload);
-        toast({
-          status: "success",
-          title: "تم الحفظ",
-          description: photoIdToSend
-            ? `تم رفع الصورة (ID: ${photoIdToSend}) وحفظ المشروع.`
-            : "تم حفظ المشروع.",
-        });
+        if(Number(payload.remainingAmount) > 0){
+          const response = await addProject.mutateAsync(payload);
+          if(response.code ==200){
+            toast({
+              status: "success",
+              title: "تم الحفظ",
+              description: photoIdToSend
+              ? `تم رفع الصورة (ID: ${photoIdToSend}) وحفظ المشروع.`
+              : "تم حفظ المشروع.",
+            });
+            navigate(-1)
+          }
+        }else{
+          toast({
+            status:"error" ,
+            title:"يجب ان يكون القيمة المتبقية اكبر من 0"
+          })
+        }
       } else {
         // ----- تعديل -----
         if (!photoIdToSend) {
@@ -251,18 +261,26 @@ export default function AddProjectForm() {
           IsUrgent: !!form.IsUrgent,
           ViewInMainScreen: form.ViewInMainScreen,
         };
-        const res = await updateProject.mutateAsync(payload);
-        if ((res as any)?.success === false) {
-          throw new Error((res as any)?.error || "فشل التعديل");
+        if(Number(payload.remainingAmount) > 0){
+          const res = await updateProject.mutateAsync(payload);
+          if ((res as any)?.success === false) {
+            throw new Error((res as any)?.error || "فشل التعديل");
+          }
+          toast({
+            status: "success",
+            title: "تم تعديل المشروع بنجاح.",
+            description: photoIdToSend ? `Image ID: ${photoIdToSend}` : undefined,
+          });
+          navigate("/officedashboard/projects");
         }
-        toast({
-          status: "success",
-          title: "تم تعديل المشروع بنجاح.",
-          description: photoIdToSend ? `Image ID: ${photoIdToSend}` : undefined,
-        });
+        else{
+          toast({
+            status:"error" ,
+            title:"يجب ان يكون القيمة المتبقية اكبر من 0"
+          })
+        }
       }
 
-      // navigate("/officedashboard/projects");
     } catch (e: any) {
       console.error(isEdit ? "Update project failed:" : "Add project failed:", e);
       toast({

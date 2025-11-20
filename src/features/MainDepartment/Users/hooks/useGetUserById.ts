@@ -11,6 +11,8 @@ export function useGetUserById(id?: string | number) {
     encSQLRaw,
     auto: !!id,
   });
+  console.log(base);
+  
 
   const row = (base.rows && base.rows[0]) || null;
   return { ...base, row };

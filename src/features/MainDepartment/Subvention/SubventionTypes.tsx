@@ -92,31 +92,6 @@ function SubventionRowActions({
   const updateStatus = useUpdateSubventionStatus(); // لعرض حالة التحميل
 
   // ✅ استخدام هوك الحذف
-  const deleteMutation = useDeleteSubventionType(); 
-
-  // ❌ تم إزالة handleDelete القديمة التي كانت تستدعي onStatusToggle
-  
-  // ✅ دالة الحذف النهائي
-  const handleDeletePermanent = async () => {
-    if (deleteMutation.isPending) return;
-    try {
-      await deleteMutation.mutateAsync(row.id as number); // نمرر الـ ID للحذف
-      toast({
-        status: "success",
-        title: "تم الحذف بنجاح",
-        description: `تم حذف التصنيف "${row.name}" نهائياً.`,
-      });
-      confirm.onClose();
-      onDeleted(); // تحديث الجدول (refetch)
-    } catch (e: any) {
-      toast({
-        status: "error",
-        title: "فشل الحذف",
-        description: e?.message || "تعذّر حذف التصنيف نهائياً.",
-      });
-      confirm.onClose();
-    }
-  };
 
   // حالة التحميل لزر المودال
   const isHandlingStatus = updateStatus.isPending && updateStatus.variables?.id === row.id;
@@ -178,6 +153,7 @@ export default function SubventionTypes() {
   // إضافة
   const addModal = useDisclosure();
   const addMutation = useAddSubventionType();
+  const deleteMutation = useDeleteSubventionType(); 
 
   // إدارة (تعديل)
   const manageModal = useDisclosure();
@@ -307,7 +283,7 @@ SadkaType:r.SadkaType
     
     if (!editRow) return;
     try {
-      await manageMutation.mutateAsync({
+       const response = await manageMutation.mutateAsync({
         id: editRow.id,
         name: values?.name?.trim?.() || "",
         isActive: !!values?.isActive,
@@ -315,10 +291,17 @@ SadkaType:r.SadkaType
         pointId: 0,
         SadkaType:values.SadkaType
       });
-      toast({ status: "success", title: "تم حفظ التعديلات." });
+console.log(response.code==207);
+
+        if(response.code==207){
+              toast({ status: "error", title: "هذا الاسم موجود من قبل." });
+        }
+        else if(response.decrypted.result==200){
+          toast({ status: "success", title: "تم حفظ التعديلات." });
+        }
+      await refetch();
       manageModal.onClose();
       setEditRow(null);
-      await refetch();
     } catch (e: any) {
       toast({ status: "error", title: e?.message || "تعذّر حفظ التعديلات." });
     }
@@ -354,6 +337,15 @@ SadkaType:r.SadkaType
             </Text>
           );
         },
+      },
+      {
+        key: "sadakaType",
+        header: "نوع الصدقة",
+        render: (row: AnyRec) => (
+          <Text fontWeight="600" color="gray.700">
+            {row.SadkaType=="G"?"صدقة عامة" : row.SadakaType=="R" ? "صدقة جارية" : "-" }
+          </Text>
+        ),
       },
       {
         key: "isActive",
@@ -399,6 +391,40 @@ SadkaType:r.SadkaType
   if (isLoading) return <Text color="gray.600">جارِ التحميل…</Text>;
   if (isError) return <Text color="red.500">حدث خطأ: {(error as Error)?.message}</Text>;
 
+
+      
+      const handleDeletePermanent = async (row) => {
+
+        if (deleteMutation.isPending) return;
+        try {
+          const response = await deleteMutation.mutateAsync(row.id as number); // نمرر الـ ID للحذف
+            console.log(response);
+            if(response.code == 221){
+                toast({
+                        status: "error",
+                        title: "فشل الحذف",
+                        description: `هذا التصنيف مرتبط بمشروع`,
+                      });
+            }
+            else if(response.decrypted.result == 200){
+                toast({
+                        status: "success",
+                        title: "تم الحذف بنجاح",
+                        description: `تم حذف التصنيف "${row.name}" نهائياً.`,
+                      });
+            }
+    //       confirm.onClose();
+          refetch(); // تحديث الجدول (refetch)
+        } catch (e: any) {
+          toast({
+            status: "error",
+            title: "فشل الحذف",
+            description: e?.message || "تعذّر حذف التصنيف نهائياً.",
+          });
+    //       confirm.onClose();
+        }
+      };
+
   return (
     <Box>
       <DataTable
@@ -411,7 +437,7 @@ SadkaType:r.SadkaType
         totalRows={totalRows}
         onPageChange={setPage}
         onEditRow={openEdit}
-        onDeleteRow={refetch}
+        onDeleteRow={(row)=>{handleDeletePermanent(row)}}
         headerAction={
           <SharedButton
             variant="brandGradient"

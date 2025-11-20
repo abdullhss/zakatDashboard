@@ -54,6 +54,10 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
   viewHashTag = true,
   totals,
   runEdit = false,
+  canEditTitle = false ,
+  handleChangeTitle,
+  updatedTitle ,
+  setUpdatedTitle
 }) => {
   const hasActions = !!(renderActions || onEditRow || onDeleteRow);
   const total = typeof totalRows === "number" ? totalRows : data.length;
@@ -63,9 +67,21 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
     <TableCardContainer w="100%">
       {/* Header */}
       <TableHeader>
-        <Heading size="md" fontWeight="700" color="gray.700">
-          {title}
-        </Heading>
+        {
+          !canEditTitle ?
+          (<Heading size="md" fontWeight="700" color="gray.700">
+            {title}
+          </Heading>) : (
+            <div>
+              <input type="text" defaultValue={updatedTitle} onChange={(e)=>{setUpdatedTitle(e.target.value)}} style={{fontWeight:600 , fontSize:"1.4rem" , padding:"2px 8px" , border:"1px solid #CCC" , borderRadius:"6px" ,}}>
+              
+              </input>
+              <button onClick={()=>{handleChangeTitle()}} style={{color:"#FFF" , padding:"8px" , borderRadius:"4px" , margin:"0px 16px" , backgroundColor:"#1B5853"}}>
+                تعديل الاسم
+              </button>
+            </div>
+          )
+        }
         <Box>{headerAction}</Box>
       </TableHeader>
 

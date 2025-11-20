@@ -1,5 +1,5 @@
 // src/features/OfficeDashboard/GroupRightFeaturesPage.tsx
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { Box, Flex, Spinner, Alert, AlertIcon, Text, Switch, useToast, Divider } from "@chakra-ui/react";
 import { useLocation } from "react-router-dom";
 import DataTable from "../../../Components/Table/DataTable";
@@ -8,6 +8,7 @@ import type { AnyRec, Column } from "../../../Components/Table/TableTypes";
 import { useGetGroupRightFeature } from "./hooks/useGetGroupRightFeature";
 import { useGetFeatures } from "./hooks/useGetFeaturesData"; // جلب الميزات العامة للدور
 import { useUpdateGroupRightFeatureValue } from "./hooks/useUpdateGroupRightFeatures";
+import {doTransaction} from "../../../api/apiClient";
 
 type FeatureRow = AnyRec & {
   FeatureName: string;
@@ -21,7 +22,8 @@ export default function GroupRightFeaturesPage() {
   const toast = useToast();
   const query = new URLSearchParams(location.search);
   const row = location.state?.row;
-  
+    const [updatedTitle , setUpdatedTitle] = useState(row?.name)
+
   
   const groupRightId = Number(query.get("groupId")) || 0;
   const roleCode = (query.get("role") || "M").toUpperCase(); // "M" | "O"
@@ -129,11 +131,35 @@ export default function GroupRightFeaturesPage() {
       </Alert>
     );
   }
+  
+  const handleChangeTitle = async ()=>{
+    console.log(row);
+    const mainuser = localStorage.getItem("mainUser") || "";
+    const officeId = JSON.parse(mainuser).Office_Id
+    const response = await doTransaction({
+      TableName:"M8VBuM2f3OsFRzuHNORBqQ==" ,
+      ColumnsNames:"Id#GroupRightName#GroupRightType#Office_Id",
+      ColumnsValues:`${row.id}#${updatedTitle}#${row.type}#${officeId}`,
+      WantedAction:1, 
+      PointId:0,
+    })
+    console.log(response);
+    if(response.decrypted?.result==200){
+      toast({
+        status:"success",
+        title:"تم تعديل الاسم بنجاح"
+      })
+    }
 
+  }
   return (
     <Box p={6}>
       <DataTable
-        title={`صلاحيات المجموعة: ${row?.name || "—"}`}
+        title={`${row?.name || "—"}`}
+        canEditTitle={true}
+        handleChangeTitle={handleChangeTitle}
+        setUpdatedTitle={setUpdatedTitle}
+        updatedTitle={updatedTitle}
         data={groupRows as unknown as AnyRec[]}
         columns={COLUMNS as any}
         totalRows={groupTotalRows}

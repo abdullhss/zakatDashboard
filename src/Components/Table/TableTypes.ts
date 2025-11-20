@@ -27,7 +27,11 @@ export interface DataTableProps {
   pageSize: number;
   // ==========================================
   viewHashTag ?: boolean
-  runEdit ?: boolean
+  runEdit ?: boolean,
+  canEditTitle?:boolean , 
+  handleChangeTitle?:any ,
+  updatedTitle ?: string ,
+  setUpdatedTitle?:any
 }
 
 

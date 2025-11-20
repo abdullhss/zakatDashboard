@@ -69,6 +69,7 @@ export function useGetUsers(opts: UseGetUsersOptions = {}) {
     }),
     [loading, error, rows, total, serverTime, lastSummary]
   );
-
+  console.log(state);
+  
   return { ...state, refetch: fetchUsers };
 }

@@ -55,8 +55,18 @@ export function createCampaignColumns({
       render: (r: AnyRec) => (r as CampaignRow).UserName ?? "—",
     },
     {
+      key: "",
+      header: "عرض الصورة",
+      width: "12%",
+      render: (r: AnyRec) => {
+        return <a style={{color:"#005599"}} target="_blank" href={`https://framework.md-license.com:8093/ZakatImages/${r.CampaignPhotoName}.jpg`}>
+          عرض
+        </a>;
+      },
+    },
+    {
       key: "CreatedDate",
-      header: "تاريخ الإنشاء",
+      header: "تاريخ الانشاء",
       width: "12%",
       render: (r: AnyRec) => {
         const d = (r as CampaignRow).CreatedDate;

@@ -14,7 +14,7 @@ import { useUpdateLaw } from "./hooks/useUpdateLaw";
 import { HandelFile } from "../../../HandleFile";
 import { getSession } from "../../../session"; 
 
-const LAWS_FILES_BASE = "https://framework.md-license.com:8093/attachments/laws/";
+const LAWS_FILES_BASE = "https://framework.md-license.com:8093/ZakatFiles";
 
 // 🔗 دالة مساعدة لبناء رابط عرض الملف المرفق
 const buildAttachmentUrlByName = (fileId?: string | number) => {
@@ -39,6 +39,8 @@ export default function AddLawForm() {
   const location = useLocation() as any;
   
   const lawRow = location?.state?.lawRow ?? null;
+console.log(lawRow);
+
   const isEdit = !!lawRow; 
   
   const addLawMutation = useAddLaw(); 
@@ -155,8 +157,8 @@ export default function AddLawForm() {
                 <Input type="file" ref={fileInputRef} onChange={onFileChange} hidden />
               </HStack>
               {/* عرض رابط الملف الحالي */}
-              {isEdit && form.lawAttachFileId && !attachmentFile && (
-                  <Link href={buildAttachmentUrlByName(form.lawAttachFileId)} isExternal fontSize="xs" color="blue.500" mt={1} display="block">
+              {isEdit && form.lawAttachFileId && !attachmentFile &&  (
+                  <Link href={buildAttachmentUrlByName(lawRow.LawAttachFileName)} isExternal fontSize="xs" color="blue.500" mt={1} display="block">
                     {`الملف الحالي (ID: ${form.lawAttachFileId})`}
                   </Link>
               )}

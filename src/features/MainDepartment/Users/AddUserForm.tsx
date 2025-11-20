@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState, useRef } from "react";
 import {
   Box, Heading, Text, HStack, VStack, useToast, Divider,
 } from "@chakra-ui/react";
-import { useNavigate, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams, useSearchParams, useResolvedPath } from "react-router-dom";
 
 import FieldRow from "../../../Components/SharedField/FieldRow";
 // hooks
@@ -105,30 +105,35 @@ export default function AddUserPage() {
     return [];
   }, [privData]);
 
+  
   // fill edit data
+  const officeData = location.state.userData;
+  console.log(officeData);
   useEffect(() => {
-    if (!isEdit || !editRow) return;
-    setFullName(editRow.UserName);
-    setUserName(editRow.LoginName);
-    setEmail(editRow.Email ?? "");
-    setPhoneNum(editRow.PhoneNum ?? editRow.Mobile ?? editRow.Phone ?? "");
+    
+    
+    if (!isEdit || !officeData) return;
+    setFullName(officeData.UserName);
+    setUserName(officeData.LoginName);
+    setEmail(officeData.Email ?? "");
+    setPhoneNum(officeData.PhoneNum ?? officeData.Mobile ?? officeData.Phone ?? "");
     setPassword("");
     setConfirmPassword("");
 
-    const uType = String(editRow.UserType ?? "").toUpperCase() as "M" | "O" | "";
+    const uType = String(officeData.UserType ?? "").toUpperCase() as "M" | "O" | "";
     setUserType(isOfficeSession ? "O" : uType);
 
     if (isOfficeSession) {
       setOfficeId(sessionOfficeId);
     } else {
-      if (uType === "O") setOfficeId(editRow.Office_Id ?? editRow.OfficeId ?? "");
+      if (uType === "O") setOfficeId(officeData.Office_Id ?? officeData.OfficeId ?? "");
       else setOfficeId("");
     }
 
-    const gid = Number(editRow.GroupRight_Id ?? 0) || "";
+    const gid = Number(officeData.GroupRight_Id ?? 0) || "";
     setGroupRightId(gid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, editRow, isOfficeSession, sessionOfficeId]);
+  }, [isEdit, officeData, isOfficeSession, sessionOfficeId]);
 
   // default/clear privilege per type
   // useEffect(() => {
