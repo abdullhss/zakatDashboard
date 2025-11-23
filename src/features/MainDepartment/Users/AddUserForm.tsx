@@ -158,7 +158,7 @@ export default function AddUserPage() {
     const passMatch = !passProvided ? true : Password === ConfirmPassword;
 
     const typeOk = !!UserType;
-    const privOk = true;
+    const privOk = privileges.length > 0 ? !!GroupRight_Id : true
     const officeOk = (UserType === "O") ? !!(isOfficeSession ? sessionOfficeId : Office_Id) : true;
 
     const  allOk =
@@ -197,7 +197,8 @@ export default function AddUserPage() {
       status: "warning",
     });
     if (!validation.typeOk) return toast({ title: "اختر نوع الحساب", status: "warning" });
-    if (UserType === "M" && !validation.privOk) return toast({ title: "اختر الصلاحية", status: "warning" });
+    if (!validation.privOk)
+      return toast({ title: "اختر الصلاحية", status: "warning" });
     if (!validation.officeOk) return toast({ title: "اختر المكتب", status: "warning" });
     if (!isEdit && !validation.passProvided)
       return toast({ title: "كلمة المرور مطلوبة", status: "warning" });

@@ -58,11 +58,11 @@ export default function AccountFields({
       <GridItem>
         <FieldRow label="الصلاحية">
           <FieldSelect
-            value={GroupRight_Id !== "" ? String(GroupRight_Id) : "0"}
+            value={GroupRight_Id !== "" ? String(GroupRight_Id) : ""}
             onChange={(e) => setGroupRightId(Number(e.target.value))}
             isDisabled={privLoading || privileges.length === 0 || (localStorage.getItem("role") === "M" && UserType === "O")}
+            placeholder="اختر الصلاحية" // هيظهر placeholder بدل 0
           >
-            <option value="0">اختر الصلاحية</option>
             {privileges.map((p: any) => {
               const id = String(privIdOf(p));
               const name = String(privNameOf(p));
@@ -73,6 +73,7 @@ export default function AccountFields({
               );
             })}
           </FieldSelect>
+
 
           {!privLoading && privileges.length === 0 && UserType === "M" ? (
             <Text mt={1} fontSize="sm" color="orange.500">
