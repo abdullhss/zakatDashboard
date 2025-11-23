@@ -135,15 +135,20 @@ export default function GroupRightFeaturesPage() {
   const handleChangeTitle = async ()=>{
     console.log(row);
     const mainuser = localStorage.getItem("mainUser") || "";
-    const officeId = JSON.parse(mainuser).Office_Id
     const response = await doTransaction({
       TableName:"M8VBuM2f3OsFRzuHNORBqQ==" ,
-      ColumnsNames:"Id#GroupRightName#GroupRightType#Office_Id",
-      ColumnsValues:`${row.id}#${updatedTitle}#${row.type}#${officeId}`,
+      ColumnsNames:"Id#GroupRightName",
+      ColumnsValues:`${row.id}#${updatedTitle}`,
       WantedAction:1, 
       PointId:0,
     })
     console.log(response);
+    if(response.code==207){
+      toast({
+        status:"error",
+        title:"يوجد صلاحية بنفس الاسم"
+      })
+    }
     if(response.decrypted?.result==200){
       toast({
         status:"success",

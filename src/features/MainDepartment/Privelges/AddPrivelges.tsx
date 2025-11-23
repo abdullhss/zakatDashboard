@@ -140,20 +140,25 @@ const lockName = false;
           toast({ status: "error", title: "اسم المجموعة مطلوب" });
           return;
         }
-        await addMutation.mutateAsync({
+        const response = await addMutation.mutateAsync({
           groupRightName: (lockName ? (officeName || "") : groupRightName.trim()),
           groupRightType: role,   // "M" أو "O" من الـ session
           featureIds,
           allFeatures: data.rows,
           pointId: 0,
         });
+          if(response.code ==207){
+            toast({ status: "error", title: "يوجد صلاحية بنفس الاسم", });
+          }
+          else{
+            toast({ status: "success", title: "تم إضافة الصلاحيات بنجاح", description: `عدد العناصر: ${featureIds.length}` });
+            nav(role === "O" ? "/officedashboard/privelgesOffice" : "/maindashboard/privelges");
+          }
           // console.log(data.rows);
           // console.log(featureIds);
         // رجّع لقائمة الصلاحيات المناسبة
-        nav(role === "O" ? "/officedashboard/privelgesOffice" : "/maindashboard/privelges");
       }
 
-      toast({ status: "success", title: "تم إضافة الصلاحيات بنجاح", description: `عدد العناصر: ${featureIds.length}` });
       setSelected({});
     } catch (e: any) {
       toast({ status: "error", title: "تعذّر إضافة الصلاحيات", description: e?.message || "حدث خطأ غير متوقع." });
@@ -171,7 +176,7 @@ const lockName = false;
             <Text fontWeight="800" fontSize="lg" color={titleClr}>لوحة التحكم</Text>
           </HStack>
 
-          <HStack spacing={6} flexWrap="wrap">
+          <HStack spacing={6} flexWrap="wrap" justifyItems={"end"}>
             <FormControl w={{ base: "100%", md: "360px" }}>
               <FormLabel>اسم المجموعة</FormLabel>
               <Input
@@ -182,7 +187,7 @@ const lockName = false;
               />
             </FormControl>
 
-            <SharedButton onClick={handleAdd} disabled={isSubmitting}>
+            <SharedButton mt={10} onClick={handleAdd} disabled={isSubmitting}>
               {isSubmitting ? (<HStack><Spinner size="sm" /><Text>جارِ الإضافة…</Text></HStack>) : ("إضافة الصلاحيات المختارة")}
             </SharedButton>
           </HStack>
