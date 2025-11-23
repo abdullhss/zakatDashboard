@@ -115,7 +115,7 @@ export default function OfficeAdded() {
       {/* ===== تفاصيل المكتب (مطابق لفيجما) ===== */}
       <DetailCard>
         <SectionHeader>
-          <SectionTitle>تفاصيل المكتب</SectionTitle>
+          <SectionTitle fontSize={20}>تفاصيل المكتب</SectionTitle>
           {/* <HStack gap={3}>
             <Text fontSize="sm" color="gray.700">تفعيل ظهوره في التطبيق</Text>
             <Switch isChecked={office.isActive} isReadOnly />
@@ -127,9 +127,11 @@ export default function OfficeAdded() {
             padding: "1rem",              // p-4
             display: "flex",              // flex
             flexDirection: "column",      // flex-col
-            gap: "2rem",                  // gap-8
+            gap: "1.5rem",                  // gap-8
             width: "100%",                // w-full
-            fontWeight:"500"
+            fontWeight:"500",
+            backgroundColor:"#24645E55",
+            borderRadius:"0.5rem"
           }}
         >
           <div
@@ -137,10 +139,10 @@ export default function OfficeAdded() {
               width: "100%",              // w-full
               display: "flex",            // flex
               alignItems: "center",       // items-center
-              justifyContent: "space-between", // justify-between
+              gap:"10px"
             }}
           >
-            <span>اسم المكتب</span>
+            <span>اسم المكتب :</span>
             <span>{office.officeName}</span>
           </div>
           <div
@@ -148,10 +150,10 @@ export default function OfficeAdded() {
               width: "100%",              // w-full
               display: "flex",            // flex
               alignItems: "center",       // items-center
-              justifyContent: "space-between", // justify-between
+              gap:"10px"
             }}
           >
-            <span>رقم الهاتف</span>
+            <span>رقم الهاتف :</span>
             <span>{office.phoneNum}</span>
           </div>
           {/* <div
@@ -170,10 +172,10 @@ export default function OfficeAdded() {
               width: "100%",              // w-full
               display: "flex",            // flex
               alignItems: "center",       // items-center
-              justifyContent: "space-between", // justify-between
+              gap:"10px"
             }}
           >
-            <span>العنوان</span>
+            <span>العنوان :</span>
             <span>{office.address}</span>
           </div>
         </div>
@@ -209,6 +211,7 @@ export default function OfficeAdded() {
         ) : accounts.map((a, i) => (
           <TableRow
             key={i}
+            // style={}
             cells={[
                 banksData?.rows.find((b: any) => b.Id === Number(a.bankName))?.BankName
               ,

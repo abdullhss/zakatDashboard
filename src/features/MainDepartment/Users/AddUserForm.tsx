@@ -107,7 +107,7 @@ export default function AddUserPage() {
 
   
   // fill edit data
-  const officeData = location.state.userData;
+  const officeData = location.state?.userData;
   console.log(officeData);
   useEffect(() => {
     
