@@ -6,6 +6,7 @@ import MapStrip from "../../../Components/Map/MapStrip";
 import {
   DetailCard, SectionHeader, SectionTitle, TwoCols, KVRow, SectionDivider,
   TableCard, TableHeader, TableRow,
+  TableRow2,
 } from "./styles/DetailUi";
 import { useBanksQuery } from "../Banks/hooks/useGetBanks";
 import { useGetAccountTypes } from "./hooks/useGetAccountTypes";
@@ -189,8 +190,10 @@ export default function OfficeAdded() {
       </DetailCard>
 
       {/* ===== الحساب البنكي ===== */}
-      <TableCard>
-        <TableHeader>الحساب البنكي</TableHeader>
+      <TableCard
+       style={{border:"1px solid #24645E" , padding:6 , backgroundColor:"#24645E55"}}
+      >
+        <TableHeader nowhite={true}>الحساب البنكي</TableHeader>
 
         {/* صف العناوين (زي فيجما) */}
         <TableRow
@@ -207,11 +210,10 @@ export default function OfficeAdded() {
 
         {/* البيانات */}
         {accounts.length === 0 ? (
-          <Box px={5} py={6} color="gray.500">لا توجد حسابات</Box>
+          <Box px={5} py={6}>لا توجد حسابات</Box>
         ) : accounts.map((a, i) => (
-          <TableRow
+          <TableRow2
             key={i}
-            // style={}
             cells={[
                 banksData?.rows.find((b: any) => b.Id === Number(a.bankName))?.BankName
               ,

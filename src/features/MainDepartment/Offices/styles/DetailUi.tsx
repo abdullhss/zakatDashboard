@@ -84,8 +84,8 @@ export const TableCard = chakra(VStack, {
   },
 });
 
-export const TableHeader = ({ children }: { children: React.ReactNode }) => (
-  <Box bg="gray.50" px={5} py={3} dir="ltr" >
+export const TableHeader = ({ children , nowhite=false}: { children: React.ReactNode , nowhite?:boolean }) => (
+  <Box bg={nowhite?"transparent":"gray.50"} px={5} py={3} dir="ltr" >
     <Text fontWeight="800" color="gray.700">{children}</Text>
   </Box>
 );
@@ -103,6 +103,25 @@ export const TableRow = ({
     borderTopWidth={withBorder ? "1px" : 0}
     borderColor="gray.200"
   
+  >
+    {cells.map((c, i) => (
+      <Text key={i} fontSize="sm" color="gray.800" noOfLines={2}>
+        {c}
+      </Text>
+    ))}
+  </Grid>
+);
+export const TableRow2 = ({
+  cells, withBorder = true,
+}: { cells: (React.ReactNode | string)[]; withBorder?: boolean }) => (
+  <Grid
+    templateColumns="repeat(6, 1fr)"
+    px={5}
+    py={3}
+    gap={4}
+    width="70%"
+    borderTopWidth={withBorder ? "1px" : 0}
+    borderColor="gray.200"
   >
     {cells.map((c, i) => (
       <Text key={i} fontSize="sm" color="gray.800" noOfLines={2}>
