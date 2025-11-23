@@ -16,6 +16,7 @@ type Props = {
   openingBalance: string | number;
   accountType: string | number;    // ✅ نفس الشيء
   serviceType: string | number;
+  serviceTypeLabel:string ;
   hasCard: boolean;
   onDelete?: () => void;
   onEdit?: () => void;
@@ -29,6 +30,7 @@ export default function BankAccountSection({
   openingBalance,
   accountType,
   serviceType,
+  serviceTypeLabel,
   hasCard,
   onDelete,
   onEdit,
@@ -49,12 +51,7 @@ export default function BankAccountSection({
   const accountTypeDisplay =
     accTypesData?.rows.find((a: any) => a.id === Number(accountType))?.name || "—";
 
-  const serviceTypeDisplay =
-    Number(serviceType) === 1
-      ? "صدقة"
-      : Number(serviceType) === 2
-      ? "زكاة"
-      : "—";
+  const serviceTypeDisplay = serviceTypeLabel
 
   return (
     <Box

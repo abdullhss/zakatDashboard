@@ -406,6 +406,7 @@ export default function AddOffice() {
             accountType={b.accountTypeId}
             serviceType={b.serviceTypeId}
             hasCard={!!b.hasCard}
+            serviceTypeLabel={b.serviceTypeLabel}
             onDelete={
               isEdit
                 ? (b.serverId ? () => askDeleteServer(b.serverId!) : undefined)
