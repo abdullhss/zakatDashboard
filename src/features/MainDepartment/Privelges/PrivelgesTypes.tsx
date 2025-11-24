@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import DataTable from "../../../Components/Table/DataTable";
 import SharedButton from "../../../Components/SharedButton/Button";
-import type { AnyRec } from "../../../api/apiClient";
+import { executeProcedure, type AnyRec } from "../../../api/apiClient";
 import { useGetPrivilege } from "../../MainDepartment/Privelges/hooks/useGetPrivelge";
 import { getSession } from "../../../session";
 import { useDeletePrivilege } from "../../MainDepartment/Privelges/hooks/useDeletePrivilege";
@@ -137,8 +137,10 @@ export default function Privileges() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      const res = await deletePrivilege(deleteId);
-      if(res.code == 221){
+      const res = await executeProcedure("unoij/oKWLjGFBZiQeW2YYoT047Gg7KcCKtVsaC4S8o=" , deleteId ) ;
+      console.log(res.decrypted?.data.Result[0].ErrorCode);
+      
+      if(res.decrypted?.data.Result[0].ErrorCode == 204){
         toast({ title: "المجموعه مستخدمة ولا يمكن حذفها", status: "error" });
         return
       }
