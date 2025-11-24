@@ -249,8 +249,7 @@ export default function AssistanceDataTypes() {
                         key: "Status",
                         header: "الحالة",
                         width: "22%",
-                        render: (r: AnyRec) =>
-                          (r as AssistanceRow).Status,
+                        render: (r: AnyRec) => <a target="_blank" href={`https://framework.md-license.com:8093/ZakatImages/${r.ResreachFileName}.pdf`}>{(r as AssistanceRow).Status}</a>,
                 })
         }
 

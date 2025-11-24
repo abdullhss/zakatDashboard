@@ -14,7 +14,7 @@ import { useUpdateLaw } from "./hooks/useUpdateLaw";
 import { HandelFile } from "../../../HandleFile";
 import { getSession } from "../../../session"; 
 
-const LAWS_FILES_BASE = "https://framework.md-license.com:8093/ZakatFiles";
+const LAWS_FILES_BASE = "https://framework.md-license.com:8093/ZakatImages";
 
 // 🔗 دالة مساعدة لبناء رابط عرض الملف المرفق
 const buildAttachmentUrlByName = (fileId?: string | number) => {

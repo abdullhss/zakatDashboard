@@ -103,7 +103,7 @@ const FitrZakat = () => {
         </FormControl>
 
         <Button width="100%" colorScheme="blue" onClick={updateDates}>
-          Save
+          حفظ
         </Button>
       </VStack>
     </Box>

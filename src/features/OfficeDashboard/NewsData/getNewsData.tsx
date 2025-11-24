@@ -17,7 +17,7 @@ const PAGE_SIZE = 10;
 
 // روابط عرض الملفات/الصور
 const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
-const ZAKAT_FILES_BASE  = "https://framework.md-license.com:8093/ZakatFiles";
+const ZAKAT_FILES_BASE  = "https://framework.md-license.com:8093/ZakatImages";
 
 const buildPhotoUrlByName = (name?: string | number, ext?: string) => {
   if (!name) return "";

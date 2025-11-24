@@ -26,6 +26,7 @@ import {
 } from "react-icons/fa";
 import { useGetContactUs } from "./hooks/useGetAboutUs";
 import { updateAboutUs } from "../ProgramData/Services/updateProgram";
+import { useQueryClient } from "@tanstack/react-query";
 
 // ✅ Move InputField OUTSIDE the component to prevent recreating it on every render
 const InputField = ({
@@ -79,6 +80,9 @@ export default function ContactUsNow() {
   });
 
   const [isInitialized, setIsInitialized] = useState(false);
+
+  const queryClient = useQueryClient();
+
 
   // ✅ Load data only once when it arrives from API
   useEffect(() => {
@@ -137,7 +141,8 @@ export default function ContactUsNow() {
 
     const response = await updateAboutUs(formData);
     console.log(response);
-    
+    queryClient.invalidateQueries(["get-contact-us"]);
+
   };
 
   if (isLoading) {

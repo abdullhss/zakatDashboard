@@ -8,6 +8,10 @@ import { useUpdateUser } from "../../MainDepartment/Users/hooks/useUpdateUser"; 
 import { useDeleteUser } from "../../MainDepartment/Users/hooks/useDeleteUser"; // هوك الحذف
 import { useNavigate } from "react-router-dom"; // استخدام التوجيه
 import { useState } from "react";
+import {
+  Modal, ModalOverlay, ModalContent, ModalHeader,
+  ModalFooter, ModalBody, ModalCloseButton, Button
+} from "@chakra-ui/react";
 
 const PAGE_SIZE = 10;
 
@@ -16,6 +20,19 @@ export default function UsersOffice() {
   const navigate = useNavigate(); // للحصول على دالة التوجيه
   
   const [page , setPage] = useState(1);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+
+  const openDeleteModal = (user: AnyRec) => {
+    setSelectedUser(user);
+    setIsDeleteOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setSelectedUser(null);
+    setIsDeleteOpen(false);
+  };
+
 
   const offset = (page - 1) * PAGE_SIZE;
   // جلب البيانات باستخدام هوك
@@ -51,7 +68,7 @@ export default function UsersOffice() {
           </SharedButton>
           <SharedButton
             variant="danger"
-            onClick={() => handleDelete(r)}
+            onClick={() => openDeleteModal(r)}
             isLoading={deleteLoading}
           >
             حذف
@@ -65,44 +82,73 @@ export default function UsersOffice() {
     navigate(`/officedashboard/users/edit/${user.Id}`, { state: { userData: user } });
   };
 
-  const handleDelete = async (user: AnyRec) => {
+  const confirmDelete = async () => {
+    if (!selectedUser) return;
+
     const deleteUserInput = {
-      Id: user.Id,
-      UserName: user.UserName,
-      Email: user.Email,
-      PhoneNum: user.PhoneNum,
-      GroupRight_Id: user.GroupRight_Id,
+      Id: selectedUser.Id,
+      UserName: selectedUser.UserName,
+      Email: selectedUser.Email,
+      PhoneNum: selectedUser.PhoneNum,
+      GroupRight_Id: selectedUser.GroupRight_Id,
       Office_Id: officeId,
     };
-    await deleteUser(deleteUserInput);
 
+    const response = await deleteUser(deleteUserInput);
+    console.log(response);
+
+    closeDeleteModal();
+    location.reload();
   };
 
+
   return (
-    <Box>
-      <DataTable
-        title="مستخدمو المكتب"
-        data={(rows as AnyRec[]) || []}
-        columns={columns as any}
-        totalRows={totalRows}
-        loading={loading}
-        page={page}
-        startIndex={offset + 1}
-        pageSize={PAGE_SIZE}
-        onPageChange={setPage}
-        headerAction={
-          <HStack spacing={3}>
-            <SharedButton variant="brandGradient" to="/officedashboard/usersOffice/add">
-              إضافة مستخدم
-            </SharedButton>
-          </HStack>
-        }
-      />
-      {!loading && (!rows || rows.length === 0) && (
-        <Text mt={3} color="gray.500">لا توجد بيانات.</Text>
-      )}
-      {updateError && <Text mt={3} color="red.500">{updateError}</Text>}
-      {deleteError && <Text mt={3} color="red.500">{deleteError}</Text>}
-    </Box>
+    <>
+      <Box>
+          <DataTable
+            title="مستخدمو المكتب"
+            data={(rows as AnyRec[]) || []}
+            columns={columns as any}
+            totalRows={totalRows}
+            loading={loading}
+            page={page}
+            startIndex={offset + 1}
+            pageSize={PAGE_SIZE}
+            onPageChange={setPage}
+            headerAction={
+              <HStack spacing={3}>
+                <SharedButton variant="brandGradient" to="/officedashboard/usersOffice/add">
+                  إضافة مستخدم
+                </SharedButton>
+              </HStack>
+            }
+          />
+          {!loading && (!rows || rows.length === 0) && (
+            <Text mt={3} color="gray.500">لا توجد بيانات.</Text>
+          )}
+          {updateError && <Text mt={3} color="red.500" fontSize={18}>{updateError}</Text>}
+          {deleteError && <Text mt={3} color="red.500" fontSize={18}>{"هذا المستخدم مرتبط"}</Text>}
+        </Box>
+        <Modal isOpen={isDeleteOpen} onClose={closeDeleteModal} isCentered>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>تأكيد الحذف</ModalHeader>
+            <ModalBody>
+              هل أنت متأكد أنك تريد حذف المستخدم:
+              <br />
+              <strong>{selectedUser?.UserName}</strong> ؟
+            </ModalBody>
+
+            <ModalFooter>
+              <Button variant="ghost" onClick={closeDeleteModal}>
+                إلغاء
+              </Button>
+              <Button colorScheme="red" ml={3} onClick={confirmDelete} isLoading={deleteLoading}>
+                حذف
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+    </>
   );
 }

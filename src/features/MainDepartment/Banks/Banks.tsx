@@ -151,7 +151,7 @@ function RowActions({
           variant="brandOutline"
         />
         <MenuList>
-          <MenuItem onClick={editModal.onOpen}>تعديل</MenuItem>
+          {/* <MenuItem onClick={editModal.onOpen}>تعديل</MenuItem> */}
           <MenuItem color="red.600" onClick={confirmDel.onOpen}>حذف</MenuItem>
         </MenuList>
       </Menu>

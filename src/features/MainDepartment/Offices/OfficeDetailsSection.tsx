@@ -45,7 +45,7 @@ const OfficeSchema = z.object({
   officeName: z.string().min(1, "اسم المكتب مطلوب"),
   phoneNum: z.string()
     .trim()
-    .regex(LIBYAN_PHONE_REGEX, "يجب أن يكون مكون من 10 أرقام"), // 👈 التعديل
+    .regex(LIBYAN_PHONE_REGEX, "يجب أن يكون مكون من 10 أرقام ويبدا ب 09"), // 👈 التعديل
   cityId: z.string().min(1, "اختر المدينة"),
   address: z.string().min(1, "العنوان مطلوب"),
   officeLatitude: z.string().refine((v) => v === "" || !Number.isNaN(Number(v)), "Latitude يجب أن يكون رقمًا").default(""),

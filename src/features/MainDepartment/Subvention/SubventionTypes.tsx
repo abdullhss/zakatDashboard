@@ -259,7 +259,7 @@ SadkaType:r.SadkaType
     console.log(values);
     
     try {
-      await addMutation.mutateAsync({
+      const response = await addMutation.mutateAsync({
         name: values?.name?.trim?.() || "",
         isActive: !!values?.isActive,
         desc: "",
@@ -269,6 +269,10 @@ SadkaType:r.SadkaType
         pointId: 0 as any,
         SadkaType : values.SadkaType 
       } as any);
+if(response.code == 207){
+      toast({ status: "error", title: "هذة الاعانة موجودة من قبل." });
+return
+}
 
       toast({ status: "success", title: "تمت إضافة تصنيف الإعانة." });
       addModal.onClose();
@@ -343,7 +347,7 @@ console.log(response.code==207);
         header: "نوع الصدقة",
         render: (row: AnyRec) => (
           <Text fontWeight="600" color="gray.700">
-            {row.SadkaType=="G"?"صدقة عامة" : row.SadakaType=="R" ? "صدقة جارية" : "-" }
+            {row.SadkaType=="G"?"صدقة عامة" : "صدقة جارية"}
           </Text>
         ),
       },

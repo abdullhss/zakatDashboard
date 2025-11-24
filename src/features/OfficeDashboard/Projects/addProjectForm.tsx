@@ -461,8 +461,8 @@ export default function AddProjectForm() {
           </GridItem>
         </Grid>
 
-        <FormControl mt={4} isRequired>
-          <FormLabel>وصف المشروع</FormLabel>
+        <FormControl mt={4} >
+          <FormLabel>وصف المشروع (اختياري)</FormLabel>
           <Textarea
             placeholder="برجاء كتابة وصف المشروع"
             rows={5}

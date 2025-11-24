@@ -14,7 +14,7 @@ import { updateNewsData } from "./Services/updateNewsData";
 
 // 🔗 مسار عرض الصور/الملفات
 const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
-const ZAKAT_FILES_BASE  = "https://framework.md-license.com:8093/ZakatFiles";
+const ZAKAT_FILES_BASE  = "https://framework.md-license.com:8093/ZakatImages";
 
 const buildPhotoUrlByName = (name?: string | number, ext?: string) => {
   if (!name) return "";
@@ -238,7 +238,7 @@ export default function AddNewsForm() {
           title: "تم تعديل الخبر بنجاح",
           description: `Photo#${photoId || "-"}  |  Attach#${attachId || "-"}`,
         });
-        navigate(-1)
+        navigate("/officedashboard/newsdata")
       }
 
       // navigate("/officedashboard/newsdata");

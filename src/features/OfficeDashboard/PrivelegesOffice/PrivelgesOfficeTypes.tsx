@@ -143,7 +143,7 @@ export default function Privileges() {
       const response = await executeProcedure("unoij/oKWLjGFBZiQeW2YYoT047Gg7KcCKtVsaC4S8o=",`${deleteId}`);
       console.log(response);
     
-      if(response.code == 204){
+      if(response.decrypted?.data.Result[0].ErrorCode == 204){
         toast({ title: "المجموعه مستخدمة ولا يمكن حذفها", status: "error" });
         return
       }

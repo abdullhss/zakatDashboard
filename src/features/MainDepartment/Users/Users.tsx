@@ -127,7 +127,7 @@ export default function Users() {
         const ok = window.confirm("هل أنت متأكد من حذف هذا المستخدم؟");
         if (!ok) return;
 
-        await deleteSubmit({
+        const response = await deleteSubmit({
           Id: row.Id ?? row.id ?? row.UserId ?? row.userId,
           UserName: row.UserName ?? row.Name ?? row.name ?? "",
           Email: row.Email ?? row.email ?? "",
@@ -139,11 +139,15 @@ export default function Users() {
           UserType: row.UserType ?? "",
           Office_Id: row.Office_Id ?? row.OfficeId ?? 0,
         });
-
+        console.log(response);
+        
+        if(response.code==221){
+          toast({ title: "هذا المستخدم مرتبط  ", status: "error" });
+        }
         toast({ title: "تم حذف المستخدم", status: "success" });
         refetch(); // لإعادة تحميل القائمة بعد الحذف
       } catch (e: any) {
-        toast({ title: e?.message || "تعذّر الحذف", status: "error" });
+        toast({ title: "هذا المستخدم مرتبط", status: "error" });
       }
     },
     [deleteSubmit, refetch, toast]

@@ -37,7 +37,7 @@ export default function UrgentProjects() {
 
       const response = await executeProcedure(
         "VhHmn+1EDh7y7eor+QB6x6Sr9C8GNNtWwSOKT9ErVP4=",
-        `${page}#${limit}`
+        `0#${page}#${limit}`
       );
 
       setTotalRows(Number(response.decrypted.data.Result[0].ProjectsCount));

@@ -71,7 +71,7 @@ export function createCampaignColumns({
       render: (r: AnyRec) => {
         const d = (r as CampaignRow).CreatedDate;
         const dateVal = typeof d === "string" || d instanceof Date ? new Date(d) : null;
-        return d && dateVal ? dateVal.toLocaleDateString("ar-EG") : "—";
+        return d && dateVal ? dateVal.toLocaleDateString("en") : "—";
       },
     },
   ];

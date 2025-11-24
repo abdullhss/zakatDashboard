@@ -13,7 +13,8 @@ export function useDeleteUser() {
     setSummary(null);
     try {
       const res = await deleteUser(payload);
-
+      console.log(res);
+      
       // فشل داخلي من السيرفر؟
       if (res.flags.FAILURE || res.flags.INTERNAL_ERROR) {
         throw new Error(res.message || "تعذّر الحذف.");
