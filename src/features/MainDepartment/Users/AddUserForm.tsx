@@ -158,7 +158,7 @@ export default function AddUserPage() {
     const passMatch = !passProvided ? true : Password === ConfirmPassword;
 
     const typeOk = !!UserType;
-    const privOk = privileges.length > 0 ? !!GroupRight_Id : true
+    const privOk = privileges.length > 0 && GroupRight_Id==0 ? false : true
     const officeOk = (UserType === "O") ? !!(isOfficeSession ? sessionOfficeId : Office_Id) : true;
 
     const  allOk =
