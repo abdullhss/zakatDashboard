@@ -108,7 +108,7 @@ export default function AddNewsForm() {
         new Date().toISOString().slice(0, 10),
 
       // مهم: نخزن الـ IDs للعرض
-      currentPhotoId: String(incoming.NewsMainPhotoName_Id ) || "",
+      currentPhotoId: String(incoming.NewsMainPhotoName ) || "",
       currentAttachId: String(incoming.AttachmentFile_Id ?? "") || "",
     }));
   }, [incoming]);

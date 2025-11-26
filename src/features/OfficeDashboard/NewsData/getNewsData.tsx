@@ -103,8 +103,10 @@ const makeColumns = ({ startIndex, goToType, onEdit, onDelete }: MakeColsArgs): 
           boxSize="44px"
           objectFit="cover"
           borderRadius="md"
+          style={{cursor:"pointer"}}
           fallback={<Icon as={FiImage} />}
           title={name ? `${name}${ext || ""}` : ""}
+          onClick={()=>{window.open(`${ZAKAT_IMAGES_BASE}/${row.NewsMainPhotoName}.jpg`)}}
         />
       ) : (
         <Icon as={FiImage} title="لا توجد صورة" />

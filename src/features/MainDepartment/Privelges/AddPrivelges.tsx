@@ -98,14 +98,8 @@ const lockName = false;
       {
         key: "name",
         header: "اسم الميزة",
-        width: "56%",
+        // width: "56%",
         render: (row: AnyRec) => <Text fontWeight="600" color={titleClr}>{(row as FeatureRow).name}</Text>,
-      },
-      {
-        key: "code",
-        header: "الكود",
-        width: "28%",
-        render: (row: AnyRec) => <Text color="gray.600">{(row as FeatureRow).code ?? "—"}</Text>,
       },
     ],
     [selected, titleClr, pageAllChecked, pageSomeChecked]

@@ -168,25 +168,20 @@ export default function Cities() {
 
   const handleAddSubmit = async (vals: { cityName: string }) => {
     const newCityName = vals.cityName.trim();
-    const isDuplicate = citiesData.some(
-      (city) =>
-        (city.CityName ?? city.name ?? city.title)?.toLowerCase() === newCityName.toLowerCase(),
-    );
-
-    if (isDuplicate) {
-      toast({
-        status: "warning",
-        title: "فشل الإضافة",
-        description: `المدينة ${newCityName} موجودة بالفعل.`,
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
 
     try {
-      await addCity.mutateAsync({ cityName: newCityName });
-      toast({ status: "success", title: "تمت الإضافة", description: "تمت إضافة المدينة بنجاح" });
+      const response = await addCity.mutateAsync({ cityName: newCityName });
+      if(response.code == 207){
+        toast({
+          status: "warning",
+          title: "فشل الإضافة",
+          description: `المدينة ${newCityName} موجودة بالفعل.`,
+          duration: 5000,
+          isClosable: true,
+        });
+      }else{
+        toast({ status: "success", title: "تمت الإضافة", description: "تمت إضافة المدينة بنجاح" });
+      }
       addModal.onClose();
       refetch();
     } catch (e: any) {

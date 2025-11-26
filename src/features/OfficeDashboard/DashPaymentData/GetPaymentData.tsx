@@ -47,9 +47,13 @@ const OFFICE_PAYMENT_COLUMNS: Column[] = [
         render: (row: AnyRec) => row.PaymentDesc || '—',
     },
     {
-        key: "SubventionTypeName",
+        key: "ActionName",
         header: "النوع",
-        render: (row: AnyRec) =>  row.SubventionTypeName || '—',
+        render: (row: AnyRec) =>  {
+            console.log(row);
+            
+            return row.ActionName || '—'
+        },
     },
     {
         key: "BankName",

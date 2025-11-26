@@ -19,17 +19,18 @@ function safeParse<T = any>(txt: any, fb: T): T {
 export function useGetAssistanceData(
   officeId: number | string,
   subventionTypeId: number | string,
+  status : number | string , 
   offset: number,
   limit: number
 ): UseQueryResult<AssistanceData, Error> {
 
-  const queryKey = ["assistances", officeId, subventionTypeId, offset, limit];
+  const queryKey = ["assistances", officeId, subventionTypeId, status, offset, limit];
 
   return useQuery<AssistanceData, Error>({
     queryKey,
     queryFn: async () => {
       const summary: NormalizedSummary = await getAssistanceData(
-        officeId, subventionTypeId, offset, limit
+        officeId, subventionTypeId , status , offset, limit
       );
       const decrypted = summary.decrypted
       console.log(decrypted);

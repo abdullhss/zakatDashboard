@@ -59,6 +59,7 @@ export default function SacrificeDataTypes() {
     offset, 
     limit
   ); 
+console.log(data);
 
   // ✅ استخدام تعريف واحد للـ rows و totalRows
   const allRows = data?.rows ;
@@ -113,7 +114,7 @@ export default function SacrificeDataTypes() {
       width: "20%",
       render: (row: AnyRec) => {
         const r = row as Row;
-        return r.UserName ?? r.ApplicantName ?? (r.GeneralUser_Id ? `مستخدم رقم ${r.GeneralUser_Id}` : "—");
+        return r.UserName ?? r.UserName ?? (r.UserName ? `مستخدم رقم ${r.UserName}` : "—");
       },
     },
     { key: "OfficeName", header: "المكتب", width: "16%", render: (row: AnyRec) => (row as Row).OfficeName ?? "—" },

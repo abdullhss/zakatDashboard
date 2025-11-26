@@ -110,7 +110,7 @@ export default function MainNavBarOfficeDepartment() {
       {renderLink("projects", "المشاريع", MdOutlineWork)}
 
       {/* الأضحيات */}
-      {renderLink("sacrificesDashData", "الأضحيات", GiSheep)}
+      {renderLink("sacrificesDashData", "طلبات الاضاحي", GiSheep)}
 
       {/* المدفوعات */}
       {renderLink("paymentData", "المدفوعات", BsCashCoin)}
@@ -125,7 +125,7 @@ export default function MainNavBarOfficeDepartment() {
       {renderLink("statement", "كشف الحسابات المصرفية", FiFileText)}
 
       {/* طلبات الاضاحي */}
-      {renderLink("sacrificeDataMain", "طلبات الاضاحي", GiSheep)}
+      {/* {renderLink("sacrificeDataMain", "", GiSheep)} */}
       
       {/* طلبات الاضاحي */}
       {renderLink("assistanceData", "طلبات الاعانة", GiChecklist)}

@@ -21,10 +21,12 @@ type Opt = { id: string | number; name: string };
 
 function AssistanceFiltersInline({
   officeId, setOfficeId, officeOptions,
-  subventionTypeId, setSubventionTypeId, subventionOptions = [], isDisabled = false,
+  subventionTypeId, setSubventionTypeId , status, setStatus , subventionOptions = [], isDisabled = false,
 }: {
   officeId: string | number; setOfficeId: (v: string | number) => void;
   officeOptions: Opt[]; subventionTypeId: string | number; setSubventionTypeId: (v: string | number) => void;
+status : number | string ;
+ setStatus : any;
   subventionOptions?: Opt[]; isDisabled?: boolean;
 }) {
   return (
@@ -41,6 +43,18 @@ function AssistanceFiltersInline({
         <option value={0}>كل المكاتب</option>
         {officeOptions.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
       </Select>
+        <Select
+        w="260px"
+        px={3}
+        value={status}
+        onChange={(e) => setStatus(Number(e.target.value))}
+        isDisabled={isDisabled}
+        >
+        <option value={0}>كل الحالات</option>
+        <option value={1}>مقبول</option>
+        <option value={2}>مرفوض</option>
+        </Select>
+
     </HStack>
   );
 }
@@ -85,6 +99,7 @@ export default function AssistanceDataTypes() {
   const [selectedRow, setSelectedRow] = useState<AssistanceRow | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isActing, setIsActing] = useState(false);
+const [status, setStatus] = useState<number | string>(0);
 
   const toast = useToast();
 
@@ -116,7 +131,7 @@ export default function AssistanceDataTypes() {
 
   // List
   const { data, isLoading, isError, error, refetch, isFetching } =
-    useGetAssistanceData(officeId, subventionTypeId, offset, PAGE_SIZE);
+    useGetAssistanceData(officeId, subventionTypeId , status, offset, PAGE_SIZE);
 
   const rows = (data?.rows ?? []) as AssistanceRow[];
   const totalRows = Number(data?.decrypted.data.Result[0].AssistancesCount) || 1 ;
@@ -275,6 +290,8 @@ export default function AssistanceDataTypes() {
         setOfficeId={(v) => { setPage(1); setOfficeId(v); }}
         subventionTypeId={subventionTypeId}
         setSubventionTypeId={(v) => { setPage(1); setSubventionTypeId(v); }}
+        status={status}
+        setStatus={(v:any) => { setPage(1); setStatus(v); }}   // ← هنا الإضافة الجديدة
         officeOptions={officeOptions}
         subventionOptions={subventionOptions}
         isDisabled={filtersDisabled}

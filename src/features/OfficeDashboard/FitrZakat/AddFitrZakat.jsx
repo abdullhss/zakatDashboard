@@ -8,7 +8,7 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import {doTransaction} from "../../../api/apiClient";
+import { doTransaction, executeProcedure } from "../../../api/apiClient";
 import { useNavigate } from "react-router-dom";
 import { getSession } from "../../../session";
 
@@ -17,9 +17,11 @@ const AddFitrZakat = () => {
     name: "",
     value: "",
   });
-  const toast = useToast() ; 
-  const navigate = useNavigate() ;
-    const { officeId } = getSession();
+
+  const toast = useToast();
+  const navigate = useNavigate();
+  const { officeId } = getSession();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -28,25 +30,50 @@ const AddFitrZakat = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    console.log("Form Data:", formData);
-    const saveData = async ()=>{
-        const response = await doTransaction({
-            TableName : "4LYYfaWHZlu5nqutMmGQ3g==", 
-            ColumnsNames : "Id#Office_Id#ItemName#ItemValue" ,
-            ColumnsValues:`0#${officeId}#${formData.name}#${formData.value}`,
-            PointId : 0 ,
-            WantedAction: 0, // Insert
-        }) ;
-        if (response.decrypted.result == 200) {
-            toast({
-                status:"success",
-                title:"تمت الاضافة بنجاح"
-            })
-            navigate("/officedashboard/fitrZakat")
-        }
+  const handleSubmit = async () => {
+    if (!formData.name.trim() || !formData.value.trim()) {
+      return toast({
+        status: "warning",
+        title: "يرجى ملء جميع الحقول",
+      });
     }
-    saveData();
+
+    // 1) هات البيانات الموجودة
+    const response = await executeProcedure(
+      "jkE/EfUyfEzbwqK/HolgChI5O++hElNV6y+iDEMHKxo=",
+      `${officeId}#1#1000`
+    );
+
+    const parsed = JSON.parse(response.decrypted.data.Result[0].ZakatFitrItemsData);
+
+    // 2) اتأكد إن الاسم غير موجود
+    const exists = parsed.some(
+      (item) => item.ItemName.trim() === formData.name.trim()
+    );
+
+    if (exists) {
+      return toast({
+        status: "error",
+        title: "هذا الصنف موجود بالفعل",
+      });
+    }
+
+    // 3) لو مش موجود → كمل الإضافة
+    const saveResp = await doTransaction({
+      TableName: "4LYYfaWHZlu5nqutMmGQ3g==",
+      ColumnsNames: "Id#Office_Id#ItemName#ItemValue",
+      ColumnsValues: `0#${officeId}#${formData.name}#${formData.value}`,
+      PointId: 0,
+      WantedAction: 0,
+    });
+
+    if (saveResp.decrypted.result == 200) {
+      toast({
+        status: "success",
+        title: "تمت الإضافة بنجاح",
+      });
+      navigate("/officedashboard/fitrZakat");
+    }
   };
 
   return (

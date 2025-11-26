@@ -152,12 +152,10 @@ export default function App() {
     <Route path="dashpayment" element={<GetPaymentData />} />
     <Route path="dashpayment/add" element={<AddPaymentData />} />
     <Route path="statement" element={<GetStatmentData />} />
-    <Route path="sacrificeDataMain" element={<GetSacrificeDataMain />} />
+    {/* <Route path="sacrificeDataMain" element={<GetSacrificeDataMain />} /> */}
     <Route path="assistanceData" element={<AssistanceDataTypes />} />
     <Route path="fitrZakat" element={<FitrZakat />} />
     <Route path="fitrZakat/add" element={<AddFitrZakat />} />
-
-
   </Route>
 </Route>
 

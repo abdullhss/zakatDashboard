@@ -63,7 +63,7 @@ export async function updateAboutUs(payload: any): Promise<NormalizedSummary> {
   console.log("assssssss",payload);
   
   const columnsNames = `Id#PhoneNum#Address#WebSite#Instegram#FaceBook`;
-  const columnsValues = `${1}#${payload.PhoneNum}#${payload.Address}#${payload.WebSite}#${payload.FaceBook}#${payload.Instegram}`;
+  const columnsValues = `${1}#${payload.PhoneNum}#${payload.Address}#${payload.WebSite}#${payload.Instegram}#${payload.FaceBook}`;
 
   const exec = await doTransaction({
     TableName: "daO6ZmlHKZsgpQBx6zCv/A==",

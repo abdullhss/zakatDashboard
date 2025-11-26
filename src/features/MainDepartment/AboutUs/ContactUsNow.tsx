@@ -140,7 +140,12 @@ export default function ContactUsNow() {
     console.log("Saving data:", formData);
 
     const response = await updateAboutUs(formData);
-    console.log(response);
+    if(response.decrypted.result =="200"){
+      toast({
+        status:"success",
+        title:"تم الحفظ بنجاح"
+      })
+    }
     queryClient.invalidateQueries(["get-contact-us"]);
 
   };

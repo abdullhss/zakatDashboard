@@ -34,7 +34,7 @@ const FitrZakat = () => {
   }, []);
 
   const columns = [
-    { key: "Id", header: "ID", render: (r) => r.Id },
+    // { key: "Id", header: "ID", render: (r) => r.Id },
     { key: "ItemName", header: "اسم الصنف", render: (r) => r.ItemName },
     { key: "ItemValue", header: "قيمة الفطرة", render: (r) => r.ItemValue },
   ];
@@ -45,12 +45,12 @@ const FitrZakat = () => {
         title="أصناف زكاة الفطر"
         data={ZakatFitrData}
         columns={columns}
-        totalRows={1} // ثابت زي ما طلبت
+        // totalRows={1} // ثابت زي ما طلبت
         loading={loading}
-        page={page}
-        startIndex={offset + 1}
-        pageSize={PAGE_SIZE}
-        onPageChange={setPage}
+        // page={page}
+        // startIndex={offset + 1}
+        // pageSize={PAGE_SIZE}
+        // onPageChange={setPage}
         headerAction={
           <HStack spacing={3}>
             <SharedButton
