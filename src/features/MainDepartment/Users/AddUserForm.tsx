@@ -237,7 +237,7 @@ export default function AddUserPage() {
           Password,
           ConfirmPassword,
           UserType: (isOfficeSession ? "O" : UserType) as "M" | "O",
-          GroupRight_Id: Number(GroupRight_Id || 0),
+          GroupRight_Id: Number(GroupRight_Id),
           Office_Id: (isOfficeSession ? sessionOfficeId : (UserType === "O" ? Number(Office_Id || 0) : 0)),
         } as any);
 

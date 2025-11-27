@@ -63,7 +63,9 @@ export function useAddUser(opts: Options = {}) {
         const login    = String(p.LoginName ?? userName);
 
         // مكتب = 0، إدارة = القيمة المختارة
-        const groupRightId = userType === "O" ? 0 : (Number(p.GroupRight_Id ?? 0) || 0);
+        console.log(p.GroupRight_Id);
+        
+        const groupRightId = p.GroupRight_Id;
         // مكتب فقط؛ إدارة = 0
         const officeId     = userType === "O" ? (Number(p.Office_Id ?? 0) || 0) : 0;
 

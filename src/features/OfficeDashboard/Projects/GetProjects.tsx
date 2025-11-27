@@ -189,6 +189,28 @@ export default function Projects() {
           </Text>
         ),
       },
+            {
+        key: "projectPercent",
+        header: "نسبة اكتمال المشروع",
+        render: (row: AnyRec) => {
+          const wanted =
+            row.WantedAmount ?? row.ProjectWantedAmount ?? 0;
+
+          const remaining =
+            row.RemainingAmount ?? row.ProjectRemainingAmount ?? 0;
+
+          const paid = wanted - remaining;
+
+          const percent =
+            wanted > 0 ? Math.round((paid / wanted) * 100) : 0;
+
+          return (
+            <Text fontWeight="600" color="gray.800">
+              {percent}%
+            </Text>
+          );
+        },
+      },
       // {
       //   key: "Actions",
       //   header: "الخيارات",

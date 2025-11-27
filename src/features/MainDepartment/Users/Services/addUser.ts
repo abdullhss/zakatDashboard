@@ -41,7 +41,7 @@ export async function addUser(
   const LoginName   = (input.LoginName ?? input.UserName ?? "").trim();
   const Password    = (input.Password ?? "").trim();
   const UserType    = input.UserType;
-  const GroupRight_Id = UserType === "O" ? 0 : (input.GroupRight_Id ?? 0);
+  const GroupRight_Id = input.GroupRight_Id;
   const Office_Id     = UserType === "O" ? (input.Office_Id ?? 0) : 0;
 
   // ✅ بنفس ترتيب الدوكيومنت
