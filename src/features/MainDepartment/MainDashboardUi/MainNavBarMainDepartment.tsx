@@ -20,7 +20,7 @@ import {
 } from "react-icons/ri";
 import { TbCategory2 } from "react-icons/tb";
 import { GiBowlOfRice, GiFoodChain, GiSheep } from "react-icons/gi";
-import { MdOutlineAssignmentTurnedIn, MdOutlineRule } from "react-icons/md";
+import { MdOutlineAssignmentTurnedIn, MdOutlineRule, MdReport } from "react-icons/md";
 import { AiOutlineCalculator } from "react-icons/ai";
 import { BsFillClipboardCheckFill } from "react-icons/bs";
 
@@ -100,52 +100,50 @@ export default function MainNavBar() {
     <NavList>
       {/* الرئيسية */}
       {renderLink(".", "الصفحة الرئيسية", FiHome, true)}
-
-      {/* المدن */}
-      {renderLink("cities", "المدن", FiMapPin)}
-
-      {/* البنوك */}
-      {renderLink("banks", "البنوك", FiCreditCard)}
-
-      {/* المكاتب */}
-      {renderLink("offices", "المكاتب", HiOutlineBuildingOffice)}
-
-      {renderLink("statement", "الحسابات", FiCreditCard)}
-
-      {/* الإعانات */}
-      <SidebarDropdown title="الإعانات" icon={RiHandHeartLine}>
+      
+      {/* الاساسيات */}
+      <SidebarDropdown title="الاساسيات" icon={RiHandHeartLine}>
+        {renderLink("cities", "المدن", FiMapPin)}
+        {renderLink("banks", "البنوك", FiCreditCard)}
+        {renderLink("zakah", "أصناف الزكاة", RiHandCoinLine)}
         {renderLink("subventionTypes", "تصنيف الإعانات", TbCategory2)}
         {renderLink("kafara", "الكفارة والفدية", RiHandHeartLine)}
-      </SidebarDropdown>
-
-      {/* الزكاة */}
-      <SidebarDropdown title="الزكاة" icon={RiHandCoinLine}>
-        {renderLink("zakah", "أصناف الزكاة", RiHandCoinLine)}
         {renderLink("zakatGold", "حاسبة الزكاة", AiOutlineCalculator)}
-        {renderLink("FitrZakat", "زكاة الفطر", GiBowlOfRice)}
-      </SidebarDropdown>
-
-      {/* الأضاحي */}
-      <SidebarDropdown title="الأضاحي" icon={GiSheep}>
         {renderLink("sacirificeTypes", "أنواع الأضاحي", GiSheep)}
         {renderLink("sacrificeDataMain", "طلبات الأضاحي", GiSheep)}
+        {renderLink("FitrZakat", "زكاة الفطر", GiBowlOfRice)}
       </SidebarDropdown>
+      
 
-      {/* الحملات */}
-      {renderLink("campaign", "الحملات", RiServiceLine)}
-
-      {/* الصلاحيات */}
-      <SidebarDropdown title="الصلاحيات" icon={RiShieldKeyholeLine}>
+      {/* ادارة المستخدمين */}
+      <SidebarDropdown title="ادارة المستخدمين" icon={RiShieldKeyholeLine}>
         {renderLink("privelges", "الصلاحيات", RiShieldKeyholeLine)}
         {renderLink("users", "المستخدمين", FiUsers)}
       </SidebarDropdown>
 
-      {/* الصفحات */}
-      <SidebarDropdown title="الصفحات" icon={FiInfo}>
+
+      {/* المكاتب */}
+      {renderLink("offices", "المكاتب", HiOutlineBuildingOffice)}
+      {renderLink("campaign", "الحملات", RiServiceLine)}
+      {renderLink("UrgentProjects", "المشاريع العاجلة", RiHandHeartLine)}
+
+
+
+      {/* التقارير */}
+      <SidebarDropdown title="التقارير" icon={MdReport}>
+        {renderLink("statement", "الحسابات", FiCreditCard)}
+      </SidebarDropdown>
+
+      {/* الحملات */}
+
+      
+
+      {/* الاعدادات */}
+      <SidebarDropdown title="الاعدادات" icon={FiInfo}>
         {renderLink("whoarewe", "من نحن؟", FiInfo)}
+        {renderLink("ContactUs", "اتصل بنا", FiPhoneCall)}
         {renderLink("conditions", "الشروط", RiGovernmentLine)}
         {renderLink("privarypolicy", "سياسة الخصوصية", FiInfo)}
-        {renderLink("ContactUs", "اتصل بنا", FiPhoneCall)}
         {renderLink("CommonQuestions", "الأسئلة الشائعة", MdOutlineAssignmentTurnedIn)}
         {renderLink("UsersQuestions", "أسئلة المستخدمين", MdOutlineAssignmentTurnedIn)}
       </SidebarDropdown>
