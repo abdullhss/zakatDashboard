@@ -26,7 +26,9 @@ import { BsFillClipboardCheckFill } from "react-icons/bs";
 
 import { getSession } from "../../../session";
 import { useGetGroupRightFeature } from "../Privelges/hooks/useGetGroupRightFeature";
-
+import { Collapse } from "@chakra-ui/react";
+import { useState } from "react";
+import { ChevronDownIcon , ChevronUpIcon } from "@chakra-ui/icons";
 const NavList = chakra("nav", {
   baseStyle: {
     display: "flex",
@@ -108,58 +110,96 @@ export default function MainNavBar() {
       {/* المكاتب */}
       {renderLink("offices", "المكاتب", HiOutlineBuildingOffice)}
 
-      {/* تصنيفات الإعانات */}
-      {renderLink("subventionTypes", "تصنيف الإعانات", TbCategory2)}
+      {renderLink("statement", "الحسابات", FiCreditCard)}
 
-      {/* الكفارة */}
-      {renderLink("kafara", "الكفارة والفدية", RiHandHeartLine)}
+      {/* الإعانات */}
+      <SidebarDropdown title="الإعانات" icon={RiHandHeartLine}>
+        {renderLink("subventionTypes", "تصنيف الإعانات", TbCategory2)}
+        {renderLink("kafara", "الكفارة والفدية", RiHandHeartLine)}
+      </SidebarDropdown>
 
       {/* الزكاة */}
-      {renderLink("zakah", "أصناف الزكاة", RiHandCoinLine)}
+      <SidebarDropdown title="الزكاة" icon={RiHandCoinLine}>
+        {renderLink("zakah", "أصناف الزكاة", RiHandCoinLine)}
+        {renderLink("zakatGold", "حاسبة الزكاة", AiOutlineCalculator)}
+        {renderLink("FitrZakat", "زكاة الفطر", GiBowlOfRice)}
+      </SidebarDropdown>
 
-      {/* الصلاحيات */}
-      {renderLink("privelges", "الصلاحيات", RiShieldKeyholeLine)}
+      {/* الأضاحي */}
+      <SidebarDropdown title="الأضاحي" icon={GiSheep}>
+        {renderLink("sacirificeTypes", "أنواع الأضاحي", GiSheep)}
+        {renderLink("sacrificeDataMain", "طلبات الأضاحي", GiSheep)}
+      </SidebarDropdown>
 
-      {/* المستخدمين */}
-      {renderLink("users", "المستخدمين", FiUsers)}
-
-      {/* حاسبة الزكاة */}
-      {renderLink("zakatGold", "حاسبة الزكاة", AiOutlineCalculator)}
-
-      {/* أنواع الأضحيات */}
-      {renderLink("sacirificeTypes", "أنواع الأضاحي", GiSheep)}
-
-      {/* مراجعة طلب الإعانة */}
-      {renderLink("assistanceData", "مراجعة طلب الإعانة", BsFillClipboardCheckFill)}
-
-      {/* الخدمات والحملات */}
+      {/* الحملات */}
       {renderLink("campaign", "الحملات", RiServiceLine)}
 
-      {/* بيانات الأضحيات */}
-      {renderLink("sacrificeDataMain", "طلبات الأضاحي", GiSheep)}
+      {/* الصلاحيات */}
+      <SidebarDropdown title="الصلاحيات" icon={RiShieldKeyholeLine}>
+        {renderLink("privelges", "الصلاحيات", RiShieldKeyholeLine)}
+        {renderLink("users", "المستخدمين", FiUsers)}
+      </SidebarDropdown>
 
-      {/* اللوائح */}
-      {renderLink("laws", "اللوائح", MdOutlineRule)}
-
-      {/* اتصل بنا */}
-      {renderLink("ContactUs", "اتصل بنا", FiPhoneCall)}
-
-      {/* الشروط */}
-      {renderLink("conditions", "الشروط", RiGovernmentLine)}
-
-      {/* من نحن */}
-      {renderLink("whoarewe", "من نحن؟", FiInfo)}
-
-      {renderLink("privarypolicy", "سياسة الخصوصية", FiInfo)}
-
-      {renderLink("UrgentProjects", "المشاريع العاجلة", MdOutlineAssignmentTurnedIn)}
-
-      {renderLink("CommonQuestions", "الاسئلة الشائعة", MdOutlineAssignmentTurnedIn)}
-      
-      {renderLink("UsersQuestions", "اسئلة المستخدمين", MdOutlineAssignmentTurnedIn)}
-
-      {renderLink("FitrZakat", "زكاة الفطر", GiBowlOfRice)}
+      {/* الصفحات */}
+      <SidebarDropdown title="الصفحات" icon={FiInfo}>
+        {renderLink("whoarewe", "من نحن؟", FiInfo)}
+        {renderLink("conditions", "الشروط", RiGovernmentLine)}
+        {renderLink("privarypolicy", "سياسة الخصوصية", FiInfo)}
+        {renderLink("ContactUs", "اتصل بنا", FiPhoneCall)}
+        {renderLink("CommonQuestions", "الأسئلة الشائعة", MdOutlineAssignmentTurnedIn)}
+        {renderLink("UsersQuestions", "أسئلة المستخدمين", MdOutlineAssignmentTurnedIn)}
+      </SidebarDropdown>
 
     </NavList>
+  );
+}
+
+
+
+const DropdownContainer = chakra("div", {
+  baseStyle: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+  },
+});
+
+const DropdownHeader = chakra("button", {
+  baseStyle: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    h: "56px",
+    px: 6,
+    fontWeight: 800,
+    color: "gray.600",
+    _hover: { bg: "gray.200", color: "gray.700" },
+  },
+});
+
+const DropdownItem = chakra("div", {
+  baseStyle: {
+    pl: 10,
+  },
+});
+
+function SidebarDropdown({ title, icon: IconComp, children }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <DropdownContainer>
+      <DropdownHeader onClick={() => setOpen(!open)}>
+        <span style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <Icon as={IconComp} boxSize={5} />
+          {title}
+        </span>
+        <Icon as={open ? ChevronUpIcon : ChevronDownIcon } boxSize={5} />
+      </DropdownHeader>
+
+      <Collapse in={open} animateOpacity>
+        <DropdownItem>{children}</DropdownItem>
+      </Collapse>
+    </DropdownContainer>
   );
 }

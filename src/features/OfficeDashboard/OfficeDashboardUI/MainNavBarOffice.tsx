@@ -22,6 +22,9 @@ import { BsCashCoin } from "react-icons/bs";
 
 import { getSession } from "../../../session";
 import { useGetGroupRightFeature } from "../../MainDepartment/Privelges/hooks/useGetGroupRightFeature";
+import { Collapse } from "@chakra-ui/react";
+import { useState } from "react";
+import { ChevronDownIcon , ChevronUpIcon } from "@chakra-ui/icons";
 
 const NavList = chakra("nav", {
   baseStyle: {
@@ -91,46 +94,91 @@ export default function MainNavBarOfficeDepartment() {
 
   return (
     <NavList>
-      {/* الرئيسية */}
-      {renderLink(".", "الصفحة الرئيسية", FiHome)}
-
-      {/* المستخدمين */}
+    {renderLink(".", "الصفحة الرئيسية", FiHome)}
+    {/* إدارة المستخدمين */}
+    <SidebarDropdown title="إدارة المستخدمين" icon={FiUsers}>
       {renderLink("usersOffice", "المستخدمين", FiUsers)}
-
-      {/* الصلاحيات */}
       {renderLink("privelgesOffice", "الصلاحيات", RiShieldKeyholeLine)}
+    </SidebarDropdown>
 
-      {/* الخدمات */}
-      {/* {renderLink("campaignOffice", "الخدمات", RiServiceLine)} */}
-
-      {/* الأخبار */}
-      {renderLink("newsdata", "الأخبار", RiNewspaperLine)}
-
-      {/* المشاريع */}
-      {renderLink("projects", "المشاريع", MdOutlineWork)}
-
-      {/* الأضحيات */}
-      {renderLink("sacrificesDashData", "طلبات الاضاحي", GiSheep)}
-
-      {/* المدفوعات */}
+    {/* المعاملات المالية */}
+    <SidebarDropdown title="المعاملات المالية" icon={BsCashCoin}>
       {renderLink("paymentData", "المدفوعات", BsCashCoin)}
-
-      {/* التحويلات البنكية */}
       {renderLink("transferdata", "التحويلات البنكية", FiSend)}
-
-      {/* المصروفات */}
       {renderLink("dashpayment", "المصروفات", RiHandCoinLine)}
-
-      {/* الإيصالات */}
       {renderLink("statement", "كشف الحسابات المصرفية", FiFileText)}
+    </SidebarDropdown>
 
-      {/* طلبات الاضاحي */}
-      {/* {renderLink("sacrificeDataMain", "", GiSheep)} */}
-      
-      {/* طلبات الاضاحي */}
-      {renderLink("assistanceData", "طلبات الاعانة", GiChecklist)}
 
+    {/* الأضاحي والزكاة */}
+    <SidebarDropdown title="الأضاحي والزكاة" icon={GiSheep}>
+      {renderLink("sacrificesDashData", "طلبات الاضاحي", GiSheep)}
       {renderLink("fitrZakat", "زكاة الفطر", GiFoodChain)}
+    </SidebarDropdown>
+
+
+    {/* الإعانات */}
+    <SidebarDropdown title="الإعانات" icon={GiChecklist}>
+      {renderLink("assistanceData", "طلبات الاعانة", GiChecklist)}
+    </SidebarDropdown>
+
+
+    {/* المحتوى */}
+    <SidebarDropdown title="إدارة المحتوى" icon={RiNewspaperLine}>
+      {renderLink("newsdata", "الأخبار", RiNewspaperLine)}
+      {renderLink("projects", "المشاريع", MdOutlineWork)}
+    </SidebarDropdown>
+
     </NavList>
+  );
+}
+
+
+
+const DropdownContainer = chakra("div", {
+  baseStyle: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+  },
+});
+
+const DropdownHeader = chakra("button", {
+  baseStyle: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    h: "56px",
+    px: 6,
+    fontWeight: 800,
+    color: "gray.600",
+    _hover: { bg: "gray.200", color: "gray.700" },
+  },
+});
+
+const DropdownItem = chakra("div", {
+  baseStyle: {
+    pl: 10,
+  },
+});
+
+function SidebarDropdown({ title, icon: IconComp, children }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <DropdownContainer>
+      <DropdownHeader onClick={() => setOpen(!open)}>
+        <span style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <Icon as={IconComp} boxSize={5} />
+          {title}
+        </span>
+        <Icon as={open ? ChevronUpIcon : ChevronDownIcon } boxSize={5} />
+      </DropdownHeader>
+
+      <Collapse in={open} animateOpacity>
+        <DropdownItem>{children}</DropdownItem>
+      </Collapse>
+    </DropdownContainer>
   );
 }
