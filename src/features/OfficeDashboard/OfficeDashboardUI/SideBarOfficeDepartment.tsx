@@ -7,17 +7,18 @@ import MainNavBarOfficeDepartment from "./MainNavBarOffice";
 
 const StyledSideBar = chakra("aside", {
   baseStyle: {
-    gridArea: "sidebar",
-    width: "314px",
-    bg: "white",
+    width: "282.63px",
+    bg: "background.sidebar",
     color: "gray.700",
     px: 0,
-    py: 4,
-    height: "100%",
+    py: 0,
+    position: "fixed",
+    top: 0,
+    left: 0,
+    height: "100vh",
+    zIndex: 100,
     display: "flex",
     flexDirection: "column",
-    borderRight: "1px solid",
-    borderColor: "gray.100",
   },
 });
 
@@ -44,16 +45,40 @@ export default function SideBarOfficeDepartment() {
 
   return (
     <StyledSideBar aria-label="Sidebar">
-      <Box px={5} mb={4} textAlign="right" borderBottom="1px solid" borderColor="gray.100" pb={4} mx={5}>
-  
-      </Box>
+      <Box
+        px={5}
+        py={4}
+        textAlign="right"
+        borderBottom="1px solid"
+        borderColor="gray.100"
+        boxShadow="sm"
+        position="sticky"
+        top={0}
+        bg="background.sidebar"
+        zIndex={1}
+      >
       <Logo />
+      </Box>
 
-      <MainNavBarOfficeDepartment />
 
-      <Box flexGrow={1} />
+      <Box
+        flex="1"
+        overflowY="auto"
+        px={0}
+        py={4}
+        scrollbarWidth="thin"
+        sx={{
+          "&::-webkit-scrollbar": { width: "6px" },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#ccc",
+            borderRadius: "3px",
+          },
+        }}
+      >
+        <MainNavBarOfficeDepartment />
+      </Box>
 
-      <Box mt={4} borderTop="1px solid" borderColor="gray.100" pt={4}>
+      <Box mt={4} borderTop="1px solid" borderColor="gray.100" p={4}>
         {/* <ActionButton as={NavLink} to="settings">
           الإعدادات
           <Icon as={FiSettings} boxSize={5} />
