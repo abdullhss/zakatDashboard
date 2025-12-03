@@ -132,7 +132,8 @@ export default function MainNavBar() {
       {/* التقارير */}
       <SidebarDropdown title="التقارير" icon={MdReport}>
         {renderLink("statement", "الحسابات", FiCreditCard)}
-        {/* {renderLink("Payments", "المدفوعات", MdPayments)} */}
+        {renderLink("Payments", "المدفوعات", MdPayments)}
+        {renderLink("Receipts", "المصروفات", MdPayments)}
       </SidebarDropdown>
 
       {/* الحملات */}

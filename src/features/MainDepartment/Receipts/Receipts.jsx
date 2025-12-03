@@ -80,7 +80,7 @@ const Payments = () => {
     const params = `${selectedOffice}#${selectedSubventionTypeId}#${selectedProject_Id}#${selectedFromDate}#${selectedToDate}#${(page-1)*PAGE_LIMIT + 1}#${PAGE_LIMIT}`;
 
     const response = await executeProcedure(
-      "xc9G5ryZFuDsY7gwgFzb2ZgnmqV0e50nsl0VezdVEuU=",
+      "nMzFI8XoIbwxjuKdXGFF0YViCloApN9Mz74pViz7qf0=",
       params
     );
     console.log(response.decrypted.data?.Result[0]);
@@ -187,51 +187,56 @@ const Payments = () => {
         </Button>
 
       </VStack>
-      {PaymentsData.length > 0 && (
-  <TableContainer
-    mt={6}
-    border="1px solid #e2e8f0"
-    borderRadius="12px"
-    // boxShadow="md"
-    // p={4}
-    maxW="100%"
-  >
-    <Table variant="simple" size="lg">
-      <Thead bg="gray.200">
-        <Tr>
-          <Th fontSize="md" py={4}>رقم العملية</Th>
-          <Th fontSize="md" py={4}>التاريخ</Th>
-          <Th fontSize="md" py={4}>بيان الدفع</Th>
-          <Th fontSize="md" py={4}>القيمة</Th>
-          <Th fontSize="md" py={4}>نوع الإعانة</Th>
-          <Th fontSize="md" py={4}>طريقة الدفع</Th>
-          <Th fontSize="md" py={4}>المكتب</Th>
-          <Th fontSize="md" py={4}>البنك</Th>
-        </Tr>
-      </Thead>
+        {PaymentsData.length > 0 && (
+            <TableContainer
+                mt={6}
+                border="1px solid #e2e8f0"
+                borderRadius="12px"
+                maxW="100%"
+            >
+                <Table variant="simple" size="lg">
+                <Thead bg="gray.200">
+                    <Tr>
+                    <Th fontSize="md" py={4}>رقم العملية</Th>
+                    <Th fontSize="md" py={4}>التاريخ</Th>
+                    <Th fontSize="md" py={4}>بيان الدفع</Th>
+                    <Th fontSize="md" py={4}>القيمة</Th>
+                    <Th fontSize="md" py={4}>نوع العملية</Th>
+                    <Th fontSize="md" py={4}>نوع الإعانة</Th>
+                    <Th fontSize="md" py={4}>المشروع</Th>
+                    <Th fontSize="md" py={4}>المكتب</Th>
+                    <Th fontSize="md" py={4}>البنك</Th>
+                    <Th fontSize="md" py={4}>اسم المستخدم</Th>
+                    <Th fontSize="md" py={4}>رقم الحساب</Th>
+                    </Tr>
+                </Thead>
 
-      <Tbody>
-        {PaymentsData.map((p) => (
-          <Tr
-            key={p.Id}
-            _hover={{ bg: "gray.50" }}
-            fontSize="md"
-            height="60px"
-          >
-            <Td>{p.Id}</Td>
-            <Td>{p.PaymentDate?.split("T")[0]}</Td>
-            <Td>{p.PaymentDesc || "-"}</Td>
-            <Td fontWeight="bold">{p.PaymentValue}</Td>
-            <Td>{p.SubventionTypeName || "-"}</Td>
-            <Td>{p.PaymentWayName || "-"}</Td>
-            <Td>{p.OfficeName || "-"}</Td>
-            <Td>{p.BankName || "-"}</Td>
-          </Tr>
-        ))}
-      </Tbody>
-    </Table>
-  </TableContainer>
-)}
+                <Tbody>
+                    {PaymentsData.map((p) => (
+                    <Tr
+                        key={p.Id}
+                        _hover={{ bg: "gray.50" }}
+                        fontSize="md"
+                        height="60px"
+                    >
+                        <Td>{p.Id}</Td>
+                        <Td>{p.PaymentDate?.split("T")[0]}</Td>
+                        <Td>{p.PaymentDesc || "-"}</Td>
+                        <Td fontWeight="bold">{p.PaymentValue}</Td>
+                        <Td>{p.ActionName || "-"}</Td>
+                        <Td>{p.SubventionTypeName || "-"}</Td>
+                        <Td>{p.ProjectName || "-"}</Td>
+                        <Td>{p.OfficeName || "-"}</Td>
+                        <Td>{p.BankName || "-"}</Td>
+                        <Td>{p.UserName || "-"}</Td>
+                        <Td>{p.AccountNum || "-"}</Td>
+                    </Tr>
+                    ))}
+                </Tbody>
+                </Table>
+            </TableContainer>
+            )}
+
 
     {PaymentsCount > PAGE_LIMIT && (
   <HStack mt={4} spacing={4} justify="center">

@@ -66,7 +66,7 @@ import AddFitrZakat from "../features/OfficeDashboard/FitrZakat/AddFitrZakat"
 import FitrZakatMain from "../features/MainDepartment/ZakatFitr/FitrZakat"
 import MainStatement from "../features/MainDepartment/Statement/Statement"
 import Payments from "../features/MainDepartment/Payments/Payments"
-
+import Receipts from "../features/MainDepartment/Receipts/Receipts"
 export default function App() {
   useEffect(() => {
     const now = Date.now();
@@ -127,6 +127,7 @@ export default function App() {
             <Route path="FitrZakat" element={<FitrZakatMain />} />
             <Route path="statement" element={<MainStatement />} />
             <Route path="payments" element={<Payments />} />
+            <Route path="receipts" element={<Receipts />} />
           </Route>
         </Route>
 
