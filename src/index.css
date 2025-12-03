@@ -1,1 +1,20 @@
 @import "tailwindcss";
+@media print {
+  /* اخفي الصفحة كلها */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* اظهر الجدول فقط */
+  #printable-table, #printable-table * {
+    visibility: visible !important;
+  }
+
+  /* خلي الجدول ياخد عرض الصفحة */
+  #printable-table {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

@@ -95,39 +95,32 @@ export default function MainNavBarOfficeDepartment() {
   return (
     <NavList>
     {renderLink(".", "الصفحة الرئيسية", FiHome)}
-    {/* إدارة المستخدمين */}
+
     <SidebarDropdown title="إدارة المستخدمين" icon={FiUsers}>
-      {renderLink("usersOffice", "المستخدمين", FiUsers)}
       {renderLink("privelgesOffice", "الصلاحيات", RiShieldKeyholeLine)}
+      {renderLink("usersOffice", "المستخدمين", FiUsers)}
+    </SidebarDropdown>
+    
+    <SidebarDropdown title="ادارة المنصة" icon={GiChecklist}>
+      {renderLink("projects", "المشاريع", MdOutlineWork)}
+      {renderLink("newsdata", "الأخبار", RiNewspaperLine)}
+      {renderLink("sacrificesDashData", "طلبات الاضاحي", GiSheep)}
+      {renderLink("assistanceData", "طلبات الاعانة", GiChecklist)}
+      {renderLink("fitrZakat", "زكاة الفطر", GiFoodChain)}
     </SidebarDropdown>
 
-    {/* المعاملات المالية */}
-    <SidebarDropdown title="المعاملات المالية" icon={BsCashCoin}>
-      {renderLink("paymentData", "المدفوعات", BsCashCoin)}
+    {renderLink("paymentData", "المدفوعات", BsCashCoin)}
+    <SidebarDropdown title="الحسابات" icon={BsCashCoin}>
       {renderLink("transferdata", "التحويلات البنكية", FiSend)}
       {renderLink("dashpayment", "المصروفات", RiHandCoinLine)}
       {renderLink("statement", "كشف الحسابات المصرفية", FiFileText)}
     </SidebarDropdown>
 
+    {/* <SidebarDropdown title="التقارير" icon={GiChecklist}>
 
-    {/* الأضاحي والزكاة */}
-    <SidebarDropdown title="الأضاحي والزكاة" icon={GiSheep}>
-      {renderLink("sacrificesDashData", "طلبات الاضاحي", GiSheep)}
-      {renderLink("fitrZakat", "زكاة الفطر", GiFoodChain)}
-    </SidebarDropdown>
+    </SidebarDropdown> */}
 
 
-    {/* الإعانات */}
-    <SidebarDropdown title="الإعانات" icon={GiChecklist}>
-      {renderLink("assistanceData", "طلبات الاعانة", GiChecklist)}
-    </SidebarDropdown>
-
-
-    {/* المحتوى */}
-    <SidebarDropdown title="إدارة المحتوى" icon={RiNewspaperLine}>
-      {renderLink("newsdata", "الأخبار", RiNewspaperLine)}
-      {renderLink("projects", "المشاريع", MdOutlineWork)}
-    </SidebarDropdown>
 
     </NavList>
   );

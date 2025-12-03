@@ -21,11 +21,9 @@ import { useAddPaymentData } from "./hooks/useAddPaymentData";
 import { useGetOfficeProjectsData } from "./hooks/useGetProjectDashData";
 import { useGetOfficeBanksData } from "../TransferBanksData/hooks/useGetOfficeBanksData";
 import { getSession } from "../../../session";
+import { number } from "zod";
+import { executeProcedure } from "../../../api/apiClient";
 
-const ACTION_TYPES = [
-  { id: 1, name: "زكاة", code: "Z" },
-  { id: 2, name: "صدقة", code: "S" },
-];
 
 const ZAKAT_TYPES_HARDCODED = [
   { Id: 1, ZakatTypeName: "الفقراء والمساكين" },
@@ -37,14 +35,6 @@ const ZAKAT_TYPES_HARDCODED = [
   { Id: 7, ZakatTypeName: "المؤلفة قلوبهم" },
 ];
 
-// كل الإعانات المتاحة
-const ALL_SUBVENTION_TYPES = [
-  { Id: 2, SubventionTypeName: "إعانة زواج", zakatTypeId: 1 },
-  { Id: 3, SubventionTypeName: "إعانة سكن", zakatTypeId: 1 },
-  { Id: 4, SubventionTypeName: "إعانة آلة حرفة", zakatTypeId: 1 },
-  { Id: 5, SubventionTypeName: "إعانة إيجار طارئة", zakatTypeId: 1 },
-  { Id: 8, SubventionTypeName: "إعانة غارمين", zakatTypeId: 5 },
-];
 
 interface PaymentFormState {
   paymentDate: string;
@@ -79,21 +69,76 @@ export default function AddPaymentData() {
     usersCount: "1",
     zakahName: "",
   });
+  const [ACTION_TYPES , setACTION_TYPES] = useState([]) ;
+  const [subventionTypes, setSubventionTypes] = useState([]);
+
+  useEffect(()=>{
+    const getActionTypes = async ()=>{
+      const resposne = await executeProcedure("jMuz+t7lAQU3w5nJUBtwxA==" , "");
+      setACTION_TYPES(
+        resposne.rows.map(item => ({
+          id: item.Id,
+          name: item.ActionName
+        }))
+      );
+    }
+    getActionTypes() ;
+  },[])
+
+  useEffect(() => {
+  const getSubventions = async () => {
+
+    // لو لسه المختار لا زكاة ولا صدقة
+    if (!form.actionId) {
+      setSubventionTypes([]);
+      return;
+    }
+
+    const zakatOrSadqa = Number(form.actionId) === 1 ? "z" : "s";
+
+    const params = `${officeId}#${form.zakatTypeId || "0"}#${zakatOrSadqa}#1#6`;
+
+    try {
+      const response = await executeProcedure(
+        "phjR2bFDp5o0FyA7euBbsp/Ict4BDd2zHhHDfPlrwnk=",
+        params
+      );
+
+      let subventionTypesData = [];
+      
+
+      if (response.decrypted?.data.Result[0].SubventionTypes) {
+        try {
+          const parsed = typeof response.decrypted?.data.Result[0].SubventionTypes === "string"
+            ? JSON.parse(response.decrypted?.data.Result[0].SubventionTypes)
+            : response.decrypted?.data.Result[0].SubventionTypes;
+
+          subventionTypesData = Array.isArray(parsed) ? parsed : [];
+          
+        } catch (error) {
+          console.error("Error parsing SubventionTypes:", error);
+        }
+      }
+
+      setSubventionTypes(subventionTypesData);
+      
+    } catch (err) {
+      console.error(err);
+      setSubventionTypes([]);
+    }
+  };
+
+  getSubventions();
+}, [form.actionId, form.zakatTypeId]);
+console.log(subventionTypes);
+
 
   const update = (k: keyof PaymentFormState, v: any) =>
     setForm((s) => ({ ...s, [k]: v }));
 
   const isActionSelected = !!form.actionId;
   const selectedAction = ACTION_TYPES.find((a) => String(a.id) === form.actionId);
-  const zakatOrSadqa = selectedAction?.code || "S";
-
-  // ✅ فلترة الإعانات حسب نوع الزكاة (مثلاً الفقراء والمساكين)
-  const filteredSubventions = useMemo(() => {
-    if (!form.zakatTypeId) return [];
-    return ALL_SUBVENTION_TYPES.filter(
-      (s) => s.zakatTypeId === Number(form.zakatTypeId)
-    );
-  }, [form.zakatTypeId]);
+  const zakatOrSadqa = selectedAction?.id == 1 ? "Z" : "S";
 
   // ✅ فلترة المشاريع حسب نوع الإعانة أو نوع الزكاة
   const filterSubventionTypeId =
@@ -253,25 +298,24 @@ export default function AddPaymentData() {
                     ))}
                   </Select>
                 </FormControl>
-
-                {/* عرض الإعانات الخاصة بالفقراء والمساكين فقط */}
-                {Number(form.zakatTypeId) === 1 && (
-                  <FormControl mb={4}>
-                    <FormLabel>نوع الإعانة</FormLabel>
-                    <Select mx={-3} px={3}
-                      placeholder="اختر نوع الإعانة"
-                      value={form.subventionTypeId}
-                      onChange={(e) => update("subventionTypeId", e.target.value)}
-                    >
-                      {filteredSubventions.map((type) => (
-                        <option key={type.Id} value={type.Id}>
-                          {type.SubventionTypeName}
-                        </option>
-                      ))}
-                    </Select>
-                  </FormControl>
-                )}
               </>
+            )}
+            {/* عرض الإعانات الخاصة بالفقراء والمساكين او الصدقة */}
+            {(Number(form.zakatTypeId) === 1 || Number(form.actionId)==2) && (
+              <FormControl mb={4}>
+                <FormLabel>نوع الإعانة</FormLabel>
+                <Select mx={-3} px={3}
+                  placeholder="اختر نوع الإعانة"
+                  value={form.subventionTypeId}
+                  onChange={(e) => update("subventionTypeId", e.target.value)}
+                >
+                  {subventionTypes.map((type) => (
+                    <option key={type.Id} value={type.Id}>
+                      {type.SubventionTypeName}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
             )}
 
             {/* المشاريع */}

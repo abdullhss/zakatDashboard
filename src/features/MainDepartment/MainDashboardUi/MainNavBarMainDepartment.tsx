@@ -20,7 +20,7 @@ import {
 } from "react-icons/ri";
 import { TbCategory2 } from "react-icons/tb";
 import { GiBowlOfRice, GiFoodChain, GiSheep } from "react-icons/gi";
-import { MdOutlineAssignmentTurnedIn, MdOutlineRule, MdReport } from "react-icons/md";
+import { MdOutlineAssignmentTurnedIn, MdOutlineRule, MdPayments, MdReport } from "react-icons/md";
 import { AiOutlineCalculator } from "react-icons/ai";
 import { BsFillClipboardCheckFill } from "react-icons/bs";
 
@@ -132,6 +132,7 @@ export default function MainNavBar() {
       {/* التقارير */}
       <SidebarDropdown title="التقارير" icon={MdReport}>
         {renderLink("statement", "الحسابات", FiCreditCard)}
+        {/* {renderLink("Payments", "المدفوعات", MdPayments)} */}
       </SidebarDropdown>
 
       {/* الحملات */}
@@ -144,6 +145,7 @@ export default function MainNavBar() {
         {renderLink("ContactUs", "اتصل بنا", FiPhoneCall)}
         {renderLink("conditions", "الشروط", RiGovernmentLine)}
         {renderLink("privarypolicy", "سياسة الخصوصية", FiInfo)}
+        {renderLink("laws", "اللوائح والقوانين", FiInfo)}
         {renderLink("CommonQuestions", "الأسئلة الشائعة", MdOutlineAssignmentTurnedIn)}
         {renderLink("UsersQuestions", "أسئلة المستخدمين", MdOutlineAssignmentTurnedIn)}
       </SidebarDropdown>

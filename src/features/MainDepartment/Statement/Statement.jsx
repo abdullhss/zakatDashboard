@@ -168,6 +168,7 @@ export default function MainStatement() {
           <Select
             placeholder="اختر المكتب"
             value={selectedOfficeId ?? ""}
+            padding={3}
             onChange={(e) => {
               setSelectedOfficeId(Number(e.target.value));
               setSelectedAccount("");
@@ -190,6 +191,7 @@ export default function MainStatement() {
             ) : (
               <Select
                 placeholder="اختر الحساب"
+                padding={3}
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
               >
@@ -220,16 +222,24 @@ export default function MainStatement() {
           statementLoading ? (
             <Flex justify="center"><Spinner size="lg" /></Flex>
           ) : rows.length > 0 ? (
-            <DataTable
-              columns={PAYMENTS_COLUMNS}
-              data={rows}
-              page={page}
-              pageSize={limit}
-              onPageChange={setPage}
-              totalRows={
-                Number(statementData?.decrypted?.data?.Result?.[0]?.OfficePaymentsCount) || 1
-              }
-            />
+            <>
+              <div id="printable-table">
+                <DataTable
+                  columns={PAYMENTS_COLUMNS}
+                  data={rows}
+                  page={page}
+                  pageSize={limit}
+                  onPageChange={setPage}
+                  totalRows={
+                    Number(statementData?.decrypted?.data?.Result?.[0]?.OfficePaymentsCount) || 1
+                  }
+                />
+              </div>
+
+                <Button colorScheme="blue" onClick={() => window.print()}>
+                  طباعة
+                </Button>
+            </>
           ) : (
             <Text textAlign="center" color="gray.500">لا توجد بيانات.</Text>
           )

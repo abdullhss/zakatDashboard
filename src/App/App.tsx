@@ -65,6 +65,7 @@ import FitrZakat from "../features/OfficeDashboard/FitrZakat/FitrZakat.jsx";
 import AddFitrZakat from "../features/OfficeDashboard/FitrZakat/AddFitrZakat"
 import FitrZakatMain from "../features/MainDepartment/ZakatFitr/FitrZakat"
 import MainStatement from "../features/MainDepartment/Statement/Statement"
+import Payments from "../features/MainDepartment/Payments/Payments"
 
 export default function App() {
   useEffect(() => {
@@ -125,6 +126,7 @@ export default function App() {
             <Route path="UsersQuestions" element={<UsersQuestions />} />
             <Route path="FitrZakat" element={<FitrZakatMain />} />
             <Route path="statement" element={<MainStatement />} />
+            <Route path="payments" element={<Payments />} />
           </Route>
         </Route>
 
