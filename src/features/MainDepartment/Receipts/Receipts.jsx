@@ -71,7 +71,7 @@ const Payments = () => {
 
     setPaymentsCount(Number(response.decrypted.data?.Result[0].PaymentsCount));
     setPaymentsData(
-      JSON.parse(response.decrypted.data?.Result[0].PaymentsData)
+      response.decrypted.data?.Result[0].PaymentsData ? JSON.parse(response.decrypted.data?.Result[0].PaymentsData) : []
     );
   };
 
@@ -102,115 +102,127 @@ const Payments = () => {
   return (
     <Box p={5}>
       {/* Filters */}
-      <VStack spacing={4} align="stretch">
 
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
-
-          {/* المكتب */}
-          <Box>
-            <Text mb={1}>اختر المكتب</Text>
-            {officesLoading ? (
-              <Spinner />
-            ) : (
-              <Select
-                placeholder="اختر المكتب"
-                value={selectedOffice}
-                onChange={(e) => {
-                  setSelectedOffice(e.target.value || 0);
-                  setSelectedProject_Id(0);
-                }}
-              >
-                {officesData?.rows?.map((o) => (
-                  <option key={o.Id} value={o.Id}>
-                    {o.OfficeName}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </Box>
-
-          {/* الإعانة */}
-          <Box>
-            <Text mb={1}>اختر الإعانة</Text>
-            {subventionsLoading ? (
-              <Spinner />
-            ) : (
-              <Select
-                placeholder="اختر الإعانة"
-                value={selectedSubventionTypeId}
-                onChange={(e) =>
-                  setSelectedSubventionTypeId(e.target.value || 0)
-                }
-              >
-                {subventionsData?.rows?.map((s) => (
-                  <option key={s.Id} value={s.Id}>
-                    {s.SubventionTypeName}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </Box>
-
-          {/* المشروع */}
-          <Box>
-            <Text mb={1}>اختر المشروع</Text>
-            <Select
-              placeholder="اختر المشروع"
-              value={selectedProject_Id}
-              onChange={(e) => setSelectedProject_Id(e.target.value || 0)}
-            >
-              {projects?.map((p) => (
-                <option key={p.Id} value={p.Id}>
-                  {p.Name}
-                </option>
-              ))}
-            </Select>
-          </Box>
-
-          {/* التاريخ من */}
-          <Box>
-            <Text mb={1}>من تاريخ</Text>
-            <Input
-              type="date"
-              value={selectedFromDate}
-              onChange={(e) => setSelectedFromDate(e.target.value)}
-            />
-          </Box>
-
-          {/* التاريخ إلى */}
-          <Box>
-            <Text mb={1}>إلى تاريخ</Text>
-            <Input
-              type="date"
-              value={selectedToDate}
-              onChange={(e) => setSelectedToDate(e.target.value)}
-            />
-          </Box>
-        </SimpleGrid>
-
-        <Button
-          colorScheme="blue"
-          onClick={() => {
-            setPage(1);
-            fetchPayments();
-          }}
-        >
-          بحث
-        </Button>
-      </VStack>
+              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+        
+                {/* مكتب */}
+                <Box>
+                  <Text mb={1}>اختر المكتب</Text>
+                  {officesLoading ? (
+                    <Spinner />
+                  ) : (
+                    <Select
+                      placeholder="اختر المكتب"
+                      value={selectedOffice}
+                      padding={3}
+                      onChange={(e) => {
+                        setSelectedOffice(e.target.value || 0);
+                        setSelectedProject_Id(0);
+                      }}
+                    >
+                      {officesData?.rows?.map((o) => (
+                        <option key={o.Id} value={o.Id}>
+                          {o.OfficeName}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                </Box>
+        
+                {/* الإعانة */}
+                <Box>
+                  <Text mb={1}>اختر الإعانة</Text>
+                  {subventionsLoading ? (
+                    <Spinner />
+                  ) : (
+                    <Select
+                      placeholder="اختر الإعانة"
+                      value={selectedSubventionTypeId}
+                      padding={3}
+                      onChange={(e) => setSelectedSubventionTypeId(e.target.value || 0)}
+                    >
+                      {subventionsData?.rows?.map((s) => (
+                        <option key={s.Id} value={s.Id}>
+                          {s.SubventionTypeName}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                </Box>
+        
+                {/* المشروع */}
+                <Box>
+                  <Text mb={1}>اختر المشروع</Text>
+                  <Select
+                    placeholder="اختر المشروع"
+                    value={selectedProject_Id}
+                    padding={3}
+                    onChange={(e) => setSelectedProject_Id(e.target.value || 0)}
+                  >
+                    {projects?.map((p) => (
+                      <option key={p.Id} value={p.Id}>
+                        {p.Name}
+                      </option>
+                    ))}
+                  </Select>
+                </Box>
+        
+              </SimpleGrid>
+        
+              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mt={4}>
+        
+                {/* من تاريخ */}
+                <Box>
+                  <Text mb={1}>من تاريخ</Text>
+                  <Input
+                    type="date"
+                    value={selectedFromDate}
+                    onChange={(e) => setSelectedFromDate(e.target.value)}
+                  />
+                </Box>
+        
+                {/* إلى تاريخ */}
+                <Box>
+                  <Text mb={1}>إلى تاريخ</Text>
+                  <Input
+                    type="date"
+                    value={selectedToDate}
+                    onChange={(e) => setSelectedToDate(e.target.value)}
+                  />
+                </Box>
+        
+                {/* زر البحث */}
+                <Box display="flex" alignItems="flex-end">
+                  <Button
+                    width="100%"
+                    padding={3}
+                    onClick={() => {
+                      setPage(1);
+                      fetchPayments();
+                    }}
+                  >
+                    بحث
+                  </Button>
+                </Box>
+        
+              </SimpleGrid>
 
       {/* DataTable */}
       <Box mt={8}>
-        <DataTable
-          title="المصروفات"
-          columns={columns}
-          data={PaymentsData}
-          page={page}
-          pageSize={PAGE_LIMIT}
-          onPageChange={setPage}
-          totalRows={PaymentsCount}
-          startIndex={(page - 1) * PAGE_LIMIT + 1}
-        />
+        {
+          PaymentsData.length > 0 ?(
+            <DataTable
+              title="المصروفات"
+              columns={columns}
+              data={PaymentsData}
+              page={page}
+              pageSize={PAGE_LIMIT}
+              onPageChange={setPage}
+              totalRows={PaymentsCount}
+              startIndex={(page - 1) * PAGE_LIMIT + 1}
+            />
+          ) : (<p style={{fontSize:"20px" , width:"full" , textAlign:"center"}}>لا توجد مصروفات</p>)
+        }
       </Box>
     </Box>
   );

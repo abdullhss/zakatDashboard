@@ -134,7 +134,9 @@ const PAYMENTS_COLUMNS = [
     console.log("PARSED:", JSON.parse(response.decrypted.data?.Result[0].PaymentsData));
 
     setPaymentsCount(Number(response.decrypted.data?.Result[0].PaymentsCount))
-    setPaymentsData(JSON.parse(response.decrypted.data?.Result[0].PaymentsData))
+    setPaymentsData(
+      response.decrypted.data?.Result[0].PaymentsData ? JSON.parse(response.decrypted.data?.Result[0].PaymentsData) : []
+    );
   };
   useEffect(() => {
     fetchPayments();
@@ -248,7 +250,7 @@ const PAYMENTS_COLUMNS = [
       </SimpleGrid>
 
 
-      {PaymentsData.length > 0 && (
+      {PaymentsData.length > 0 ? (
         <Box mt={6}>
           <DataTable
             title="المدفوعات"
@@ -261,7 +263,7 @@ const PAYMENTS_COLUMNS = [
             startIndex={(page - 1) * PAGE_LIMIT + 1}
           />
         </Box>
-      )}
+      ) : (<p style={{fontSize:"20px" , width:"full" , textAlign:"center"}}>لا توجد مدفوعات</p>)}
 
 
     </Box>
