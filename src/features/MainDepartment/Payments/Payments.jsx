@@ -6,7 +6,8 @@ import {
   VStack,
   Text,
   Spinner,
-  Button
+  Button,
+  SimpleGrid
 } from "@chakra-ui/react";
 import {
   Table,
@@ -22,6 +23,7 @@ import {
 import { executeProcedure, PROCEDURE_NAMES } from "../../../api/apiClient";
 import { useGetOffices } from "../Offices/hooks/useGetOffices";
 import { useGetSubventionTypes } from "../Subvention/hooks/useGetubventionTypes";
+import { DataTable } from "../../../Components/Table/DataTable";
 
 
 const PAGE_LIMIT = 10 
@@ -71,6 +73,50 @@ const Payments = () => {
     getProjects();
   }, [selectedOffice]);
 
+const PAYMENTS_COLUMNS = [
+  // {
+  //   key: "Id",
+  //   header: "رقم العملية",
+  //   render: (row) => row.Id,
+  // },
+  {
+    key: "PaymentDate",
+    header: "التاريخ",
+    render: (row) => row.PaymentDate?.split("T")[0] ?? "-",
+  },
+  {
+    key: "PaymentDesc",
+    header: "بيان الدفع",
+    wrap: true,
+    render: (row) => row.PaymentDesc || "-",
+  },
+  {
+    key: "PaymentValue",
+    header: "القيمة",
+    render: (row) => row.PaymentValue,
+  },
+  {
+    key: "SubventionTypeName",
+    header: "نوع الإعانة",
+    render: (row) => row.SubventionTypeName || "-",
+  },
+  {
+    key: "PaymentWayName",
+    header: "طريقة الدفع",
+    render: (row) => row.PaymentWayName || "-",
+  },
+  {
+    key: "OfficeName",
+    header: "المكتب",
+    render: (row) => row.OfficeName || "-",
+  },
+  {
+    key: "BankName",
+    header: "البنك",
+    render: (row) => row.BankName || "-",
+  },
+];
+
 
   /** -------------------- FETCH PAYMENTS ------------------- */
   const fetchPayments = async () => {
@@ -84,7 +130,9 @@ const Payments = () => {
       params
     );
     console.log(response.decrypted.data?.Result[0]);
-    
+    console.log("RAW DATA:", response.decrypted.data?.Result[0].PaymentsData);
+    console.log("PARSED:", JSON.parse(response.decrypted.data?.Result[0].PaymentsData));
+
     setPaymentsCount(Number(response.decrypted.data?.Result[0].PaymentsCount))
     setPaymentsData(JSON.parse(response.decrypted.data?.Result[0].PaymentsData))
   };
@@ -95,7 +143,7 @@ const Payments = () => {
 
   return (
     <Box p={5}>
-      <VStack spacing={4} align="stretch">
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
 
         {/* مكتب */}
         <Box>
@@ -159,7 +207,11 @@ const Payments = () => {
           </Select>
         </Box>
 
-        {/* التاريخ من */}
+      </SimpleGrid>
+
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mt={4}>
+
+        {/* من تاريخ */}
         <Box>
           <Text mb={1}>من تاريخ</Text>
           <Input
@@ -169,7 +221,7 @@ const Payments = () => {
           />
         </Box>
 
-        {/* التاريخ إلى */}
+        {/* إلى تاريخ */}
         <Box>
           <Text mb={1}>إلى تاريخ</Text>
           <Input
@@ -179,86 +231,37 @@ const Payments = () => {
           />
         </Box>
 
-        <Button   onClick={() => {
-    setPage(1);
-    fetchPayments();
-  }}>
-          بحث
-        </Button>
-
-      </VStack>
-      {PaymentsData.length > 0 && (
-  <TableContainer
-    mt={6}
-    border="1px solid #e2e8f0"
-    borderRadius="12px"
-    // boxShadow="md"
-    // p={4}
-    maxW="100%"
-  >
-    <Table variant="simple" size="lg">
-      <Thead bg="gray.200">
-        <Tr>
-          <Th fontSize="md" py={4}>رقم العملية</Th>
-          <Th fontSize="md" py={4}>التاريخ</Th>
-          <Th fontSize="md" py={4}>بيان الدفع</Th>
-          <Th fontSize="md" py={4}>القيمة</Th>
-          <Th fontSize="md" py={4}>نوع الإعانة</Th>
-          <Th fontSize="md" py={4}>طريقة الدفع</Th>
-          <Th fontSize="md" py={4}>المكتب</Th>
-          <Th fontSize="md" py={4}>البنك</Th>
-        </Tr>
-      </Thead>
-
-      <Tbody>
-        {PaymentsData.map((p) => (
-          <Tr
-            key={p.Id}
-            _hover={{ bg: "gray.50" }}
-            fontSize="md"
-            height="60px"
+        {/* زر البحث */}
+        <Box display="flex" alignItems="flex-end">
+          <Button
+            width="100%"
+            padding={3}
+            onClick={() => {
+              setPage(1);
+              fetchPayments();
+            }}
           >
-            <Td>{p.Id}</Td>
-            <Td>{p.PaymentDate?.split("T")[0]}</Td>
-            <Td>{p.PaymentDesc || "-"}</Td>
-            <Td fontWeight="bold">{p.PaymentValue}</Td>
-            <Td>{p.SubventionTypeName || "-"}</Td>
-            <Td>{p.PaymentWayName || "-"}</Td>
-            <Td>{p.OfficeName || "-"}</Td>
-            <Td>{p.BankName || "-"}</Td>
-          </Tr>
-        ))}
-      </Tbody>
-    </Table>
-  </TableContainer>
-)}
+            بحث
+          </Button>
+        </Box>
 
-    {PaymentsCount > PAGE_LIMIT && (
-  <HStack mt={4} spacing={4} justify="center">
-<Button
-  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-  isDisabled={page === 1}
->
-  السابق
-</Button>
+      </SimpleGrid>
 
-<Text>صفحة {page} من {Math.ceil(PaymentsCount / PAGE_LIMIT)}</Text>
 
-<Button
-  onClick={() =>
-    setPage((prev) =>
-      prev < Math.ceil(PaymentsCount / PAGE_LIMIT)
-        ? prev + 1
-        : prev
-    )
-  }
-  isDisabled={page >= Math.ceil(PaymentsCount / PAGE_LIMIT)}
->
-  التالي
-</Button>
-
-  </HStack>
-)}
+      {PaymentsData.length > 0 && (
+        <Box mt={6}>
+          <DataTable
+            title="المدفوعات"
+            data={PaymentsData}
+            columns={PAYMENTS_COLUMNS}
+            page={page}
+            pageSize={PAGE_LIMIT}
+            onPageChange={setPage}
+            totalRows={PaymentsCount}
+            startIndex={(page - 1) * PAGE_LIMIT + 1}
+          />
+        </Box>
+      )}
 
 
     </Box>
