@@ -67,6 +67,16 @@ import FitrZakatMain from "../features/MainDepartment/ZakatFitr/FitrZakat"
 import MainStatement from "../features/MainDepartment/Statement/Statement"
 import Payments from "../features/MainDepartment/Payments/Payments"
 import Receipts from "../features/MainDepartment/Receipts/Receipts"
+import KafaraReport from "../features/MainDepartment/KafaraReport/KafaraReport"
+import SacirificeReport from "../features/MainDepartment/SacirificeReport/SacirificeReport"
+import FitrZakatReport from "../features/MainDepartment/FitrZakatReport/FitrZakatReport"
+import ZemmaReport from "../features/MainDepartment/ZemmaReport/ZemmaReport"
+import FedyaReport from "../features/MainDepartment/FedyaReport/FedyaReport"
+import LoverDonationReport from "../features/MainDepartment/LoverDonationReport/LoverDonationReport"
+import ZakatReport from "../features/MainDepartment/ZakatReport/ZakatReport"
+import SadakaReport from "../features/MainDepartment/SadakaReport/SadakaReport"
+import NazrReport from "../features/MainDepartment/NazrReport/NazrReport"
+
 export default function App() {
   useEffect(() => {
     const now = Date.now();
@@ -128,6 +138,15 @@ export default function App() {
             <Route path="statement" element={<MainStatement />} />
             <Route path="payments" element={<Payments />} />
             <Route path="receipts" element={<Receipts />} />
+            <Route path="KafaraReport" element={<KafaraReport />} />
+            <Route path="SacirificeReport" element={<SacirificeReport />} />
+            <Route path="FitrZakatReport" element={<FitrZakatReport />} />
+            <Route path="ZemmaReport" element={<ZemmaReport />} />
+            <Route path="FedyaReport" element={<FedyaReport />} />
+            <Route path="LoverDonationReport" element={<LoverDonationReport />} />
+            <Route path="ZakatReport" element={<ZakatReport />} />
+            <Route path="SadakaReport" element={<SadakaReport />} />
+            <Route path="NazrReport" element={<NazrReport />} />
           </Route>
         </Route>
 

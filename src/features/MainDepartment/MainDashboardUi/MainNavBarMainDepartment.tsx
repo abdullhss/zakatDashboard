@@ -134,6 +134,15 @@ export default function MainNavBar() {
         {renderLink("statement", "الحسابات", FiCreditCard)}
         {renderLink("Payments", "المدفوعات", MdPayments)}
         {renderLink("Receipts", "المصروفات", MdPayments)}
+        {renderLink("ZakatReport", "الزكاة", MdPayments)}
+        {renderLink("SadakaReport", "الصدقة", MdPayments)}
+        {renderLink("KafaraReport", "الكفارة", MdPayments)}
+        {renderLink("FedyaReport", "الفدية", MdPayments)}
+        {renderLink("SacirificeReport", "الاضاحي", MdPayments)}
+        {renderLink("FitrZakatReport", "زكاة الفطر", MdPayments)}
+        {renderLink("ZemmaReport", "الذمة", MdPayments)}
+        {renderLink("NazrReport", "النذور", MdPayments)}
+        {renderLink("LoverDonationReport", "تبرع لمن تحب", MdPayments)}
       </SidebarDropdown>
 
       {/* الحملات */}
