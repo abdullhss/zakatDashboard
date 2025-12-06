@@ -140,7 +140,7 @@ export default function MainNavBar() {
         {renderLink("FedyaReport", "الفدية", MdPayments)}
         {renderLink("SacirificeReport", "الاضاحي", MdPayments)}
         {renderLink("FitrZakatReport", "زكاة الفطر", MdPayments)}
-        {renderLink("ZemmaReport", "الذمة", MdPayments)}
+        {renderLink("ZemmaReport", "ابراء الذمة", MdPayments)}
         {renderLink("NazrReport", "النذور", MdPayments)}
         {renderLink("LoverDonationReport", "تبرع لمن تحب", MdPayments)}
       </SidebarDropdown>
