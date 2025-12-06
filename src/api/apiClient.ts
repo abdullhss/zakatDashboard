@@ -9,7 +9,8 @@ export type AnyRec = Record<string, any>;
  * =================================== */
 const API_BASE_URL =
   "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions/";
-
+  //https://client-frw.almedadsoft.com/emsserver.dll/ERPDatabaseWorkFunctions/
+  //https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions/
 const API_CONFIG = {
   API_TOKEN: "TTRgG@i$$ol@m$Wegh77",
   PUBLIC_KEY: "SL@C$@rd2023$$AlMedad$Soft$2022$",
