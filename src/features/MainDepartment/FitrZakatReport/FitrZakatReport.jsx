@@ -220,13 +220,13 @@ const PAYMENTS_COLUMNS = [
       </SimpleGrid>
 
 
-      {loading ? (
-        <Box mt={10} display="flex" justifyContent="center">
-            <Spinner size="xl" thickness="4px" />
-        </Box>
-        ) : PaymentsData.length > 0 ? (
-
-        <Box mt={6}>
+    {loading ? (
+      <Box mt={10} display="flex" justifyContent="center">
+        <Spinner size="xl" thickness="4px" />
+      </Box>
+    ) : PaymentsData.length > 0 ? (
+      <Box mt={6}>
+        <div id="printable-table">
           <DataTable
             title="زكاة الفطر"
             data={PaymentsData}
@@ -237,9 +237,18 @@ const PAYMENTS_COLUMNS = [
             totalRows={PaymentsCount}
             startIndex={(page - 1) * PAGE_LIMIT + 1}
           />
-        </Box>
-      ) : (<p style={{fontSize:"20px" , width:"full" , textAlign:"center"}}>لا توجد مدفوعات</p>)}
+        </div>
 
+        {/* زر الطباعة */}
+        <Button mt={4} w={"full"} onClick={() => window.print()}>
+          طباعة
+        </Button>
+      </Box>
+    ) : (
+      <p style={{ fontSize:"20px", width:"full", textAlign:"center" }}>
+        لا توجد مدفوعات
+      </p>
+    )}
 
     </Box>
   );

@@ -55,8 +55,8 @@ const accountTypeLabel = (v: any) => {
 };
 const serviceTypeLabel = (v: any) => {
   const m: Record<any, string> = { 
-    1: "صدقة", 
-    2: "زكاة", 
+    2: "صدقة", 
+    1: "زكاة", 
     zakat: "زكاة", 
     sadaka: "صدقة" 
   };

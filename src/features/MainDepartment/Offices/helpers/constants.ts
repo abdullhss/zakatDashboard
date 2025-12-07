@@ -7,6 +7,6 @@ export const BANK_COLS =
   "Id#Office_Id#Bank_Id#AccountNum#OpeningBalance#AccountType_Id#ServiceType_Id#AcceptBankCards#IsActive";
 
 export const serviceTypes: Option[] = [
-  { value: "1", label: "صدقة" },
-  { value: "2", label: "زكاة"  },
+  { value: "2", label: "صدقة" },
+  { value: "1", label: "زكاة"  },
 ];

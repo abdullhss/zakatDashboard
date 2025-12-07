@@ -110,7 +110,6 @@ export default function MainNavBar() {
         {renderLink("kafara", "الكفارة والفدية", RiHandHeartLine)}
         {renderLink("zakatGold", "حاسبة الزكاة", AiOutlineCalculator)}
         {renderLink("sacirificeTypes", "أنواع الأضاحي", GiSheep)}
-        {renderLink("sacrificeDataMain", "طلبات الأضاحي", GiSheep)}
         {renderLink("FitrZakat", "زكاة الفطر", GiBowlOfRice)}
       </SidebarDropdown>
       
@@ -145,6 +144,10 @@ export default function MainNavBar() {
         {renderLink("LoverDonationReport", "تبرع لمن تحب", MdPayments)}
       </SidebarDropdown>
 
+      <SidebarDropdown title="المتابعة" icon={MdReport}>
+        {renderLink("assistanceData", "طلبات الإعانة", MdPayments)}
+        {renderLink("sacrificeDataMain", "طلبات الأضاحي", GiSheep)}
+      </SidebarDropdown>
       {/* الحملات */}
 
       

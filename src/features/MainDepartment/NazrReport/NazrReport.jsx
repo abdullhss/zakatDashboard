@@ -218,24 +218,33 @@ const PAYMENTS_COLUMNS = [
 
       {loading ? (
         <Box mt={10} display="flex" justifyContent="center">
-            <Spinner size="xl" thickness="4px" />
+          <Spinner size="xl" thickness="4px" />
         </Box>
-        ) : PaymentsData.length > 0 ? (
-
+      ) : PaymentsData.length > 0 ? (
         <Box mt={6}>
-          <DataTable
-            title="النذر"
-            data={PaymentsData}
-            columns={PAYMENTS_COLUMNS}
-            page={page}
-            pageSize={PAGE_LIMIT}
-            onPageChange={setPage}
-            totalRows={PaymentsCount}
-            startIndex={(page - 1) * PAGE_LIMIT + 1}
-          />
-        </Box>
-      ) : (<p style={{fontSize:"20px" , width:"full" , textAlign:"center"}}>لا توجد مدفوعات</p>)}
+          <div id="printable-table">
+            <DataTable
+              title="النذور"
+              data={PaymentsData}
+              columns={PAYMENTS_COLUMNS}
+              page={page}
+              pageSize={PAGE_LIMIT}
+              onPageChange={setPage}
+              totalRows={PaymentsCount}
+              startIndex={(page - 1) * PAGE_LIMIT + 1}
+            />
+          </div>
 
+          {/* زر الطباعة */}
+          <Button mt={4} w={"full"} onClick={() => window.print()}>
+            طباعة
+          </Button>
+        </Box>
+      ) : (
+        <p style={{ fontSize:"20px", width:"full", textAlign:"center" }}>
+          لا توجد مدفوعات
+        </p>
+      )}
 
     </Box>
   );

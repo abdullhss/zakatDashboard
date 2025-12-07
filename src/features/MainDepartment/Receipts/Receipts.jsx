@@ -227,8 +227,8 @@ const Payments = () => {
 
       {/* DataTable */}
       <Box mt={8}>
-        {
-          PaymentsData.length > 0 ?(
+        {PaymentsData.length > 0 ? (
+          <div id="printable-table">
             <DataTable
               title="المصروفات"
               columns={columns}
@@ -239,9 +239,21 @@ const Payments = () => {
               totalRows={PaymentsCount}
               startIndex={(page - 1) * PAGE_LIMIT + 1}
             />
-          ) : (<p style={{fontSize:"20px" , width:"full" , textAlign:"center"}}>لا توجد مصروفات</p>)
-        }
+          </div>
+        ) : (
+          <p style={{ fontSize: "20px", width: "full", textAlign: "center" }}>
+            لا توجد مصروفات
+          </p>
+        )}
+
+        {/* زر الطباعة */}
+        {PaymentsData.length > 0 && (
+          <Button mt={4} w={"full"} onClick={() => window.print()}>
+            طباعة
+          </Button>
+        )}
       </Box>
+
     </Box>
   );
 };
