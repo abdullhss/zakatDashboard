@@ -65,6 +65,7 @@ import FitrZakat from "../features/OfficeDashboard/FitrZakat/FitrZakat.jsx";
 import AddFitrZakat from "../features/OfficeDashboard/FitrZakat/AddFitrZakat"
 import FitrZakatMain from "../features/MainDepartment/ZakatFitr/FitrZakat"
 import MainStatement from "../features/MainDepartment/Statement/Statement"
+
 import Payments from "../features/MainDepartment/Payments/Payments"
 import Receipts from "../features/MainDepartment/Receipts/Receipts"
 import KafaraReport from "../features/MainDepartment/KafaraReport/KafaraReport"
@@ -180,6 +181,18 @@ export default function App() {
     <Route path="assistanceData" element={<AssistanceDataTypes />} />
     <Route path="fitrZakat" element={<FitrZakat />} />
     <Route path="fitrZakat/add" element={<AddFitrZakat />} />
+    
+    <Route path="payments" element={<Payments />} />
+    <Route path="receipts" element={<Receipts />} />
+    <Route path="KafaraReport" element={<KafaraReport />} />
+    <Route path="SacirificeReport" element={<SacirificeReport />} />
+    <Route path="FitrZakatReport" element={<FitrZakatReport />} />
+    <Route path="ZemmaReport" element={<ZemmaReport />} />
+    <Route path="FedyaReport" element={<FedyaReport />} />
+    <Route path="LoverDonationReport" element={<LoverDonationReport />} />
+    <Route path="ZakatReport" element={<ZakatReport />} />
+    <Route path="SadakaReport" element={<SadakaReport />} />
+    <Route path="NazrReport" element={<NazrReport />} />
   </Route>
 </Route>
 

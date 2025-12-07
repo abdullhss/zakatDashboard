@@ -29,9 +29,12 @@ import { DataTable } from "../../../Components/Table/DataTable";
 const PAGE_LIMIT = 10 
 const Payments = () => {
 
-  const userId = getCurrentUserId();
-
-  const [selectedOffice, setSelectedOffice] = useState(0);
+  const userId = getCurrentUserId(); 
+  const role = localStorage.getItem("role");
+  const officeName = localStorage.getItem("officeName")
+  const mainUserData = localStorage.getItem("mainUser")
+  const OfficeId = mainUserData?JSON.parse(mainUserData).Office_Id : 0 ;
+  const [selectedOffice, setSelectedOffice] = useState(()=>{return(role=="O"? OfficeId : 0)});
   const [selectedSubventionTypeId, setSelectedSubventionTypeId] = useState(0);
   const [selectedProject_Id, setSelectedProject_Id] = useState(0);
   const [projects, setProjects] = useState([]);
@@ -150,24 +153,39 @@ const PAYMENTS_COLUMNS = [
         {/* مكتب */}
         <Box>
           <Text mb={1}>اختر المكتب</Text>
-          {officesLoading ? (
-            <Spinner />
-          ) : (
-            <Select
-              placeholder="اختر المكتب"
-              value={selectedOffice}
+
+          {role === "O" ? (
+            // لو role O → اعرض اسم المكتب فقط
+            <Box
+            mt={4}
               padding={3}
-              onChange={(e) => {
-                setSelectedOffice(e.target.value || 0);
-                setSelectedProject_Id(0);
-              }}
+              border="1px solid #E2E8F0"
+              borderRadius="md"
+              bg="gray.100"
             >
-              {officesData?.rows?.map((o) => (
-                <option key={o.Id} value={o.Id}>
-                  {o.OfficeName}
-                </option>
-              ))}
-            </Select>
+              {officeName}
+            </Box>
+          ) : (
+            // لو مش O → اعرض Select
+            officesLoading ? (
+              <Spinner />
+            ) : (
+              <Select
+                placeholder="اختر المكتب"
+                value={selectedOffice}
+                padding={3}
+                onChange={(e) => {
+                  setSelectedOffice(e.target.value || 0);
+                  setSelectedProject_Id(0);
+                }}
+              >
+                {officesData?.rows?.map((o) => (
+                  <option key={o.Id} value={o.Id}>
+                    {o.OfficeName}
+                  </option>
+                ))}
+              </Select>
+            )
           )}
         </Box>
 

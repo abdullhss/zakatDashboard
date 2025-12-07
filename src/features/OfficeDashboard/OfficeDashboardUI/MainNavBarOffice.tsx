@@ -17,7 +17,7 @@ import {
 } from "react-icons/ri";
 import { TbCategory2 } from "react-icons/tb";
 import { GiChecklist, GiFoodChain, GiSheep } from "react-icons/gi";
-import { MdOutlineWork } from "react-icons/md";
+import { MdOutlineWork, MdPayments, MdReport } from "react-icons/md";
 import { BsCashCoin } from "react-icons/bs";
 
 import { getSession } from "../../../session";
@@ -120,6 +120,19 @@ export default function MainNavBarOfficeDepartment() {
 
     </SidebarDropdown> */}
 
+    <SidebarDropdown title="التقارير" icon={MdReport}>
+      {renderLink("Payments", "المدفوعات", MdPayments)}
+      {renderLink("Receipts", "المصروفات", MdPayments)}
+      {renderLink("ZakatReport", "الزكاة", MdPayments)}
+      {renderLink("SadakaReport", "الصدقة", MdPayments)}
+      {renderLink("KafaraReport", "الكفارة", MdPayments)}
+      {renderLink("FedyaReport", "الفدية", MdPayments)}
+      {renderLink("SacirificeReport", "الاضاحي", MdPayments)}
+      {renderLink("FitrZakatReport", "زكاة الفطر", MdPayments)}
+      {renderLink("ZemmaReport", "ابراء الذمة", MdPayments)}
+      {renderLink("NazrReport", "النذور", MdPayments)}
+      {renderLink("LoverDonationReport", "تبرع لمن تحب", MdPayments)}
+    </SidebarDropdown>
 
 
     </NavList>
