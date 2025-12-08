@@ -77,6 +77,9 @@ import LoverDonationReport from "../features/MainDepartment/LoverDonationReport/
 import ZakatReport from "../features/MainDepartment/ZakatReport/ZakatReport"
 import SadakaReport from "../features/MainDepartment/SadakaReport/SadakaReport"
 import NazrReport from "../features/MainDepartment/NazrReport/NazrReport"
+import Projects from "../features/MainDepartment/Projects/Projects"
+import CampaignReport from "../features/MainDepartment/CampaignReport/CampaignReport"
+import SubventionTypeReport from "../features/MainDepartment/SubventionTypeReport/SubventionTypeReport"
 
 export default function App() {
   useEffect(() => {
@@ -148,6 +151,9 @@ export default function App() {
             <Route path="ZakatReport" element={<ZakatReport />} />
             <Route path="SadakaReport" element={<SadakaReport />} />
             <Route path="NazrReport" element={<NazrReport />} />
+            <Route path="Projects" element={<Projects />} />
+            <Route path="CampaignReport" element={<CampaignReport />} />
+            <Route path="SubventionTypeReport" element={<SubventionTypeReport />} />
           </Route>
         </Route>
 

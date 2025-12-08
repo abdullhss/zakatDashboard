@@ -20,7 +20,7 @@ import {
 } from "react-icons/ri";
 import { TbCategory2 } from "react-icons/tb";
 import { GiBowlOfRice, GiFoodChain, GiSheep } from "react-icons/gi";
-import { MdOutlineAssignmentTurnedIn, MdOutlineRule, MdPayments, MdReport } from "react-icons/md";
+import { MdCampaign, MdHomeRepairService, MdOutlineAssignmentTurnedIn, MdOutlineRule, MdPayments, MdReport } from "react-icons/md";
 import { AiOutlineCalculator } from "react-icons/ai";
 import { BsFillClipboardCheckFill } from "react-icons/bs";
 
@@ -147,6 +147,9 @@ export default function MainNavBar() {
       <SidebarDropdown title="المتابعة" icon={MdReport}>
         {renderLink("assistanceData", "طلبات الإعانة", MdPayments)}
         {renderLink("sacrificeDataMain", "طلبات الأضاحي", GiSheep)}
+        {renderLink("Projects", " المشاريع", MdHomeRepairService)}
+        {renderLink("CampaignReport", "الحملات", MdCampaign)}
+        {renderLink("SubventionTypeReport", "انواع الاعانة", MdCampaign)}
       </SidebarDropdown>
       {/* الحملات */}
 
