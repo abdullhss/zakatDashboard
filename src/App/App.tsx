@@ -65,6 +65,7 @@ import FitrZakat from "../features/OfficeDashboard/FitrZakat/FitrZakat.jsx";
 import AddFitrZakat from "../features/OfficeDashboard/FitrZakat/AddFitrZakat"
 import FitrZakatMain from "../features/MainDepartment/ZakatFitr/FitrZakat"
 import MainStatement from "../features/MainDepartment/Statement/Statement"
+import FAQLinks from "../features/MainDepartment/FAQLinks/FAQLinks.jsx"
 
 import Payments from "../features/MainDepartment/Payments/Payments"
 import Receipts from "../features/MainDepartment/Receipts/Receipts"
@@ -138,6 +139,8 @@ export default function App() {
             <Route path="CommonQuestions" element={<CommonQuestions />} />
             <Route path="CommonQuestions/add" element={<AddQuestion />} />
             <Route path="UsersQuestions" element={<UsersQuestions />} />
+            <Route path="FAQLinks" element={<FAQLinks />} />
+            
             <Route path="FitrZakat" element={<FitrZakatMain />} />
             <Route path="statement" element={<MainStatement />} />
             <Route path="payments" element={<Payments />} />

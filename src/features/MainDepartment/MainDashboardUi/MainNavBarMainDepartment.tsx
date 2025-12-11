@@ -20,7 +20,7 @@ import {
 } from "react-icons/ri";
 import { TbCategory2 } from "react-icons/tb";
 import { GiBowlOfRice, GiFoodChain, GiSheep } from "react-icons/gi";
-import { MdCampaign, MdHomeRepairService, MdOutlineAssignmentTurnedIn, MdOutlineRule, MdPayments, MdReport } from "react-icons/md";
+import { MdCampaign, MdHomeRepairService, MdLink, MdOutlineAssignmentTurnedIn, MdOutlineRule, MdPayments, MdReport } from "react-icons/md";
 import { AiOutlineCalculator } from "react-icons/ai";
 import { BsFillClipboardCheckFill } from "react-icons/bs";
 
@@ -159,6 +159,7 @@ export default function MainNavBar() {
       <SidebarDropdown title="الاعدادات" icon={FiInfo}>
         {renderLink("whoarewe", "من نحن؟", FiInfo)}
         {renderLink("ContactUs", "اتصل بنا", FiPhoneCall)}
+        {renderLink("FAQLinks", "روابط خاصة", MdLink)}
         {renderLink("conditions", "الشروط", RiGovernmentLine)}
         {renderLink("privarypolicy", "سياسة الخصوصية", FiInfo)}
         {renderLink("laws", "اللوائح والقوانين", FiInfo)}
