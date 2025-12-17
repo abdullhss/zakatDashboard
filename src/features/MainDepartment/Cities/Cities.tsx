@@ -161,7 +161,7 @@ export default function Cities() {
 
   const fields = useMemo<FieldConfig[]>(
     () => [
-      { name: "cityName", label: "اسم المدينة", placeholder: "برجاء كتابة اسم المدينة", required: true, type: "input", colSpan: 2 },
+      { name: "cityName", label: "اسم المدينة", placeholder: "برجاء كتابة اسم المدينة", required: true, type: "input", arabicOnly:true , colSpan: 2 },
     ],
     []
   );

@@ -165,6 +165,7 @@ export default function MainNavBar() {
         {renderLink("laws", "اللوائح والقوانين", FiInfo)}
         {renderLink("CommonQuestions", "الأسئلة الشائعة", MdOutlineAssignmentTurnedIn)}
         {renderLink("UsersQuestions", "أسئلة المستخدمين", MdOutlineAssignmentTurnedIn)}
+        {renderLink("OldUsersQuestions", " أسئلة المستخدمين المجابة", MdOutlineAssignmentTurnedIn)}
       </SidebarDropdown>
 
     </NavList>

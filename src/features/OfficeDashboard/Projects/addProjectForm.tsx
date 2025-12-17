@@ -12,6 +12,7 @@ import { useUpdateProject } from "./hooks/useUpdateProject";
 import { useGetSubventionTypes } from "../../MainDepartment/Subvention/hooks/useGetubventionTypes";
 import { HandelFile } from "../../../HandleFile.js";
 import { getSession } from "../../../session";
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg"];
 
 const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
 const buildPhotoUrl = (id?: string | number, ext = ".jpg") =>
@@ -70,8 +71,23 @@ export default function AddProjectForm() {
 
   const inputFileRef = useRef<HTMLInputElement>(null);
   const onChooseImage = () => inputFileRef.current?.click();
-  const onFile = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setImageFile(e.target.files?.[0] || null);
+  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (!file) return;
+
+    // ✅ تحقق من نوع الملف
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast({
+        title: "نوع ملف غير مدعوم",
+        description: "مسموح فقط بصور PNG أو JPG",
+        status: "error",
+      });
+      e.target.value = "";
+      return;
+    }
+
+    setImageFile(file);
+  };
 
   const update = (k: keyof FormShape, v: any) =>
     setForm((s) => ({ ...s, [k]: v }));
@@ -361,9 +377,7 @@ export default function AddProjectForm() {
                   placeholder="برجاء كتابة القيمة المتبقية"
                   value={form.remainingValue}
                   onChange={(e) => update("remainingValue", e.target.value)}
-                  disabled={
-                    Number(form.remainingValue) !== 0
-                  }
+                  disabled={true}
                 />
                 <Box minW="60px" textAlign="center" bg="gray.50" borderRadius="md" p={2}>د.ل.</Box>
               </HStack>
@@ -451,7 +465,7 @@ export default function AddProjectForm() {
               <input
                 ref={inputFileRef}
                 type="file"
-                accept="image/*"
+                accept=".png,.jpg,.jpeg"
                 hidden
                 onChange={onFile}
               />

@@ -1,6 +1,6 @@
 // src/features/MainDepartment/Users/Users.tsx
 import { useMemo, useState, useCallback } from "react";
-import { Box, HStack, useToast } from "@chakra-ui/react";
+import { Box, Button, HStack, Input, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
 import DataTable from "../../../Components/Table/DataTable";
@@ -37,7 +37,8 @@ export default function Users() {
   // ترقيم
   const [page, setPage] = useState<number>(1);
   const pageSize = 10;
-
+  const [searchText, setSearchText] = useState<string>("");
+  const [searchInput, setSearchInput] = useState<string>("");
   // بحث (لو عندك حقل UI للبحث اربطه بهذه الحالة)
   const [query, setQuery] = useState<string>("");
 
@@ -61,6 +62,7 @@ export default function Users() {
   const { dec , loading, error, rows, total, refetch } = useGetUsers({
     startNum,
     count,
+    searchText,
     encSQLRaw,
     auto: true,
   });
@@ -96,6 +98,13 @@ export default function Users() {
         header: "نوع الحساب",
         width: "160px",
         render: (r: AnyRec) => asAccountType(r.UserType),
+      },
+      
+      {
+        key: "officeName",
+        header: "اسم المكتب",
+        width: "160px",
+        render: (r: AnyRec) => r.OfficeName ?? "—",
       },
     ],
     []
@@ -155,6 +164,34 @@ export default function Users() {
 
   return (
     <Box>
+          <Box>
+              <HStack mb={4} spacing={3}>
+                <Box flex="1">
+                  <Input
+                    placeholder="ابحث باسم الصلاحية..."
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setPage(1);
+                        setSearchText(searchInput);
+                      }
+                    }}
+                  />
+                </Box>
+        
+                <Button
+                  colorScheme="teal"
+                  onClick={() => {
+                    setPage(1);
+                    setSearchText(searchInput);
+                  }}
+                >
+                  بحث
+                </Button>
+      
+              </HStack>
+          </Box>
       <DataTable
         title="قائمة المستخدمين"
         data={rows}

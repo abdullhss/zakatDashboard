@@ -1,4 +1,8 @@
 @import "tailwindcss";
+body {
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum";
+}
 @media print {
   /* اخفي الصفحة كلها */
   body * {

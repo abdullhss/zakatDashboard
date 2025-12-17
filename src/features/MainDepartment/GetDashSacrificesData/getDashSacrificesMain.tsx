@@ -106,8 +106,8 @@ export default function GetSacrificeDataMain() {
     const base = [
       { key: "UserName", header: "اسم مقدم الطلب" },
       { key: "OfficeName", header: "المكتب" },
-      { key: "SacrificeOrderDate", header: "تاريخ الطلب" },
-      { key: "TotalAmount", header: "الإجمالي" },
+      { key: "SacrificeOrderDate", header: "تاريخ الطلب" , render: (row) => row.SacrificeOrderDate?.split("T")[0]},
+      { key: "TotalAmount", header: "الإجمالي" , render: (row) => `${row.SacrificeOrderTotalAmount}`},
     ];
 
     if (role === "O") {

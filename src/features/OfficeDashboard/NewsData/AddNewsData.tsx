@@ -11,6 +11,7 @@ import { useGetTypesNewsData } from "./hooks/useGetTypesNewsData";
 import { HandelFile } from "../../../HandleFile.js";
 import { getSession } from "../../../session";
 import { updateNewsData } from "./Services/updateNewsData";
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg"];
 
 // 🔗 مسار عرض الصور/الملفات
 const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
@@ -362,10 +363,23 @@ export default function AddNewsForm() {
               <input
                 ref={photoInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/png, image/jpeg"  // يحدد النوع مباشرة
                 hidden
-                onChange={(e) => setMainPhotoFile(e.target.files?.[0] || null)}
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  if (file && !ALLOWED_IMAGE_TYPES.includes(file.type)) {
+                    toast({
+                      title: "نوع الملف غير مدعوم",
+                      description: "يرجى اختيار صورة PNG أو JPG فقط.",
+                      status: "warning",
+                    });
+                    e.target.value = ""; // إعادة تعيين الملف
+                    return;
+                  }
+                  setMainPhotoFile(file);
+                }}
               />
+
             </VStack>
 
             <FormLabel>ملف مرفق (اختياري)</FormLabel>

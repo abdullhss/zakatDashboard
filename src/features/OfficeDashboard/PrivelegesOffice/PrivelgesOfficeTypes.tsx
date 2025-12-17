@@ -18,6 +18,7 @@ import {
   MenuList,
   MenuItem,
   Portal,
+  Input,
 } from "@chakra-ui/react";
 import { useMemo, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -77,6 +78,7 @@ function RowActionsMenu({
 export default function Privileges() {
   const navigate = useNavigate();
   const toast = useToast();
+  const [searchText, setSearchText] = useState<string>("");
 
   const { role, mainUser } = getSession();
   const roleCode = (role || "M") as "M" | "O";
@@ -88,7 +90,7 @@ export default function Privileges() {
   const offset = (page - 1) * PAGE_SIZE;
 
   // جلب البيانات
-  const { data, isLoading, isError, error, refetch } = useGetPrivilege(roleCode, offset, PAGE_SIZE);
+  const { data, isLoading, isError, error, refetch } = useGetPrivilege(roleCode, searchText, offset, PAGE_SIZE);
   const { mutateAsync: deletePrivilege, isPending: deleting } = useDeletePrivilege();
   
   // تجهيز البيانات
@@ -201,6 +203,35 @@ export default function Privileges() {
 
   return (
     <Box>
+            <HStack mb={4} spacing={3}>
+              <Box flex="1">
+                <Input
+                  placeholder="ابحث باسم الصلاحية..."
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setPage(1);
+                      refetch();
+                    }
+                  }}
+                />
+      
+              </Box>
+      
+              <Button
+                colorScheme="teal"
+                onClick={() => {
+                  setPage(1);   // يرجع لأول صفحة
+                  refetch();    // يعمل fetch بالـ searchText الجديد
+                }}
+              >
+                بحث
+              </Button>
+              <SharedButton variant="brandGradient" to={`/officedashboard/privelgesOffice/add`}>
+                إضافة
+              </SharedButton>
+            </HStack>
       {/* ======= الرأس ======= */}
       <HStack justify="space-between" mb={3}>
         <HStack>
@@ -212,10 +243,6 @@ export default function Privileges() {
         </HStack>
 
         <HStack spacing={3}>
-          <SharedButton variant="brandGradient" to={`/officedashboard/privelgesOffice/add`}>
-            إضافة
-          </SharedButton>
-
           {/* <Button colorScheme="teal" variant="outline" onClick={onRefresh}>
             تحديث القائمة
           </Button> */}

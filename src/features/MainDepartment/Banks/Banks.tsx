@@ -151,7 +151,7 @@ function RowActions({
           variant="brandOutline"
         />
         <MenuList>
-          {/* <MenuItem onClick={editModal.onOpen}>تعديل</MenuItem> */}
+          <MenuItem onClick={editModal.onOpen}>تعديل</MenuItem>
           <MenuItem color="red.600" onClick={confirmDel.onOpen}>حذف</MenuItem>
         </MenuList>
       </Menu>
@@ -244,6 +244,7 @@ export default function Banks() {
       required: true,
       type: "input",
       colSpan: 2,
+      alphanumericOnly: true,
     },
   ];
 

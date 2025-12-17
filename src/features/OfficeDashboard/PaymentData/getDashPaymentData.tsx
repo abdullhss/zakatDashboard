@@ -20,6 +20,7 @@ const BASE_ATTACHMENT_URL = "https://framework.md-license.com:8093/ZakatImages/"
 // ===================================
 const PAYMENT_COLUMNS_BASE: Column[] = [
     { key: "Id", header: "رقم المعاملة", width: "10%", render: (row: AnyRec) => row.Id ?? '—', },
+    { key: "review", header: "مراجعة", width: "10%", render: (row: AnyRec) => <Button>مراجعة</Button>, },
     { key: "OfficeName", header: "المكتب", width: "10%", render: (row: AnyRec) => row.OfficeName ?? '—' },
     { key: "PaymentDate", header: "تاريخ الدفع", width: "10%", render: (row: AnyRec) => row.PaymentDate ? new Date(row.PaymentDate).toLocaleDateString("ar-EG") : '—', },
     { key: "PaymentValue", header: "المبلغ", width: "10%", render: (row: AnyRec) => (<Text fontWeight="700" color="green.600">{row.PaymentValue ?? '0'} د.ل.</Text>) },
@@ -118,19 +119,16 @@ export default function GetDashPaymentData() {
 
     // === تعريف الأعمدة الديناميكية (لربط onClick) ===
     const FINAL_PAYMENT_COLUMNS: Column[] = useMemo(() => PAYMENT_COLUMNS_BASE.map(col => {
-        if (col.key === 'Id' && col.render) {
+        if (col.key === 'review' && col.render) {
             return {
                 ...col,
                 render: (row: AnyRec) => (
-                    <Text
-                        style={{ cursor: 'pointer', color: '#007BFF', textDecoration: 'underline' }}
-                        onClick={(e) => {
+                    <Button
+                    onClick={(e) => {
                             e.stopPropagation(); 
                             handleRowClick(row); 
                         }}
-                    >
-                        {row.Id ?? '—'}
-                    </Text>
+                        >مراجعة</Button>
                 )
             };
         }

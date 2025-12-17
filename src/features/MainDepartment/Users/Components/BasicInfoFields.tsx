@@ -36,7 +36,10 @@ export default function BasicInfoFields({
             ref={firstInputRef}
             placeholder="برجاء كتابة الاسم كامل"
             value={FullName}
-            onChange={(e) => setFullName(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^a-zA-Z\u0600-\u06FF\s]/g, "");
+              setFullName(value);
+            }}
           />
         </FieldRow>
       </GridItem>

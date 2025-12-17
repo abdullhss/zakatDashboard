@@ -18,6 +18,7 @@ import {
   MenuList,
   MenuItem,
   Portal,
+  Input,
 } from "@chakra-ui/react";
 import { useMemo, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -78,7 +79,7 @@ function RowActionsMenu({
 export default function Privileges() {
   const navigate = useNavigate();
   const toast = useToast();
-
+  const [searchText, setSearchText] = useState<string>("");
   const { role, mainUser } = getSession();
   const roleCode = (role || "M") as "M" | "O";
 
@@ -87,7 +88,7 @@ export default function Privileges() {
   const cancelRef = useRef<any>(null);
 
   // جلب البيانات
-  const { data, isLoading, isError, error, refetch } = useGetPrivilege(roleCode, 0, 500);
+  const { data, isLoading, isError, error, refetch } = useGetPrivilege(roleCode , searchText , 0, 500);
   
   const { mutateAsync: deletePrivilege, isPending: deleting } = useDeletePrivilege();
 
@@ -200,6 +201,33 @@ export default function Privileges() {
 
   return (
     <Box>
+      <HStack mb={4} spacing={3}>
+        <Box flex="1">
+          <Input
+            placeholder="ابحث باسم الصلاحية..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setPage(1);
+                refetch();
+              }
+            }}
+          />
+
+        </Box>
+
+        <Button
+          colorScheme="teal"
+          onClick={() => {
+            setPage(1);   // يرجع لأول صفحة
+            refetch();    // يعمل fetch بالـ searchText الجديد
+          }}
+        >
+          بحث
+        </Button>
+      </HStack>
+
       {/* ======= الجدول ======= */}
       <DataTable
         title="صلاحيات المجموعات"

@@ -541,3 +541,160 @@ export async function doMultiTransaction(input: MultiTxInput): Promise<Execution
     };
   }
 }
+
+export const RequireAuthentication = async (FunctionName, ProcedureName , ParametersValue , AuthType,SendTo) => {
+  try {
+    // Data to encrypt
+    const dataToEncrypt = {
+      FunctionName: FunctionName,
+      ProcedureName: ProcedureName,
+      ParametersValue:`${ParametersValue}#$????`,
+      AuthType:AuthType,
+      SendTo:SendTo,
+      DataToken: "Zakat",
+    };
+
+    console.log("Data to encrypt:", dataToEncrypt);
+
+    // Encrypt using public key
+    const encryptedData = AES256Encryption.encrypt(
+      dataToEncrypt,
+      API_CONFIG.PUBLIC_KEY
+    );
+
+    // Request payload
+    const payload = {
+      ApiToken: API_CONFIG.API_TOKEN,
+      Data: encryptedData,
+    };
+
+    // Make API call
+    const response = await api.post("/RequireAuthentication", payload);
+
+    // Decrypt response fields
+    const decryptedResponse = {};
+
+    if (response.data.Result) {
+      decryptedResponse.result = AES256Encryption.decrypt(
+        response.data.Result,
+        API_CONFIG.PUBLIC_KEY
+      );
+    }
+    
+    if (response.data.TransToken) {
+      decryptedResponse.TransToken = response.data.TransToken
+    }
+    
+    if (response.data.Error) {
+      decryptedResponse.error = AES256Encryption.decrypt(
+        response.data.Error,
+        API_CONFIG.PUBLIC_KEY
+      );
+    }
+
+    if (response.data.Data) {
+      decryptedResponse.data = AES256Encryption.decrypt(
+        response.data.Data,
+        API_CONFIG.PUBLIC_KEY
+      );
+    }
+
+    if (response.data.ServerTime) {
+      decryptedResponse.serverTime = AES256Encryption.decrypt(
+        response.data.ServerTime,
+        API_CONFIG.PUBLIC_KEY
+      );
+    }
+
+    console.log("Decrypted response:", decryptedResponse);
+
+    return {
+      success:  decryptedResponse.result,
+      TransToken: decryptedResponse.TransToken,
+      error : decryptedResponse.error
+    };
+  } catch (error) {
+    console.error("API call failed:", error);
+    return {
+      success: false,
+      error: error.message,
+      details: error.response?.data,
+    };
+  }
+};
+export const ExecuteAuthentication = async (TransToken   , VerCode    ) => {
+  try {
+    // Data to encrypt
+    const dataToEncrypt = {
+      TransToken   : TransToken   ,
+      VerCode    : VerCode    ,
+      DataToken: "Zakat"
+    };
+
+    console.log("Data to encrypt:", dataToEncrypt);
+
+    // Encrypt using public key
+    const encryptedData = AES256Encryption.encrypt(
+      dataToEncrypt,
+      API_CONFIG.PUBLIC_KEY
+    );
+
+    // Request payload
+    const payload = {
+      ApiToken: API_CONFIG.API_TOKEN,
+      Data: encryptedData,
+    };
+
+    // Make API call
+    const response = await api.post("/ExecuteAuthentication", payload);
+
+    // Decrypt response fields
+    const decryptedResponse = {};
+
+    if (response.data.Result) {
+      decryptedResponse.result = AES256Encryption.decrypt(
+        response.data.Result,
+        API_CONFIG.PUBLIC_KEY
+      );
+    }
+    
+    if (response.data.TransToken) {
+      decryptedResponse.TransToken = response.data.TransToken
+    }
+    
+    if (response.data.Error) {
+      decryptedResponse.error = AES256Encryption.decrypt(
+        response.data.Error,
+        API_CONFIG.PUBLIC_KEY
+      );
+    }
+
+    if (response.data.Data) {
+      decryptedResponse.data = AES256Encryption.decrypt(
+        response.data.Data,
+        API_CONFIG.PUBLIC_KEY
+      );
+    }
+
+    if (response.data.ServerTime) {
+      decryptedResponse.serverTime = AES256Encryption.decrypt(
+        response.data.ServerTime,
+        API_CONFIG.PUBLIC_KEY
+      );
+    }
+
+    console.log("Decrypted response:", decryptedResponse);
+
+    return {
+      success:  decryptedResponse.result,
+      TransToken: decryptedResponse.TransToken,
+    };
+  } catch (error) {
+    console.error("API call failed:", error);
+    return {
+      success: false,
+      error: error.message,
+      details: error.response?.data,
+    };
+  }
+};

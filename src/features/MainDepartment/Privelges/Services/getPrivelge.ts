@@ -30,6 +30,7 @@ function toArraySafe(input: any): any[] {
 
 export async function getPrivileges(
   roleOrType: RoleCode | string = "M",
+  searchText: string = "",
   start = 0,
   count = 50
 ): Promise<NormalizedSummary & { rows: any[]; totalRows: number }> {
@@ -41,7 +42,7 @@ export async function getPrivileges(
     officeID = JSON.parse(localStorage.getItem("mainUser") || "").Office_Id
   }
   
-  const procedureValues = `${officeID}#${role}#${start1}#${safeCount}`;
+  const procedureValues = `${officeID}#${role}#${searchText}#${start1}#${safeCount}`;
 
   const exec: ExecutionResult = await executeProcedure(
     PROCEDURE_NAMES.GET_GROUP_RIGHT_DATA,

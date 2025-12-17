@@ -18,10 +18,13 @@ export type FieldConfig = {
   placeholder?: string;
   required?: boolean;
   type?: FieldType;
-  options?: { label: string; value: any }[]; // لإضافة خيارات الـ radio
+  options?: { label: string; value: any }[];
   inputProps?: React.ComponentProps<typeof Input> & { dir?: "rtl" | "ltr" };
   colSpan?: number;
   error?: string;
+  alphanumericOnly?: boolean;
+    lettersOnly?: boolean;
+  arabicOnly?: boolean;
 };
 
 type Mode = "form" | "confirm";
@@ -114,8 +117,21 @@ export default function FormModal<TValues extends Record<string, any> = Record<s
             : {
                 placeholder: f.placeholder,
                 value: (values as any)[f.name] ?? "",
-                onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-                  update(f.name, e.target.value),
+                onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+                let val = e.target.value;
+
+                if (f.arabicOnly) {
+                  val = val.replace(/[^\u0600-\u06FF\s]/g, "");
+                } 
+                else if (f.lettersOnly) {
+                  val = val.replace(/[^a-zA-Z\u0600-\u06FF\s]/g, "");
+                } 
+                else if (f.alphanumericOnly) {
+                  val = val.replace(/[^a-zA-Z0-9\u0600-\u06FF\s]/g, "");
+                }
+
+                update(f.name, val);
+              },
                 dir: f.inputProps?.dir,
                 ...f.inputProps,
               };

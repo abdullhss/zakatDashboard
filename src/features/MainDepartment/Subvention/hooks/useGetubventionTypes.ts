@@ -11,12 +11,14 @@ export interface SubventionTypesData {
 
 export function useGetSubventionTypes(
   offset: number,
-  limit: number
+  limit: number ,
+  AllowZakat: string ,
+  SadkaType: string = ""
 ): UseQueryResult<SubventionTypesData, Error> {
   return useQuery<SubventionTypesData, Error>({
     queryKey: ["subventionTypes", offset, limit],
     queryFn: async () => {
-      const summary: NormalizedSummary = await getSubventionTypes(offset, limit);
+      const summary: NormalizedSummary = await getSubventionTypes(offset, limit, AllowZakat, SadkaType);
 
       if (summary.flags.FAILURE || summary.flags.INTERNAL_ERROR) {
         throw new Error(summary.message || "فشل في جلب أنواع الإعانة.");

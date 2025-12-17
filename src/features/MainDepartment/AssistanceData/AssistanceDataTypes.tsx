@@ -138,6 +138,21 @@ const [status, setStatus] = useState<number | string>(0);
 
   const { approve, reject, isPending } = useAssistanceActions(() => refetch());
   const showInitialSpinner = isLoading || (isFetching && rows.length === 0);
+const formatDateTime = (date?: string) => {
+  if (!date) return "—";
+
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "—";
+
+  return d.toLocaleString("en", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
 
   const openModal = useCallback((row: AssistanceRow) => {
     setSelectedRow(row);
@@ -241,6 +256,22 @@ const [status, setStatus] = useState<number | string>(0);
         render: (r: AnyRec) =>
           (r as AssistanceRow).AssistanceDesc ?? (r as AssistanceRow).AssistanceName ?? "—",
       },
+        {
+        key: "CreatedDate",
+        header: "تاريخ الطلب",
+        width: "22%",
+        render: (r: AnyRec) =>
+        formatDateTime((r as AssistanceRow).CreatedDate),
+        },
+
+        {
+        key: "ApprovedDate",
+        header: "تاريخ الحالة",
+        width: "22%",
+        render: (r: AnyRec) =>
+        formatDateTime((r as AssistanceRow).ApprovedDate),
+        },
+
 //       {
 //         key: "__actions",
 //         header: "الإجراءات",

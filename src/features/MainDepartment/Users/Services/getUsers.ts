@@ -23,6 +23,7 @@ function buildEncSQL(rawSQL?: string): string {
 export async function getWorkUsersData(
   startNum: number = 1,   // 1-based
   count: number = 50,
+  searchText: string = "",
   encSQLRaw?: string,
   dataToken?: string,
   officeID : number = 0 , 
@@ -34,7 +35,9 @@ export async function getWorkUsersData(
   const countParam = Math.max(1, c);
 
   const encSQL = buildEncSQL(encSQLRaw || "");
-  const procedureValues = `${startParam}#${countParam}#${'$????'}#${officeID}`;
+  console.log(searchText);
+  
+  const procedureValues = `${startParam}#${countParam}#${'$????'}#${officeID}#${searchText}`;
   console.log(procedureValues);
   
   const execRes = await executeProcedure(

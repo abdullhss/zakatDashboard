@@ -42,11 +42,12 @@ export default function AddUserPage() {
   const { id } = useParams();
   const isEdit = !!id;
   const location = useLocation() as any;
+  
   const passedRow = location?.state?.row ?? null;
   const { row: fetchedRow, isLoading: isFetchingUser } = useGetUserById(isEdit ? id : undefined);
   console.log(fetchedRow);
   
-  const editRow = passedRow || fetchedRow || null;
+  const editRow = passedRow || location?.state?.userData || null;
   console.log(editRow);
   
 
@@ -107,7 +108,7 @@ export default function AddUserPage() {
 
   
   // fill edit data
-  const officeData = location.state?.userData;
+  const officeData = editRow;
   console.log(officeData);
   useEffect(() => {
     
@@ -149,6 +150,9 @@ export default function AddUserPage() {
   // validation memo (كما هو)
   const validation = useMemo(() => {
     const userNameOk = !!UserName.trim();
+    const userNameValid =
+      userNameOk &&
+      /[a-zA-Z]/.test(UserName); // لازم يحتوي على حرف واحد على الأقل
     const emailOk = isValidEmail(Email);
     const phoneOk = isValidLibyaPhone(PhoneNum);
     const passProvided = !!Password;
@@ -163,6 +167,7 @@ export default function AddUserPage() {
 
     const  allOk =
     userNameOk &&
+    userNameValid&&
     emailOk &&
     phoneOk &&
     typeOk &&
@@ -173,7 +178,7 @@ export default function AddUserPage() {
     (isEdit ? true : passProvided); // مطلوب فقط في الإضافة
 
 
-    return { userNameOk, emailOk, phoneOk, passStrong, passMatch, typeOk, privOk, officeOk, allOk, passProvided, passRequired };
+    return { userNameOk ,userNameValid, emailOk, phoneOk, passStrong, passMatch, typeOk, privOk, officeOk, allOk, passProvided, passRequired };
   }, [UserName, Email, PhoneNum, Password, ConfirmPassword, UserType, GroupRight_Id, Office_Id, isEdit, isOfficeSession, sessionOfficeId]);
 
   const resetForm = () => {
@@ -190,6 +195,7 @@ export default function AddUserPage() {
 
     // نفس التشيكات والتوست
     if (!validation.userNameOk) return toast({ title: "اسم المستخدم مطلوب", status: "warning" });
+    if (!validation.userNameValid) return toast({ title: "اسم المستخدم يجب ان يحتوي حرف واحد على الاقل", status: "warning" });
     if (!validation.emailOk)  return toast({ title: "البريد الإلكتروني غير صالح", status: "warning" });
     if (!validation.phoneOk)  return toast({
       title: "رقم الهاتف غير ليبي",
@@ -197,8 +203,10 @@ export default function AddUserPage() {
       status: "warning",
     });
     if (!validation.typeOk) return toast({ title: "اختر نوع الحساب", status: "warning" });
-    if (!validation.privOk)
-      return toast({ title: "اختر الصلاحية", status: "warning" });
+    if( UserType === "M") {
+      if (!validation.privOk)
+        return toast({ title: "اختر الصلاحية", status: "warning" });
+    }
     if (!validation.officeOk) return toast({ title: "اختر المكتب", status: "warning" });
     if (!isEdit && !validation.passProvided)
       return toast({ title: "كلمة المرور مطلوبة", status: "warning" });

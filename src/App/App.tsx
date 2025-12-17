@@ -5,7 +5,8 @@ import HomePage from "../Pages/HomePageMain";
 import MainDashboardLayout from "../features/MainDepartment/Layout/AppLayoutMainDepartment";
 import OfficeDashboardLayout from "../features/OfficeDashboard/Layout/AppLayoutOfficeDepartment";
 import { RequireAuth } from "../auth/requireAuth";
-
+import ForgetPassword from "../Pages/ForgetPassword.jsx";
+import EnterOTP from "../Pages/Otp.jsx";
 // صفحات الإدارة (M)
 import Cities from "../features/MainDepartment/Cities/Cities";
 import Banks from "../features/MainDepartment/Banks/Banks";
@@ -59,6 +60,7 @@ import PrivacyPolicy from "../features/MainDepartment/ProgramData/PrivaryPolicy"
 import { useEffect } from "react";
 import UrgentProjects from "../features/MainDepartment/UrgentProject/UrgentProjects";
 import UsersQuestions from "../features/MainDepartment/UsersQuestions/UsersQuestions";
+import OldUsersQuestions from "../features/MainDepartment/OldUsersQuestions/OldUsersQuestions";
 import CommonQuestions from "../features/MainDepartment/CommonQuestions/CommonQuestions";
 import AddQuestion from "../features/MainDepartment/CommonQuestions/AddQuestion";
 import FitrZakat from "../features/OfficeDashboard/FitrZakat/FitrZakat.jsx";
@@ -99,6 +101,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgetPassword" element={<ForgetPassword />} />
+        <Route path="/otp" element={<EnterOTP />} />
 
         {/* Main Dashboard - M */}
         <Route element={<RequireAuth allow={["M"]} />}>
@@ -139,6 +143,7 @@ export default function App() {
             <Route path="CommonQuestions" element={<CommonQuestions />} />
             <Route path="CommonQuestions/add" element={<AddQuestion />} />
             <Route path="UsersQuestions" element={<UsersQuestions />} />
+            <Route path="OldUsersQuestions" element={<OldUsersQuestions />} />
             <Route path="FAQLinks" element={<FAQLinks />} />
             
             <Route path="FitrZakat" element={<FitrZakatMain />} />

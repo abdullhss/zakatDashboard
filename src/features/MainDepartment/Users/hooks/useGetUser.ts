@@ -6,6 +6,7 @@ import { getWorkUsersData } from "../Services/getUsers";
 export type UseGetUsersOptions = {
   startNum?: number;   // 1-based
   count?: number;
+  searchText?: string;
   encSQLRaw?: string;  // WHERE/ORDER BY (تُشفّر داخليًا)
   dataToken?: string;
   auto?: boolean;      // fetch عند التركيب
@@ -15,6 +16,7 @@ export function useGetUsers(opts: UseGetUsersOptions = {}) {
   const {
     startNum = 1,
     count = 50,
+    searchText = "",
     encSQLRaw,
     dataToken,
     auto = true,
@@ -35,7 +37,7 @@ export function useGetUsers(opts: UseGetUsersOptions = {}) {
     setLoading(true);
     setError(null);
     try {
-      const summary = await getWorkUsersData(startNum, count, encSQLRaw, dataToken , officeID );
+      const summary = await getWorkUsersData(startNum, count, searchText, encSQLRaw, dataToken , officeID );
       setDec(summary.decrypted)
       
       setLastSummary(summary);
@@ -50,7 +52,7 @@ export function useGetUsers(opts: UseGetUsersOptions = {}) {
     } finally {
       setLoading(false);
     }
-  }, [startNum, count, encSQLRaw, dataToken]);
+  }, [startNum, count, encSQLRaw, dataToken , searchText , officeID]);
 
   useEffect(() => {
     if (auto) fetchUsers();

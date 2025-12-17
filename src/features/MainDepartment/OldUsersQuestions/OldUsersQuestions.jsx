@@ -12,6 +12,7 @@ import {
   Spinner,
   Flex,
   useToast,
+  Text,
 } from "@chakra-ui/react";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
@@ -36,7 +37,7 @@ export default function UsersQuestions() {
         setIsLoading(true);
 
         const response = await executeProcedure(
-          "N0ChknvX6yV9dlQ8l0KfTfvUFqBtrD9UnnWeW/+KRDI=",
+          "N0ChknvX6yV9dlQ8l0KfTRSpfIQBcOjwDwfhD1bM25ueYyyNvTfLX8weTZbGgjol",
           `0#${((page - 1) * limit) + 1}#${limit}`
         );
 
@@ -70,24 +71,8 @@ export default function UsersQuestions() {
 
     fetchQuestions();
   }, [page]);
-
-  const saveAnswer = async (question) => {
-    const { userId } = getSession();
-
-    await doTransaction({
-      TableName: "DVs4+KfiNQy46+yS057aSQgqdFM/8Jb4nfWSWsSwMrs=",
-      WantedAction: 1,
-      ColumnsNames: "Id#Question#Answer#GeneralUser_Id",
-      ColumnsValues: `${question.Id}#${question.Question}#${answers[question.Id]}#${question.GeneralUser_Id}`,
-      PointId: userId ?? 0,
-    });
-
-    toast({
-      title: "تم حفظ الإجابة",
-      status: "success",
-    });
-  };
-
+  console.log(questions);
+  
   if (isLoading)
     return (
       <Flex justify="center" mt={20}>
@@ -132,29 +117,9 @@ export default function UsersQuestions() {
 
             <AccordionPanel pb={5} bg="gray.50">
               <VStack align="stretch" spacing={3}>
-                <Textarea
-                  placeholder="أدخل الإجابة هنا..."
-                  value={answers[q.Id]}
-                  onChange={(e) =>
-                    setAnswers((prev) => ({
-                      ...prev,
-                      [q.Id]: e.target.value,
-                    }))
-                  }
-                  bg="white"
-                  borderColor="gray.300"
-                  _focus={{ borderColor: "teal.400", boxShadow: "0 0 0 1px teal" }}
-                />
-
-                <Button
-                  colorScheme="teal"
-                  alignSelf="flex-start"
-                  px={6}
-                  boxShadow="sm"
-                  onClick={() => saveAnswer(q)}
-                >
-                  حفظ الإجابة
-                </Button>
+                <Text>
+                  الإجابة: {q.Answer}
+                </Text>
               </VStack>
             </AccordionPanel>
           </AccordionItem>

@@ -56,6 +56,16 @@ const OFFICE_PAYMENT_COLUMNS: Column[] = [
         },
     },
     {
+        key: "ProjectName",
+        header: "اسم المشروع",
+        render: (row: AnyRec) =>  {
+            console.log(row);
+            // return row.ProjectName || row.SubventionTypeName || '—'
+            
+            return row.ProjectName  || '—'
+        },
+    },
+    {
         key: "BankName",
         header: "البنك",
         render: (row: AnyRec) => ( row.BankName + '—' + row.AccountNum ) || '—',

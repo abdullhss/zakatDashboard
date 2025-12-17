@@ -12,6 +12,7 @@ import { useCitiesQuery } from "../Cities/hooks/useCities";
 import MapPicker, { type LatLng as MapLatLng } from "../../../Components/Map/MapPicker";
 import { HandelFile } from "../../../HandleFile.js";
 
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg"];
 const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
 const buildPhotoUrl = (id?: string | number, ext = ".jpg") =>
   id && id !== "0" && id !== "undefined" ? `${ZAKAT_IMAGES_BASE}/${id}${ext}` : "";
@@ -110,6 +111,16 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
 console.log(headerPreviewUrl);
 
   const handleExtraPhotoUpload = async (file: File) => {
+    
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast({
+        title: "نوع ملف غير مدعوم",
+        description: "مسموح فقط بصور PNG أو JPG",
+        status: "error",
+      });
+      return;
+    }
+
     try {
       // 👈 اعرض المعاينة مباشرة قبل الرفع
       const localPreview = URL.createObjectURL(file);
@@ -176,6 +187,16 @@ console.log(headerPreviewUrl);
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast({
+        title: "نوع ملف غير مدعوم",
+        description: "مسموح فقط بصور PNG أو JPG",
+        status: "error",
+      });
+      e.target.value = "";
+      return;
+    }
 
     // ✅ عرض الصورة فورًا قبل الرفع
     const localPreview = URL.createObjectURL(file);
@@ -410,7 +431,7 @@ console.log(headerPreviewUrl);
 
               <Input
                 type="file"
-                accept="image/*"
+                accept=".png,.jpg,.jpeg"
                 onChange={handlePhotoChange}
                 onClick={(e) => ((e.target as HTMLInputElement).value = "")}
                 sx={{ h: "auto", py: 2 }}
@@ -450,7 +471,7 @@ console.log(headerPreviewUrl);
               )}
               <Input
                 type="file"
-                accept="image/*"
+                accept=".png,.jpg,.jpeg"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {

@@ -27,6 +27,13 @@ const FitrZakat = () => {
 
     return `${dd}/${MM}/${yyyy} ${hh}:${mm}:00`;
   };
+  const getNowForInput = () => {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000; // فرق التوقيت
+  const local = new Date(now.getTime() - offset);
+  return local.toISOString().slice(0, 16);
+};
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,6 +99,7 @@ const FitrZakat = () => {
           <Input
             type="datetime-local"
             value={startDate}
+            min={getNowForInput()}
             onChange={(e) => setStartDate(e.target.value)}
           />
         </FormControl>
@@ -100,6 +108,7 @@ const FitrZakat = () => {
           <FormLabel>تاريخ الانتهاء</FormLabel>
           <Input
             type="datetime-local"
+            min={startDate || getNowForInput()}
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />

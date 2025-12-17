@@ -3,13 +3,14 @@ import { getPrivileges, type RoleCode } from "../Services/getPrivelge";
 
 export function useGetPrivilege(
   roleCode: RoleCode | string = "M",
+  searchText :string = "",
   offset: number = 0,
   fetch: number = 50
 ) {
   const key = String(roleCode ?? "M").toUpperCase() || "M";
   return useQuery({
     queryKey: ["privileges", key, offset, fetch],
-    queryFn: () => getPrivileges(key, offset, fetch),
+    queryFn: () => getPrivileges(key , searchText, offset, fetch),
     keepPreviousData: true,
   });
 }

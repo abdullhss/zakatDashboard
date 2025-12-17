@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Box, Image, Stack, Text, useToast } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -320,8 +320,13 @@ export default function LoginPage() {
                 initial="hidden"
                 animate="visible"
               >
-                <Image src={ayahSrc} alt="آية" maxH="56px" objectFit="contain" />
               </MotionAyahWrap>
+              <Link to="/forgetPassword">
+                <Text fontSize="14px" color="blue.500" textAlign="center" cursor="pointer">
+                  هل نسيت كلمة المرور؟
+                </Text>
+              </Link>
+                <Image src={ayahSrc} alt="آية" maxH="56px" objectFit="contain" />
             </Stack>
           </MotionStyledFormCard>
         </StyledMain>

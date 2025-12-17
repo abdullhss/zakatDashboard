@@ -344,7 +344,7 @@ export default function AddOffice() {
         toast({ title: "فشل حفظ التعديلات", description: (res as any)?.error || "", status: "error" });
       }
     } catch (e: any) {
-      toast({ title: "خطأ أثناء التعديل", description: e?.message, status: "error" });
+      toast({ title: "خطأ أثناء التعديل", status: "error" });
     }
   };
 

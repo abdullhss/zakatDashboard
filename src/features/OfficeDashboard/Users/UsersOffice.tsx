@@ -1,4 +1,4 @@
-import { Box, HStack, Text } from "@chakra-ui/react";
+import { Box, HStack, Input, Text } from "@chakra-ui/react";
 import SharedButton from "../../../Components/SharedButton/Button";
 import DataTable from "../../../Components/Table/DataTable";
 import type { AnyRec } from "../../../api/apiClient";
@@ -22,6 +22,8 @@ export default function UsersOffice() {
   const [page , setPage] = useState(1);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchText, setSearchText] = useState("");
 
   const openDeleteModal = (user: AnyRec) => {
     setSelectedUser(user);
@@ -36,9 +38,10 @@ export default function UsersOffice() {
 
   const offset = (page - 1) * PAGE_SIZE;
   // جلب البيانات باستخدام هوك
-  const { dec ,rows, loading } = useGetUsers({
+  const { dec ,rows, loading , refetch } = useGetUsers({
     startNum: offset,
     count: PAGE_SIZE,
+    searchText: searchText,
     auto: true,
   });
 
@@ -100,10 +103,39 @@ export default function UsersOffice() {
     closeDeleteModal();
     location.reload();
   };
+  const hasSearch = searchText.trim().length > 0;
 
 
   return (
     <>
+    <Box>
+        <HStack mb={4} spacing={3}>
+          <Box flex="1">
+            <Input
+              placeholder="ابحث باسم الصلاحية..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setPage(1);
+                  setSearchText(searchInput);
+                }
+              }}
+            />
+          </Box>
+  
+          <Button
+            colorScheme="teal"
+            onClick={() => {
+              setPage(1);
+              setSearchText(searchInput);
+            }}
+          >
+            بحث
+          </Button>
+
+        </HStack>
+    </Box>
       <Box>
           <DataTable
             title="مستخدمو المكتب"
@@ -123,9 +155,20 @@ export default function UsersOffice() {
               </HStack>
             }
           />
-          {!loading && (!rows || rows.length === 0) && (
-            <Text mt={3} color="gray.500">لا توجد بيانات.</Text>
+          {!loading && rows?.length === 0 && (
+            <Text
+              mt={4}
+              textAlign="center"
+              color="gray.500"
+              fontSize="lg"
+              fontWeight="500"
+            >
+              {hasSearch
+                ? "لا توجد نتائج مطابقة للبحث"
+                : "لا توجد بيانات لعرضها"}
+            </Text>
           )}
+
           {updateError && <Text mt={3} color="red.500" fontSize={18}>{updateError}</Text>}
           {deleteError && <Text mt={3} color="red.500" fontSize={18}>{"هذا المستخدم مرتبط"}</Text>}
         </Box>

@@ -206,9 +206,14 @@ export default function GetStatmentData() {
     },
     
     {
+      key: "ActionName",
+      header: "نوع العملية",
+      render: (row: any) => row.ActionName ?? "—",
+    },
+    {
       key: "SubventionTypeName",
-      header: "النوع",
-      render: (row: any) => row.SubventionTypeName ?? "—",
+      header: "اسم المشروع / الاعانة",
+      render: (row: any) => row.SubventionTypeName || row.ProjectName || "—",
     },
     {
       key: "PaymentDesc",

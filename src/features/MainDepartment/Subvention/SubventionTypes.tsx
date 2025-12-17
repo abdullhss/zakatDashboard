@@ -1,10 +1,11 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box, Switch, Text, useDisclosure, useToast,
   Menu, MenuButton, MenuList, MenuItem, IconButton, Flex,
   AlertDialog, AlertDialogOverlay, AlertDialogContent,
   AlertDialogHeader, AlertDialogBody, AlertDialogFooter,
   HStack, Portal, Button,
+  Select,
 } from "@chakra-ui/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 
@@ -150,6 +151,9 @@ export default function SubventionTypes() {
   const offset = (page - 1) * PAGE_SIZE;
   const toast = useToast();
 
+  const [AllowZakat, setAllowZakat] = useState<string>("");
+  const [SadkaType, setSadkaType] = useState<string>("");
+
   // إضافة
   const addModal = useDisclosure();
   const addMutation = useAddSubventionType();
@@ -164,7 +168,10 @@ export default function SubventionTypes() {
   const updateStatus = useUpdateSubventionStatus();
 
   // البيانات
-  const { data, isLoading, isError, error, refetch } = useGetSubventionTypes(offset, PAGE_SIZE);
+  const { data, isLoading, isError, error, refetch } = useGetSubventionTypes(offset, PAGE_SIZE , AllowZakat, SadkaType);
+useEffect(() => {
+    refetch();
+}, [AllowZakat, SadkaType])
 
   const rows: Row[] = (data?.rows ?? []).map((r: AnyRec) => ({
     id: r.Id ?? r.id,
@@ -225,6 +232,7 @@ SadkaType:r.SadkaType
       required: true,
       type: "input" as const,
       colSpan: 1,
+      alphanumericOnly: true,
       inputProps: { dir: "rtl" as const },
     },
     {
@@ -430,7 +438,35 @@ console.log(response.code==207);
       };
 
   return (
-    <Box>
+    <Box >
+        <Box display="flex" gap={4}>
+        <Box flex={1}>
+            <Text mb={2} fontWeight="600">نوع الصدقة:</Text>
+            <Select
+            placeholder="جميع الصدقات"
+            value={SadkaType}
+            padding={3}
+            onChange={(e) => setSadkaType(e.target.value)}
+            >
+            <option value="G">صدقة عامة</option>
+            <option value="R">صدقة جارية</option>
+            </Select>
+        </Box>
+
+        <Box flex={1}>
+            <Text mb={2} fontWeight="600">تقبل الزكاة:</Text>
+            <Select
+            placeholder="الجميع"
+            value={AllowZakat}
+            padding={3}
+            onChange={(e) => setAllowZakat(e.target.value)}
+            >
+            <option value="true">تقبل</option>
+            <option value="false">لا تقبل</option>
+            </Select>
+        </Box>
+        </Box>
+
       <DataTable
         title="تصنيف الإعانات"
         data={rows as unknown as AnyRec[]}

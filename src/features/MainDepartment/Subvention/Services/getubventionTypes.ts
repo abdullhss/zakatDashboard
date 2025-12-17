@@ -3,13 +3,15 @@ import { executeProcedure, analyzeExecution, PROCEDURE_NAMES, type NormalizedSum
 
 export async function getSubventionTypes(
   offset: number = 0,
-  limit: number = 10
+  limit: number = 10,
+  AllowZakat: string = "",
+  SadkaType: string = ""
 ): Promise<NormalizedSummary> {
   const startNum = Math.max(1, offset + 1);
 
   const exec = await executeProcedure(
     PROCEDURE_NAMES.GET_SUBVENTION_TYPES,
-    `${startNum}#${limit}`
+    `${AllowZakat}#${SadkaType}#${startNum}#${limit}`
   );
   return analyzeExecution(exec);
 }
