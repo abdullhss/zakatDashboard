@@ -1,7 +1,7 @@
 import { executeProcedure, analyzeExecution, PROCEDURE_NAMES } from "../../../../api/apiClient";
 import { getSession } from "../../../../session";
 
-export async function fetchProjects(completeType: "N" | "C" | "S", start = 0, count = 20) {
+export async function fetchProjects(completeType: "N" | "C" | "S", start = 0, count = 20 , SubventionTypeId: number = 0) {
   const { officeId } = getSession();
   const office = Number(officeId ?? 0);
 
@@ -10,7 +10,7 @@ export async function fetchProjects(completeType: "N" | "C" | "S", start = 0, co
   // =======================================================================
     
   // بناء البارامترات: @OfficeId#@CompleteType#@StartNum#@Count
-  const params = `${office}#${completeType}#${sqlStartNum}#${count}`; 
+  const params = `${office}#${SubventionTypeId}#${completeType}#${sqlStartNum}#${count}`; 
 
   const exec = await executeProcedure(
     PROCEDURE_NAMES.GetDashBoardOfficeProjectsData,

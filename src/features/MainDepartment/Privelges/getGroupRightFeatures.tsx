@@ -1,6 +1,6 @@
 // src/features/OfficeDashboard/GroupRightFeaturesPage.tsx
 import React, { useMemo, useCallback, useState } from "react";
-import { Box, Flex, Spinner, Alert, AlertIcon, Text, Switch, useToast, Divider } from "@chakra-ui/react";
+import { Box, Flex, Spinner, Alert, AlertIcon, Text, Checkbox, useToast, Divider } from "@chakra-ui/react";
 import { useLocation } from "react-router-dom";
 import DataTable from "../../../Components/Table/DataTable";
 import type { AnyRec, Column } from "../../../Components/Table/TableTypes";
@@ -92,24 +92,30 @@ export default function GroupRightFeaturesPage() {
 
   const COLUMNS: Column[] = useMemo(
     () => [
-      { key: "FeatureName", header: "اسم الميزة", width: "40%", render: (r: AnyRec) => (r as FeatureRow).FeatureName ?? "—" },
       {
         key: "GroupRightValue",
         header: "القيمة (تفعيل)",
-        width: "40%",
+        width: "20%",
         render: (r: AnyRec) => {
           const row = r as FeatureRow;
           const isChecked = Number(row.GroupRightValue) === 1;
+
           return (
-            <Switch
-              isChecked={isChecked}
+            <input
+              type="checkbox"
+              checked={isChecked}
+              disabled={updateMutation.isPending}
               onChange={(e) => handleValueChange(row, e.target.checked)}
-              isDisabled={updateMutation.isPending}
-              colorScheme="green"
+              style={{
+                width: "16px",
+                height: "16px",
+                cursor: updateMutation.isPending ? "not-allowed" : "pointer",
+              }}
             />
           );
         },
       },
+      { key: "FeatureName", header: "اسم الميزة", width: "80%", render: (r: AnyRec) => (r as FeatureRow).FeatureName ?? "—" },
     ],
     [handleValueChange, updateMutation.isPending]
   );

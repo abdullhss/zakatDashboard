@@ -8,12 +8,13 @@ import {
 
 export async function getOffices(
   offset: number,
-  limit: number
+  limit: number,
+cityId =0 ,
 ): Promise<NormalizedSummary> {
   // الإجراء بياخد @StartNum#@Count وبيبدأ العد من 1
   const sqlStartNum = (offset ?? 0) + 1;
   const sqlCount = Math.max(1, Number(limit) || 1);
-  const params = `${sqlStartNum}#${sqlCount}`;
+  const params = `${cityId}#${sqlStartNum}#${sqlCount}`;
 
   const result = await executeProcedure(
     PROCEDURE_NAMES.GET_OFFICES_LIST,

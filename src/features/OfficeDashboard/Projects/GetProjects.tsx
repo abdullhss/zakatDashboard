@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import {
   Box, HStack, useToast, Spinner, Alert, AlertIcon, Select, Text,
   Menu, MenuButton, MenuList, MenuItem, IconButton, Flex,
@@ -17,6 +17,7 @@ import { HandelFile } from "../../../HandleFile.js";
 import { getSession } from "../../../session";
 import { buildProjectPhotoUrl } from "./helpers/photos.js";
 import { AddIcon } from "@chakra-ui/icons";
+import { getSubventionTypes } from "../../MainDepartment/Subvention/Services/getubventionTypes.js";
 
 const PAGE_SIZE = 10;
 
@@ -35,19 +36,29 @@ export default function Projects() {
   const [fRemaining, setFRemaining] = useState("");
   const [fAllowZakat, setFAllowZakat] = useState(true);
   const [fIsActive, setFIsActive] = useState(true);
+  const [SubventionTypeId , setSubventionTypeId] = useState<number>(0);
+  const [ subventionTypes, setSubventionTypes] = useState<any[]>([]);
 
   // صورة المشروع
   const [currentPhotoId, setCurrentPhotoId] = useState<string>("");
   const [newPhotoFile, setNewPhotoFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const Subventiondata = async ()=>{
+    const res = await getSubventionTypes(0,1000);
+    setSubventionTypes(res.rows || []);
+  }
+  useEffect(()=>{
+    Subventiondata();
+  },[])
 
   const toast = useToast();
   const navigate = useNavigate();
+  
 
   const start = useMemo(() => (page - 1) * PAGE_SIZE, [page]);
   const { mutateAsync: updateProject, isPending: updateLoading } = useUpdateProject();
   const { data, isLoading, isError, error, isFetching, refetch } =
-    useGetProjects(completeType, start, PAGE_SIZE);
+    useGetProjects(completeType, start, PAGE_SIZE , SubventionTypeId);
 
     
     const totalRows = Number(data?.summary.decrypted.data.Result[0].ProjectsCount)||1
@@ -256,6 +267,17 @@ export default function Projects() {
           <option value="S">مشاريع غير مكتملة</option>
           <option value="C">مشاريع مكتملة</option>
           <option value="N">مشاريع جديدة</option>
+        </Select>
+        <Select
+          w="260px"
+          px={3}
+          value={SubventionTypeId}
+          onChange={(e) => setSubventionTypeId(Number(e.target.value))}
+        >
+          <option value={0}>كل أنواع الاعانة</option>
+          {subventionTypes.map((type)=>(
+            <option key={type.Id} value={type.Id}>{type.SubventionTypeName}</option>
+          ))}
         </Select>
       </HStack>
 

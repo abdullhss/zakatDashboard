@@ -1,9 +1,10 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box, Text, Switch, HStack, useDisclosure, useToast,
   AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader,
   AlertDialogContent, AlertDialogOverlay, IconButton, Menu,
-  MenuButton, MenuList, MenuItem, Portal, Flex, Spinner, Alert, AlertIcon, Button
+  MenuButton, MenuList, MenuItem, Portal, Flex, Spinner, Alert, AlertIcon, Button,
+  Select
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -15,6 +16,7 @@ import SharedButton from "../../../Components/SharedButton/Button";
 
 import { useGetOffices } from "./hooks/useGetOffices";
 import { useDeleteOffice } from "./hooks/useDeleteOffice";
+import { getCities } from "../Cities/Services/getCities";
 
 /* ---------------- types ---------------- */
 type OfficeRow = {
@@ -132,14 +134,24 @@ export default function Office() {
   const toast = useToast();
 
   const userId = getCurrentUserId();
+  const [cities, setCities] = useState<any[]>([]) ; 
+  const [selectedCity , setSelectedCity] = useState(0); 
 
   const [page, setPage] = useState(1);
   const limit =10;
   const offset = (page - 1) * limit;
+  useEffect(()=>{
+    getcities() ;
+  } , [])
+  const getcities = async ()=>{
+    const res = await getCities(1 , 1000);
+    setCities(res.rows);
+  }  
+  
 
   // ✅ استدعاء كل المكاتب مرة واحدة (من غير pagination)
   const { data, isLoading, isError, error, isFetching, refetch } =
-    useGetOffices(offset , limit, userId);
+    useGetOffices(offset , limit, selectedCity);
     
     const totalRows = Number(data?.decrypted.data.Result[0].OfficesCount) || 1;
     const offciesData = data?.decrypted.data.Result[0].OfficesData ? JSON.parse(data?.decrypted.data.Result[0].OfficesData) : [];
@@ -212,7 +224,20 @@ export default function Office() {
           {serverMessage}
         </Alert>
       )}
-
+      <HStack>
+        <Select
+          w="260px"
+          px={3}
+          py={3}
+          value={selectedCity}
+          onChange={(e) => setSelectedCity(e.target.value)}
+        >
+          <option value={0}>كل المدن</option>
+          {cities.map((type)=>(
+            <option key={type.Id} value={type.Id}>{type.CityName}</option>
+          ))}
+        </Select>
+      </HStack>
       <DataTable
         title="بيانات المكاتب"
         data={rows as unknown as AnyRec[]}
