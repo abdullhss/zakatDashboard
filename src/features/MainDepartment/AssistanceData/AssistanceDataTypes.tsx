@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import {
   Box, Flex, Spinner, Text, useToast, HStack, Select,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter,
@@ -16,6 +16,7 @@ import { useAssistanceActions } from "./hooks/useAssistanceActions";
 import { PAGE_SIZE } from "./helpers/constants";
 import { useGetSubventionTypes } from "../Subvention/hooks/useGetubventionTypes";
 import { uploadAssistanceAttachmentViaHF } from "./hooks/uploadAssistanceAttachment";
+import { doTransaction, executeProcedure } from "../../../api/apiClient";
 
 type Opt = { id: string | number; name: string };
 
@@ -95,6 +96,24 @@ export default function AssistanceDataTypes() {
   const [page, setPage] = useState(1);
   const offset = (page - 1) * PAGE_SIZE;
 
+const [isAssignModalOpen, setAssignModalOpen] = useState(false);
+const [selectedResearcher, setSelectedResearcher] = useState<string | number>("");
+const [selectedRowToAssignResearcher, setSelectedRowToAssignResearcher] = useState<string | number>("");
+
+const openAssignModal = useCallback((row: AssistanceRow) => {
+  setSelectedRow(row);
+  setSelectedResearcher("");
+  setAssignModalOpen(true);
+}, []);
+
+const closeAssignModal = useCallback(() => {
+  setAssignModalOpen(false);
+  setSelectedRow(null);
+  setSelectedResearcher("");
+}, []);
+const [allResearcher , setAllResearcher] = useState([]) ;
+
+
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState<AssistanceRow | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -106,6 +125,13 @@ const [status, setStatus] = useState<number | string>(0);
   // Offices
   const { data: officesData, isLoading: officesLoading, isError: officesError } = useGetOffices(0, 200);
   const { officeOptions, officeNameById } = useOfficeOptions(officesData?.rows);
+useEffect(()=>{
+        const getAllReserchers = async ()=>{
+                const response = await executeProcedure("huv9xyVC+fwJ3j0ba/1kU5jVjQS03pY1ANdxZtdPdRU=" , `${officeId}#1#1000`);
+                setAllResearcher(response.rows);
+        }
+        getAllReserchers()
+},[])
 
   // Subvention types
   const { data: subventionsData, isLoading: subventionsLoading, isError: subventionsError } = useGetSubventionTypes(0, 200);
@@ -271,6 +297,25 @@ const formatDateTime = (date?: string) => {
         render: (r: AnyRec) =>
         formatDateTime((r as AssistanceRow).ApprovedDate),
         },
+        {
+        key: "researcher",
+        header: "إسناد باحث",
+        width: "14%",
+        render: (r: AnyRec) => (
+                r.Researcher_Id == 0 ? (
+                        <SharedButton
+                        variant="solid"
+                        size="sm"
+                        onClick={() => openAssignModal(r as AssistanceRow)}
+                        >
+                        إسناد
+                        </SharedButton>
+                ) : (
+                        <span>{r.ResearcherName}</span>
+                )
+        ),
+        },
+
 
 //       {
 //         key: "__actions",
@@ -289,6 +334,15 @@ const formatDateTime = (date?: string) => {
     ],
     [officeNameById, openModal]
   );
+const assignResarcher = async (row)=>{
+        const response = await doTransaction({
+                TableName:"g+a67fXnSBQre/3SDxT2uA==",
+                WantedAction:1,
+                ColumnsNames:"Id#Researcher_Id",
+                ColumnsValues:`${row.Id}#${selectedResearcher}`
+        });
+        refetch();
+}
 
         if(localStorage.getItem("role")=="M"){
                 columns.push({
@@ -408,6 +462,55 @@ const formatDateTime = (date?: string) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+        <Modal
+        isOpen={isAssignModalOpen}
+        onClose={closeAssignModal}
+        isCentered
+        size="md"
+        >
+        <ModalOverlay />
+        <ModalContent rounded="xl" p={2}>
+        <ModalHeader fontWeight="700">إسناد باحث</ModalHeader>
+
+        <ModalBody>
+        <Text mb={4} color="gray.600">
+                {selectedRow ? `مقدم/ة الطلب: ${getApplicantName(selectedRow)}` : ""}
+        </Text>
+
+        <FormControl isRequired>
+                <FormLabel>اختر الباحث</FormLabel>
+                <Select
+                px={3}
+                placeholder="اختر الباحث"
+                value={selectedResearcher}
+                onChange={(e) => setSelectedResearcher(e.target.value)}
+                >
+                        {
+                                allResearcher.map((e)=><option value={e.Id}>{e.FullName}</option>)
+                        }
+                </Select>
+        </FormControl>
+        </ModalBody>
+
+        <ModalFooter gap={3}>
+        <SharedButton variant="dangerOutline" onClick={closeAssignModal}>
+                إلغاء
+        </SharedButton>
+
+        <SharedButton
+                variant="success"
+                disabled={!selectedResearcher}
+                onClick={() => {
+                        assignResarcher(selectedRow)
+                closeAssignModal();
+                }}
+        >
+                إسناد
+        </SharedButton>
+        </ModalFooter>
+        </ModalContent>
+        </Modal>
+
     </Box>
   );
 }

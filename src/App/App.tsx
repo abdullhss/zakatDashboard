@@ -83,7 +83,9 @@ import NazrReport from "../features/MainDepartment/NazrReport/NazrReport"
 import Projects from "../features/MainDepartment/Projects/Projects"
 import CampaignReport from "../features/MainDepartment/CampaignReport/CampaignReport"
 import SubventionTypeReport from "../features/MainDepartment/SubventionTypeReport/SubventionTypeReport"
-
+import Searcher from "../features/OfficeDashboard/Searcher/Searcher.js"
+import AddSearcher from "../features/OfficeDashboard/Searcher/Add/AddSearcher"
+import EditSearcher from "../features/OfficeDashboard/Searcher/Edit/EditSearcher.js";
 export default function App() {
   useEffect(() => {
     const now = Date.now();
@@ -207,6 +209,9 @@ export default function App() {
     <Route path="ZakatReport" element={<ZakatReport />} />
     <Route path="SadakaReport" element={<SadakaReport />} />
     <Route path="NazrReport" element={<NazrReport />} />
+    <Route path="searcher" element={<Searcher />} />
+    <Route path="addSearcher" element={<AddSearcher/>} />
+    <Route path="editSearcher" element={<EditSearcher/>} />
   </Route>
 </Route>
 

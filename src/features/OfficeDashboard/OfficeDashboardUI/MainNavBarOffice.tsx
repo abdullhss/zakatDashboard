@@ -8,6 +8,7 @@ import {
   FiUsers,
   FiSend,
   FiFileText,
+  FiSearch,
 } from "react-icons/fi";
 import {
   RiShieldKeyholeLine,
@@ -99,6 +100,7 @@ export default function MainNavBarOfficeDepartment() {
     <SidebarDropdown title="إدارة المستخدمين" icon={FiUsers}>
       {renderLink("privelgesOffice", "الصلاحيات", RiShieldKeyholeLine)}
       {renderLink("usersOffice", "المستخدمين", FiUsers)}
+      {renderLink("searcher", "الباحثين", FiSearch)}
     </SidebarDropdown>
     
     <SidebarDropdown title="ادارة المنصة" icon={GiChecklist}>

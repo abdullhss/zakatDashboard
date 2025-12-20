@@ -7,6 +7,7 @@ export type AnyRec = Record<string, any>;
 /* ===================================
  * 1) الإعدادات
  * =================================== */
+// http://185.207.251.48:8085/ERPDatabaseWorkFunctions/ERPDatabaseWorkFunctions/
 const API_BASE_URL =
   "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions/";
   //https://client-frw.almedadsoft.com/emsserver.dll/ERPDatabaseWorkFunctions/
