@@ -44,7 +44,7 @@ export default function HomePage() {
                     ملخص الإحصائيات
                 </Heading>
                 
-                <StatsContainer>
+{/*                 <StatsContainer>
                     <SimpleGrid 
                         columns={{ base: 1, md: 3, lg: 3 }} // ⬅️ تم تصحيح الـ md: 3
                         spacing={6}
@@ -59,7 +59,7 @@ export default function HomePage() {
                             />
                         ))}
                     </SimpleGrid>
-                </StatsContainer>
+                </StatsContainer> */}
             </Box>
 
             <DashboardCharts /> 

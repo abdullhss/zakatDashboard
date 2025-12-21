@@ -3,6 +3,8 @@
 import { Box, Flex, Heading, SimpleGrid, Button, Text } from '@chakra-ui/react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { FiChevronDown } from 'react-icons/fi'; 
+import { useEffect, useState } from 'react';
+import { executeProcedure } from '../../api/apiClient';
 
 // ===================================
 // 1. البيانات
@@ -99,74 +101,111 @@ export const PieChartSection = () => (
             </PieChart>
         </ResponsiveContainer>
     </ChartContainer>
-);
+)
 
-// ===================================
-// 4. مُكوّن الرسم البياني العمودي (BarChartSection)
-// ===================================
+const BarChartSection = () => {
+  const [startDate , setStartDate] = useState("") ;
+  const [endDate , setEndDate] = useState("") ;
+  const [data,setData] = useState() ; 
+  useEffect(()=>{
+    const getData = async ()=>{
+      const response = await executeProcedure("yBUHpivA07MokXA71F71ZWk5iSjoHXCRV6bL7GgxGPA=",`${startDate}#${endDate}`);
+      setData(response.rows)
+    }
+    getData() ;
+  },[])
+  const chartData = data?.map(item => ({
+  name: `${item.OfficeName}`,
+  zakat: item.TotalZakat,
+  sadaka: item.TotalSadaka,
+}));
 
-const BarChartSection = () => (
-    <ChartContainer>
-        <Flex justifyContent="space-between" alignItems="center" mb={4}>
-            <Heading size="md" fontWeight="bold" color="gray.800">
-                إجمالي المبالغ
-            </Heading>
-            {/* أزرار التحكم في الرسم البياني (بستايل مطابق للتصميم) */}
-            <Flex gap={2}>
-                <Button 
-                    rightIcon={<FiChevronDown />} 
-                    size="sm" 
-                    bg="#17343B" // ⬅️ لون داكن مطابق للتصميم
-                    color="white" 
-                    _hover={{ bg: "#0f1f23" }}
-                    borderRadius="md"
-                >
-                    للكتب
-                </Button>
-                <Button 
-                    rightIcon={<FiChevronDown />} 
-                    size="sm" 
-                    bg="#17343B" // ⬅️ لون داكن مطابق للتصميم
-                    color="white" 
-                    _hover={{ bg: "#0f1f23" }}
-                    borderRadius="md"
-                >
-                    شهري
-                </Button>
-            </Flex>
-        </Flex>
+  return(
+        <ChartContainer w="65vw">
+          <Flex justifyContent="space-between" alignItems="center" mb={4}>
+              <Heading size="md" fontWeight="bold" color="gray.800">
+                  إجمالي المبالغ
+              </Heading>
+              {/* أزرار التحكم في الرسم البياني (بستايل مطابق للتصميم) */}
+  {/*             <Flex gap={2}>
+                  <Button 
+                      rightIcon={<FiChevronDown />} 
+                      size="sm" 
+                      bg="#17343B" // ⬅️ لون داكن مطابق للتصميم
+                      color="white" 
+                      _hover={{ bg: "#0f1f23" }}
+                      borderRadius="md"
+                  >
+                      للكتب
+                  </Button>
+                  <Button 
+                      rightIcon={<FiChevronDown />} 
+                      size="sm" 
+                      bg="#17343B" // ⬅️ لون داكن مطابق للتصميم
+                      color="white" 
+                      _hover={{ bg: "#0f1f23" }}
+                      borderRadius="md"
+                  >
+                      شهري
+                  </Button>
+              </Flex> */}
+          </Flex>
 
-        <ResponsiveContainer width="100%" height={370}>
-            <BarChart data={barData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f0f0f0" /> 
-                
-                {/* محور X (الأيام) - تم عكسه ليعرض "السبت" أولاً على اليمين */}
-                <XAxis dataKey="name" axisLine={false} tickLine={false} style={{ fontSize: '12px' }} reversed={true} /> 
-                
-                {/* محور Y (المبالغ) */}
-                <YAxis axisLine={false} tickLine={false} style={{ fontSize: '12px' }} />
-                
-                <Tooltip /> 
-                
-                {/* الأعمدة */}
-                <Bar 
-                    dataKey="uv" 
-                    fill="#07574fff" // اللون التركواز الداكن
-                    radius={[5, 5, 0, 0]} 
-                    barSize={30}
-                />
-            </BarChart>
-        </ResponsiveContainer>
-    </ChartContainer>
-);
+        <Box overflowX="auto">
+        <Box minW={`${chartData?.length * 80}px`}>
+          <ResponsiveContainer width="100%" height={370}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 20, right: 10, left: -20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+              
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                padding={{ left: 30, right: 30 }}
+                style={{ fontSize: "12px" }}
+              />
+
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                style={{ fontSize: "12px" }}
+              />
+
+              <Tooltip />
+
+              <Bar
+                dataKey="zakat"
+                name="الزكاة"
+                fill="#07574f"
+                radius={[5, 5, 0, 0]}
+                barSize={25}
+              />
+
+              <Bar
+                dataKey="sadaka"
+                name="الصدقة"
+                fill="#E9B949"
+                radius={[5, 5, 0, 0]}
+                barSize={25}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </Box>
+        </Box>
+      </ChartContainer>
+  )
+};
 
 
 export default function DashboardCharts() {
     return (
         // ⬅️ عكس ترتيب المكونات ليتطابق مع تصميم Figma
-        <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-            <BarChartSection /> {/* ⬅️ أصبح على اليمين */}
-            <PieChartSection /> {/* ⬅️ أصبح على اليسار */}
+        <SimpleGrid>
+            <BarChartSection />
+            {/* <PieChartSection /> */}
         </SimpleGrid>
     );
 }
