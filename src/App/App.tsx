@@ -86,6 +86,9 @@ import SubventionTypeReport from "../features/MainDepartment/SubventionTypeRepor
 import Searcher from "../features/OfficeDashboard/Searcher/Searcher.js"
 import AddSearcher from "../features/OfficeDashboard/Searcher/Add/AddSearcher"
 import EditSearcher from "../features/OfficeDashboard/Searcher/Edit/EditSearcher.js";
+import Notification from "../features/OfficeDashboard/Notification/Notification.jsx";
+
+
 export default function App() {
   useEffect(() => {
     const now = Date.now();
@@ -212,6 +215,7 @@ export default function App() {
     <Route path="searcher" element={<Searcher />} />
     <Route path="addSearcher" element={<AddSearcher/>} />
     <Route path="editSearcher" element={<EditSearcher/>} />
+    <Route path="notification" element={<Notification/>} />
   </Route>
 </Route>
 

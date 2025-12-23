@@ -1,4 +1,5 @@
 // src/features/DashboardUi/PageHeader.jsx
+import { BellIcon } from "@chakra-ui/icons";
 import {
   chakra,
   Flex,
@@ -10,7 +11,7 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { FiChevronDown } from "react-icons/fi";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 // عنوان الصفحة حسب المسار
 const getPageTitle = (pathname : any) => {
@@ -92,6 +93,21 @@ export default function OfficeDepartmentPageHeader() {
 
       {/* زر باسم المكتب (أو الإدارة) */}
       <Menu placement="bottom-start">
+        <Link to={"notification"}>
+          <MenuButton
+            as={Button}
+            size="sm"
+            bg="gray.100"
+            color="gray.700"
+            _hover={{ bg: "gray.200" }}
+            _active={{ bg: "gray.200" }}
+            borderRadius="full"
+            mx={3}
+          >
+            <BellIcon/>
+          </MenuButton>
+        </Link>
+        
         <MenuButton
           as={Button}
           size="sm"
@@ -103,6 +119,8 @@ export default function OfficeDepartmentPageHeader() {
         >
           {headerLabel}
         </MenuButton>
+        
+        
       </Menu>
     </StyledHeader>
   );
