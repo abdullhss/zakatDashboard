@@ -70,7 +70,7 @@ console.log(lawRow);
     const text = form.lawText.trim();
     
     if (!title || !text || !form.lawDate) {
-      toast({ status: "warning", title: "البيانات الأساسية ناقصة", description: "يرجى ملء العنوان والنص والتاريخ.", status: "warning", duration: 3000, isClosable: true });
+      toast({ title: "البيانات الأساسية ناقصة", description: "يرجى ملء العنوان والنص والتاريخ.", status: "warning", duration: 3000, isClosable: true });
       return;
     }
     
