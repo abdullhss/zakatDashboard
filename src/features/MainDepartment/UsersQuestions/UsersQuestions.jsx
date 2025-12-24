@@ -18,7 +18,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
 import { doTransaction, executeProcedure } from "../../../api/apiClient";
 import { getSession } from "../../../session";
-import Pagination from "../../../components/Table/Pagination.tsx";
+import Pagination from "../../../Components/Table/Pagination";
 
 export default function UsersQuestions() {
   const [page, setPage] = useState(1);
