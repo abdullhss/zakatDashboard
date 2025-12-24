@@ -1,6 +1,6 @@
 // src/components/DashboardCharts.jsx
 
-import { Box, Flex, Heading, SimpleGrid, Button, Text } from '@chakra-ui/react';
+import { Box, Flex, Heading, SimpleGrid, Button, Text, background } from '@chakra-ui/react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { FiChevronDown } from 'react-icons/fi'; 
 import { useEffect, useState } from 'react';
@@ -49,59 +49,59 @@ margin="auto"
 );
 
 
-export const PieChartSection = () => (
-    <ChartContainer>
-        <Heading size="md" fontWeight="bold" color="gray.800" mb={4} textAlign="center">
-            الخدمات
-        </Heading>
-        <ResponsiveContainer width="100%" height={350}>
-            <PieChart>
-                <Pie
-                    data={pieData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={120}
-                    innerRadius={80} 
-                    paddingAngle={3}
-                    style={{ 
-                        filter: 'drop-shadow(0 0 10px rgba(0, 0, 0, 0.1))',
-                    }} 
-                    label={({ percent }) => `${(percent  * 100).toFixed(0)}%`}
-                    labelLine={false} 
-                >
-                    {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} /> 
-                    ))}
-                </Pie>
-                
-                {/* Legend مُخصص ليتناسب مع تصميم Figma */}
-                <Legend 
-                    layout="horizontal" 
-                    verticalAlign="bottom" 
-                    align="center" 
-                    iconType="square" 
-                    wrapperStyle={{ paddingTop: '20px' }}
-                    content={({ payload }) => (
-                        <Flex justify="center" mt={4} dir="rtl"> {/* ⬅️ إضافة dir="rtl" هنا */}
-                            {payload.map((entry, index) => (
-                                <Flex 
-                                    key={`item-${index}`} 
-                                    align="center" 
-                                    mx={3}
-                                >
-                                    <Box w="10px" h="10px" bg={entry.color} mr={2} borderRadius="sm" />
-                                    <Text fontSize="sm" color="gray.600">{entry.value}</Text>
-                                </Flex>
-                            ))}
-                        </Flex>
-                    )}
-                />
-            </PieChart>
-        </ResponsiveContainer>
-    </ChartContainer>
-)
+// export const PieChartSection = () => (
+//     <ChartContainer>
+//         <Heading size="md" fontWeight="bold" color="gray.800" mb={4} textAlign="center">
+//             الخدمات
+//         </Heading>
+//         <ResponsiveContainer width="100%" height={350}>
+//             <PieChart>
+//                 <Pie
+//                     data={pieData}
+//                     dataKey="value"
+//                     nameKey="name"
+//                     cx="50%"
+//                     cy="50%"
+//                     outerRadius={120}
+//                     innerRadius={80} 
+//                     paddingAngle={3}
+//                     style={{ 
+//                         filter: 'drop-shadow(0 0 10px rgba(0, 0, 0, 0.1))',
+//                     }} 
+//                     label={({ percent }) => `${(percent  * 100).toFixed(0)}%`}
+//                     labelLine={false} 
+//                 >
+//                     {pieData.map((entry, index) => (
+//                         <Cell key={`cell-${index}`} fill={entry.color} /> 
+//                     ))}
+//                 </Pie>
+//                 
+//                 {/* Legend مُخصص ليتناسب مع تصميم Figma */}
+//                 <Legend 
+//                     layout="horizontal" 
+//                     verticalAlign="bottom" 
+//                     align="center" 
+//                     iconType="square" 
+//                     wrapperStyle={{ paddingTop: '20px' }}
+//                     content={({ payload }) => (
+//                         <Flex justify="center" mt={4} dir="rtl"> {/* ⬅️ إضافة dir="rtl" هنا */}
+//                             {payload.map((entry, index) => (
+//                                 <Flex 
+//                                     key={`item-${index}`} 
+//                                     align="center" 
+//                                     mx={3}
+//                                 >
+//                                     <Box w="10px" h="10px" bg={entry.color} mr={2} borderRadius="sm" />
+//                                     <Text fontSize="sm" color="gray.600">{entry.value}</Text>
+//                                 </Flex>
+//                             ))}
+//                         </Flex>
+//                     )}
+//                 />
+//             </PieChart>
+//         </ResponsiveContainer>
+//     </ChartContainer>
+// )
 
 const BarChartSection = () => {
   const [startDate , setStartDate] = useState("") ;
@@ -121,57 +121,56 @@ const BarChartSection = () => {
 }));
 
   return(
-        <ChartContainer w="65vw">
+        <ChartContainer style={{height:"60vh"}} w="70vw">
           <Flex justifyContent="space-between" alignItems="center" mb={4}>
               <Heading size="md" fontWeight="bold" color="gray.800">
                   إجمالي المبالغ
               </Heading>
-              {/* أزرار التحكم في الرسم البياني (بستايل مطابق للتصميم) */}
-  {/*             <Flex gap={2}>
-                  <Button 
-                      rightIcon={<FiChevronDown />} 
-                      size="sm" 
-                      bg="#17343B" // ⬅️ لون داكن مطابق للتصميم
-                      color="white" 
-                      _hover={{ bg: "#0f1f23" }}
-                      borderRadius="md"
-                  >
-                      للكتب
-                  </Button>
-                  <Button 
-                      rightIcon={<FiChevronDown />} 
-                      size="sm" 
-                      bg="#17343B" // ⬅️ لون داكن مطابق للتصميم
-                      color="white" 
-                      _hover={{ bg: "#0f1f23" }}
-                      borderRadius="md"
-                  >
-                      شهري
-                  </Button>
-              </Flex> */}
           </Flex>
 
         <Box overflowX="auto">
         <Box minW={`${chartData?.length * 80}px`}>
-          <ResponsiveContainer width="100%" height={370}>
+          <Flex gap={6} mb={4} justify="right">
+            <Flex align="center" gap={2}>
+              <Box w="14px" h="14px" bg="#07574f" borderRadius="sm" />
+              <Text fontSize="sm">الزكاة</Text>
+            </Flex>
+
+            <Flex align="center" gap={2}>
+              <Box w="14px" h="14px" bg="#E9B949" borderRadius="sm" />
+              <Text fontSize="sm">الصدقة</Text>
+            </Flex>
+          </Flex>
+
+          <ResponsiveContainer width="100%" height={450}>
             <BarChart
               data={chartData}
-              margin={{ top: 20, right: 10, left: -20, bottom: 5 }}
+              margin={{ top: 20, right: 10, left: -30, bottom: 30 }}
             >
               <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-              
+              {/* <Legend
+                verticalAlign="bottom"
+                align="left"
+                iconType="square"
+              /> */}
+
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                padding={{ left: 30, right: 30 }}
-                style={{ fontSize: "12px" }}
+                interval={0}
+                angle={-45}
+                textAnchor="start"
+                height={120}
+                style={{ fontSize: "16px"}}
+                padding={{ left: 20, right: 20 }}
               />
+
 
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                style={{ fontSize: "12px" }}
+                style={{ fontSize: "12px"}}
               />
 
               <Tooltip />
@@ -193,6 +192,7 @@ const BarChartSection = () => {
               />
             </BarChart>
           </ResponsiveContainer>
+          
         </Box>
         </Box>
       </ChartContainer>
@@ -203,7 +203,7 @@ const BarChartSection = () => {
 export default function DashboardCharts() {
     return (
         // ⬅️ عكس ترتيب المكونات ليتطابق مع تصميم Figma
-        <SimpleGrid>
+        <SimpleGrid style={{height:"60vh"}} >
             <BarChartSection />
             {/* <PieChartSection /> */}
         </SimpleGrid>
