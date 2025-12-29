@@ -39,7 +39,7 @@ const Payments = () => {
   const { data: officesData, isLoading: officesLoading } = useGetOffices(
     1,
     10000,
-    userId
+    0
   );
 
   /** -------------------- GET SUBVENTIONS ------------------- */

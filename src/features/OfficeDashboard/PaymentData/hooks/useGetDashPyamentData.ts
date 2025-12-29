@@ -12,16 +12,17 @@ export interface PaymentData {
 
 export function useGetDashPyamentData(
     officeId: number | string,
+    selectedAction : number ,
     offset: number, 
     limit: number
 ): UseQueryResult<PaymentData, Error> {
     
-    const queryKey = ['payments-dashboard', officeId, offset, limit];
+    const queryKey = ['payments-dashboard', officeId , selectedAction , offset, limit];
 
     return useQuery<PaymentData, Error>({
         queryKey: queryKey,
         queryFn: async () => {
-            const summary: NormalizedSummary = await getDashPaymentData(officeId, offset, limit);
+            const summary: NormalizedSummary = await getDashPaymentData(officeId,selectedAction, offset, limit);
 
             if (summary.flags.FAILURE || summary.flags.INTERNAL_ERROR) {
                 throw new Error(summary.message || "فشل غير معروف في جلب بيانات المدفوعات.");

@@ -4,6 +4,7 @@ import type { ExecutionResult, NormalizedSummary } from "../../../../api/apiClie
 // هذه الدالة تجلب البيانات باستخدام الـ Procedure
 export async function getDashPaymentData(
     officeId: number | string, 
+    selectedAction : number = 0, 
     startNum: number = 0, 
     count: number = 10,   
 ): Promise<NormalizedSummary> {
@@ -12,7 +13,7 @@ export async function getDashPaymentData(
     const sqlStartNum = startNum + 1; 
 
     // بناء المعاملات التي ستُرسل إلى Procedure
-    const procedureValues = `${currentOfficeId}#${sqlStartNum}#${count}`;
+    const procedureValues = `${currentOfficeId}#${selectedAction}#${sqlStartNum}#${count}`;
     
     const ProcedureName = PROCEDURE_NAMES.GET_DASH_PAYMENT_DATA; 
 

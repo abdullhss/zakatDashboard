@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { 
     Box, Flex, Spinner, Alert, AlertIcon, Text, HStack, Select, Link, 
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, 
@@ -11,6 +11,7 @@ import { useGetDashPyamentData } from './hooks/useGetDashPyamentData';
 import { getSession } from '../../../session'; 
 import { useGetOffices } from '../../MainDepartment/Offices/hooks/useGetOffices'; 
 import { useAddPaymentApproval } from './hooks/useAddPayment'; // هوك الموافقة
+import { executeProcedure } from '../../../api/apiClient';
 
 const PAGE_SIZE = 10;
 const BASE_ATTACHMENT_URL = "https://framework.md-license.com:8093/ZakatImages/"; 
@@ -50,9 +51,17 @@ export default function GetDashPaymentData() {
     const [isModalOpen, setIsModalOpen] = useState(false); 
     const [selectedPaymentDetails, setSelectedPaymentDetails] = useState<AnyRec | null>(null); 
     const [isApproved, setIsApproved] = useState<boolean | null>(null); 
-    const [statusFilter, setStatusFilter] = useState<number>(0); // 0=الكل
+    const [statusFilter, setStatusFilter] = useState<number>(0);
+    const [actionData , setActionData] = useState([]) ;
+    const [selectedAction , setSelectedAction] = useState(0) ;
 
-    console.log(selectedPaymentDetails);
+    const getAllActions = async ()=>{
+        const response = await executeProcedure("3P8RkzNFvgeh6oSPaIf+jVoEFDOVJ+KG83cO0oTKzVY=" , "") ;
+        setActionData(response.rows);
+    }
+    useEffect(()=>{
+        getAllActions(); 
+    },[])
     
     const approveMutation = useAddPaymentApproval();
 
@@ -60,8 +69,9 @@ export default function GetDashPaymentData() {
     
     const { data, isLoading, isError, error, isFetching } = useGetDashPyamentData(
         isM ? selectedOfficeId : (userOfficeId ?? 0), 
+selectedAction,
         offset, 
-        limit
+        limit,
     ); 
 
     const rows = data?.rows;
@@ -178,6 +188,16 @@ export default function GetDashPaymentData() {
                         {officesOptions.map((office) => (<option key={office.id} value={office.id}>{office.name}</option>))}
                     </Select>
                 )}
+                <Select
+                    w="260px"
+                    placeholder="نوع التبرع"
+                    value={selectedAction}
+                    onChange={(e) => { setPage(1); setSelectedAction(e.target.value); }}
+                    isDisabled={loadingOffices || isOfficesError}
+                >
+                    <option value={0}>جميع الانواع</option> 
+                    {actionData.map((action) => (<option key={action.Id} value={action.Id}>{action.ActionName}</option>))}
+                </Select>
             </HStack>
 
             <DataTable

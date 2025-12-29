@@ -38,7 +38,7 @@ const Projects = () => {
   const { data: officesData, isLoading: officesLoading } = useGetOffices(
     1,
     10000,
-    userId
+    0
   );
 
   /** -------------------- GET SUBVENTIONS ------------------- */
@@ -48,7 +48,7 @@ const Projects = () => {
     if (!selectedOffice) return;
 
     const getProjects = async () => {
-      const params = `${selectedOffice}#N#1#10000`;
+      const params = `${selectedOffice}#0#N#1#10000`;
 
       const res = await executeProcedure(
         PROCEDURE_NAMES.GetDashBoardOfficeProjectsData,
@@ -101,6 +101,18 @@ const columns = [
   { header: "البنك", render: (row) => row.BankName || "-" },
   { header: "رقم الحساب", render: (row) => row.AccountNum || "-" },
 ];
+useEffect(() => {
+  if (selectedProject_Id !== 0 && selectedOffice !== 0) {
+    setPage(1);
+    fetchPayments();
+  }
+}, [
+  selectedProject_Id,
+  selectedOffice,
+  selectedStatus,
+  selectedFromDate,
+  selectedToDate,
+]);
 
   return (
     <Box p={5}>
@@ -154,7 +166,7 @@ const columns = [
                     placeholder="اختر المشروع"
                     value={selectedProject_Id}
                     padding={3}
-                    onChange={(e) => setSelectedProject_Id(e.target.value || 0)}
+                    onChange={(e) => setSelectedProject_Id(Number(e.target.value) || 0)}
                   >
                     {projects?.map((p) => (
                       <option key={p.Id} value={p.Id}>

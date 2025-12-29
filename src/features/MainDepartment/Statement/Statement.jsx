@@ -70,7 +70,7 @@ export default function MainStatement() {
     data: officesData,
     isLoading: officesLoading,
     isError: officesError,
-  } = useGetOffices(1 , 10000, userId);
+  } = useGetOffices(1 , 10000, 0);
 
   const offices = officesData?.rows ?? [];
   

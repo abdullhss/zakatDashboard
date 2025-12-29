@@ -1,4 +1,4 @@
-import { Box, HStack, Input, space, Text } from "@chakra-ui/react";
+import { Box, HStack, Input, space, Text, useToast } from "@chakra-ui/react";
 import SharedButton from "../../../Components/SharedButton/Button";
 import DataTable from "../../../Components/Table/DataTable";
 import { doTransaction, executeProcedure, type AnyRec } from "../../../api/apiClient";
@@ -18,7 +18,7 @@ const PAGE_SIZE = 10;
 export default function Searcher() {
   const { officeId } = getSession();
   const navigate = useNavigate(); // للحصول على دالة التوجيه
-  
+  const toast = useToast() ;
   const [page , setPage] = useState(1);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -100,10 +100,15 @@ export default function Searcher() {
       ColumnsNames:"Id",
       ColumnsValues:selectedUser.Id,
     });
-    console.log(response);
-
     closeDeleteModal();
-    location.reload();
+    if(response.success){
+      location.reload();
+    }else{
+      toast({
+        title:"هذا الباحث مرتبط بطلبات اعانة" , 
+        status:"error"
+      })
+    }
   };
 
 

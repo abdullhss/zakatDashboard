@@ -30,6 +30,8 @@ export default function AddPrivelges() {
 
   const groupRightId = sp.get("groupId") || "";
 
+  const [selectAll, setSelectAll] = useState(false);
+
   const [groupRightName, setGroupRightName] = useState<string>("");
 const lockName = false;
   useEffect(() => {
@@ -60,13 +62,19 @@ const lockName = false;
   const toggleOne = (id: string | number, v: boolean) => setSelected((s) => ({ ...s, [id]: v }));
   const pageAllChecked  = pageRows.length > 0 && pageRows.every((r) => selected[r.id]);
   const pageSomeChecked = !pageAllChecked && pageRows.some((r) => selected[r.id]);
-  const togglePage = (value: boolean) => {
-    setSelected((s) => {
-      const next = { ...s };
-      pageRows.forEach((r) => (next[r.id] = value));
-      return next;
+  const toggleAll = (value: boolean) => {
+    setSelectAll(value);
+    setSelected(() => {
+      if (!value) return {};
+      const all: Record<string | number, boolean> = {};
+      allRows.forEach((r) => {
+        all[r.id] = true;
+      });
+      return all;
     });
   };
+  const allChecked = allRows.length > 0 && allRows.every((r) => selected[r.id]);
+  const someChecked = !allChecked && allRows.some((r) => selected[r.id]);
 
   // columns
   const columns: Column[] = useMemo(
@@ -76,25 +84,24 @@ const lockName = false;
         header: (
           <input
             type="checkbox"
-            aria-label="select-page"
-            checked={pageAllChecked}
-            ref={(el) => el && (el.indeterminate = pageSomeChecked)}
-            onChange={(e) => togglePage(e.target.checked)}
+            checked={allChecked}
+            ref={(el) => el && (el.indeterminate = someChecked)}
+            onChange={(e) => toggleAll(e.target.checked)}
           />
         ) as unknown as string,
         width: "16%",
         render: (row: AnyRec) => {
           const r = row as FeatureRow;
-          const checked = !!selected[r.id];
           return (
             <input
               type="checkbox"
-              checked={checked}
+              checked={!!selected[r.id]}
               onChange={(e) => toggleOne(r.id, e.target.checked)}
             />
           );
         },
       },
+
       {
         key: "name",
         header: "اسم الميزة",

@@ -45,8 +45,7 @@ export default function UrgentProjects() {
   console.log(data);
     const { data: officesData, isLoading: officesLoading } = useGetOffices(
       1,
-      10000,
-      userId
+      10000
     );
   
     /** -------------------- GET SUBVENTIONS ------------------- */

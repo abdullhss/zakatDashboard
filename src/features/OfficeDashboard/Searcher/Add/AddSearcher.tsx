@@ -7,6 +7,7 @@ import {
   Switch,
   Button,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
 import { doTransaction } from "../../../../api/apiClient";
 import { getSession } from "../../../../session";
@@ -18,6 +19,7 @@ const AddSearcher = () => {
     phoneNumber: "",
     isActive: true,
   });
+  const toast = useToast() ;
     const { officeId } = getSession();
   const navigate = useNavigate() ;
 
@@ -41,6 +43,13 @@ const AddSearcher = () => {
     if(response.code == 200){
         navigate("/officedashboard/searcher")
     }
+    else{
+      toast({
+        title:response.error ,
+        status:"error"
+      })
+    }
+    
   };
 
   return (

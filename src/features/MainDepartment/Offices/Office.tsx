@@ -230,7 +230,10 @@ export default function Office() {
           px={3}
           py={3}
           value={selectedCity}
-          onChange={(e) => setSelectedCity(e.target.value)}
+          onChange={(e) => {
+            setSelectedCity(Number(e.target.value));
+            setPage(1);
+          }}
         >
           <option value={0}>كل المدن</option>
           {cities.map((type)=>(

@@ -168,7 +168,7 @@ export default function Users() {
               <HStack mb={4} spacing={3}>
                 <Box flex="1">
                   <Input
-                    placeholder="ابحث باسم الصلاحية..."
+                    placeholder="ابحث باسم المستخدم..."
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     onKeyDown={(e) => {

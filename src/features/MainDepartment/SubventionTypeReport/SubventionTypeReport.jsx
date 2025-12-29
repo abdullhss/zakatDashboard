@@ -36,7 +36,7 @@ const CampaignReport = () => {
 
   useEffect(() => {
     const fetchSubventions = async () => {
-      const params = `0#0#${selectedStatus}#${(page - 1) * PAGE_LIMIT + 1}#${PAGE_LIMIT}`;
+      const params = `0#0#${selectedStatus}##${(page - 1) * PAGE_LIMIT + 1}#${PAGE_LIMIT}`;
       const response = await executeProcedure(
         "phjR2bFDp5o0FyA7euBbsp/Ict4BDd2zHhHDfPlrwnk=",
         params

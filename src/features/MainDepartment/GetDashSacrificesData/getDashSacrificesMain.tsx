@@ -149,7 +149,7 @@ console.log(officeOptions);
         setPage(1);
       }}
     >
-      <option value={0}>كل المكاتب</option>
+      {/* <option value={0}>كل المكاتب</option> */}
       {officeOptions.map((o) => (
         <option key={o.id} value={o.id}>
           {o.name}

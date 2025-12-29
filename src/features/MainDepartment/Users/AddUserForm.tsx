@@ -72,7 +72,7 @@ export default function AddUserPage() {
   // offices
   const currentUserId = Number(session.userId || 0) || 0;
   const { data: officesData, error: officesError, isLoading: officesLoading } =
-    useGetOffices(0, 200, currentUserId);
+    useGetOffices(0, 200, 0);
 
   const { officeOptions } = useMemo(() => {
     const rows = officesData?.rows ?? [];
@@ -86,7 +86,7 @@ export default function AddUserPage() {
 
   // privileges
   const privType: "M" | "O" = isOfficeSession ? "O" : (UserType === "M" ? "M" : "O");
-  const { data: privData, isLoading: privLoading } = useGetPrivilege(privType, 0, 200, true);
+  const { data: privData, isLoading: privLoading } = useGetPrivilege(privType, "", 0, 200);
 
   const privileges: any[] = useMemo(() => {
     const fromRows = (privData?.rows ?? []) as any[];

@@ -23,7 +23,7 @@ const PAGE_SIZE = 10;
 
 export default function Projects() {
   const [page, setPage] = useState(1);
-  const [completeType, setCompleteType] = useState<"N" | "C" | "S">("S");
+  const [completeType, setCompleteType] = useState<"N" | "C" | "S" | "A">("A");
 
   // حالة المودال/التعديل
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -262,8 +262,9 @@ export default function Projects() {
           w="260px"
           px={3}
           value={completeType}
-          onChange={(e) => setCompleteType(e.target.value as "N" | "C" | "S")}
+          onChange={(e) => setCompleteType(e.target.value as "N" | "C" | "S" | "A")}
         >
+          <option value="A">كل المشاريع</option>
           <option value="S">مشاريع غير مكتملة</option>
           <option value="C">مشاريع مكتملة</option>
           <option value="N">مشاريع جديدة</option>

@@ -14,6 +14,8 @@ import { DataTable } from "../../../Components/Table/DataTable";
 
 import { executeProcedure, PROCEDURE_NAMES } from "../../../api/apiClient";
 import { useGetOffices } from "../Offices/hooks/useGetOffices";
+import { InputGroup, InputLeftElement } from "@chakra-ui/react";
+import { SearchIcon } from "@chakra-ui/icons";
 
 const PAGE_LIMIT = 10;
 
@@ -29,10 +31,10 @@ const CampaignReport = () => {
   const [PaymentsData, setPaymentsData] = useState([]);
   const [PaymentsCount, setPaymentsCount] = useState(0);
   const [page, setPage] = useState(1);
-
+  const [searchText , setSearchText] =useState("") ;
   /** -------------------- FETCH PAYMENTS ------------------- */
   const fetchPayments = async () => {
-      const params = `${selectedStatus}#${selectedFromDate}#${selectedToDate}#${(page - 1) * PAGE_LIMIT + 1}#${PAGE_LIMIT}`;
+      const params = `${selectedStatus}#${selectedFromDate}#${selectedToDate}#${searchText}#${(page - 1) * PAGE_LIMIT + 1}#${PAGE_LIMIT}`;
       const response = await executeProcedure(
         "hLtCUTex0yBDefDmIESoYorZ5Io7Ef07D6ozygPR/Sg=",
         params
@@ -91,11 +93,31 @@ const columns = [
   },
 ];
 
+const handleSearch = () => {
+  setPage(1);
+  fetchPayments();
+};
 
   return (
     <Box p={5}>
-      {/* Filters */}
+              {/* Search Bar */}
+              <Box mb={6}>
+                <InputGroup>
+                  <Input
+                    placeholder="ابحث باسم المستخدم..."
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    padding={3}
+                    onKeyDown={(e)=>{
+                      if(e.key == "Enter"){
+                        handleSearch() ;
+                      }
+                    }}
+                  />
+                </InputGroup>
+              </Box>
 
+              {/* Filters */}
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
 
                 {/* الإعانة */}
@@ -142,10 +164,7 @@ const columns = [
                   <Button
                     width="100%"
                     padding={3}
-                    onClick={() => {
-                      setPage(1);
-                      fetchPayments();
-                    }}
+                    onClick={handleSearch}
                   >
                     بحث
                   </Button>

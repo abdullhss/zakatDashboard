@@ -37,7 +37,7 @@ const FitrZakatReport = () => {
   const {
     data: officesData,
     isLoading: officesLoading,
-  } = useGetOffices(1, 10000, userId);
+  } = useGetOffices(1, 10000, 0);
 
 
 const PAYMENTS_COLUMNS = [
