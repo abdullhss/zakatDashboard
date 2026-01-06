@@ -319,7 +319,7 @@ console.log(subventionTypes);
             )}
 
             {/* المشاريع */}
-            {isActionSelected && (
+            {(Number(form.zakatTypeId) === 1 || Number(form.actionId)==2) && (
               <FormControl mb={4}>
                 <FormLabel>مشاريع المكتب</FormLabel>
                 {projectsLoading ? (
