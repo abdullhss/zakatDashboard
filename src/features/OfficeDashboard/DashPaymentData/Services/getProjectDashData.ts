@@ -12,7 +12,7 @@ export async function getOfficeProjectsData(
   const sqlStartNum = startNum + 1;
   const ProcedureName = "phjR2bFDp5o0FyA7euBbsp/Ict4BDd2zHhHDfPlrwnk=";
 
-  const procedureValues = `${officeId}#${subventionTypeId}#${ZakatOrSadqa}#${sqlStartNum}#${count}`;
+  const procedureValues = `${officeId}#${subventionTypeId}#${ZakatOrSadqa}##${sqlStartNum}#${count}`;
   const exec: ExecutionResult = await executeProcedure(
     ProcedureName,
     procedureValues,

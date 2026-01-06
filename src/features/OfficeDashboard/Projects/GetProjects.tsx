@@ -167,11 +167,21 @@ export default function Projects() {
       {
         key: "Description",
         header: "وصف المشروع",
-        render: (row: AnyRec) => (
-          <Text fontWeight="600" color="gray.800">
-            {row.Description ?? "—"}
-          </Text>
-        ),
+        render: (row: AnyRec) => {
+          const desc = row.Description ?? "—";
+          const maxLength = 100;
+
+          const shortDesc =
+            desc.length > maxLength
+              ? desc.slice(0, maxLength) + "..."
+              : desc;
+
+          return (
+            <Text fontWeight="600" color="gray.800">
+              {shortDesc}
+            </Text>
+          );
+        },
       },
       {
         key: "SubventionTypeName",
@@ -291,7 +301,21 @@ export default function Projects() {
         pageSize={PAGE_SIZE}
         onPageChange={setPage}
         totalRows={totalRows}
-        onEditRow={(row)=>{ handleEdit(row)}}
+        onEditRow={(row) => {
+          const remaining =
+            row.RemainingAmount ?? row.ProjectRemainingAmount ?? 0;
+
+          if (Number(remaining) === 0) {
+            toast({
+              title: "لا يمكن تعديل المشروع",
+              description: "لا يمكن تعديل مشروع مكتمل التمويل",
+              status: "warning",
+            });
+            return;
+          }
+
+          handleEdit(row);
+        }}
         headerAction={
           <SharedButton
             to="/officedashboard/projects/add"

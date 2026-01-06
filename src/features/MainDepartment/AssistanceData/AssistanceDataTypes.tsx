@@ -295,7 +295,7 @@ function AssistanceDetailsModal({
                           <Badge colorScheme="green" p={2} borderRadius="md">
                             {localRow.ResearcherName || "باحث مسند"}
                           </Badge>
-                        ) : (
+                        ) : localStorage.getItem("role") === "O" ? (
                           <SharedButton
                             variant="outline"
                             size="sm"
@@ -304,6 +304,10 @@ function AssistanceDetailsModal({
                           >
                             إسناد باحث
                           </SharedButton>
+                        ) : (
+                          <Badge colorScheme="gray" p={2} borderRadius="md">
+                            غير مسند
+                          </Badge>
                         )}
                       </Flex>
                       <Flex justify="space-between">

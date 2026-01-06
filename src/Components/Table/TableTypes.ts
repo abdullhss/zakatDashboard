@@ -31,7 +31,8 @@ export interface DataTableProps {
   canEditTitle?:boolean , 
   handleChangeTitle?:any ,
   updatedTitle ?: string ,
-  setUpdatedTitle?:any
+  setUpdatedTitle?:any , 
+  footerRow?: React.ReactNode;
 }
 
 

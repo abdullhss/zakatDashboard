@@ -94,8 +94,10 @@ const makeColumns = ({ startIndex, goToType, onEdit, onDelete }: MakeColsArgs): 
     width: "10%",
     render: (row: AnyRec) => {
       const name: string | number | undefined = row.NewsMainPhotoName;
-      const ext: string | undefined = row.NewsMainPhotoExt || row.AttachmentFileExt || ".jpg";
+      const ext: string = ".jpg";
       const src = buildPhotoUrlByName(name, ext);
+      console.log(src);
+      
       return src ? (
         <Image
           src={src}

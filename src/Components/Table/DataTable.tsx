@@ -57,7 +57,8 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
   canEditTitle = false ,
   handleChangeTitle,
   updatedTitle ,
-  setUpdatedTitle
+  setUpdatedTitle, 
+  footerRow,
 }) => {
   const hasActions = !!(renderActions || onEditRow || onDeleteRow);
   const total = typeof totalRows === "number" ? totalRows : data.length;
@@ -214,6 +215,23 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
               </Tr>
             </Tfoot>
           )}
+          {footerRow && (
+          <Tfoot>
+            <Tr bg="background.subtle">
+              <TableDataCell
+                colSpan={
+                  columns.length +
+                  (viewHashTag ? 1 : 0) +
+                  (hasActions ? 1 : 0)
+                }
+                fontWeight="700"
+                fontSize={16}
+              >
+                {footerRow}
+              </TableDataCell>
+            </Tr>
+          </Tfoot>
+        )}
         </Table>
       </Box>
 

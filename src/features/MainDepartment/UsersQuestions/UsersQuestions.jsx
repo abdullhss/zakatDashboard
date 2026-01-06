@@ -12,6 +12,7 @@ import {
   Spinner,
   Flex,
   useToast,
+  Text,
 } from "@chakra-ui/react";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
@@ -94,6 +95,32 @@ export default function UsersQuestions() {
         <Spinner size="xl" />
       </Flex>
     );
+    if (!isLoading && questions.length === 0) {
+      return (
+        <Flex
+          mt={20}
+          direction="column"
+          align="center"
+          justify="center"
+          color="gray.500"
+        >
+          <Box
+            p={10}
+            bg="white"
+            borderRadius="lg"
+            boxShadow="md"
+            textAlign="center"
+          >
+            <Text fontSize="xl" fontWeight="bold" mb={2}>
+              لا توجد أسئلة حالياً
+            </Text>
+            <Text fontSize="md">
+              لم يتم إضافة أي أسئلة من المستخدمين حتى الآن
+            </Text>
+          </Box>
+        </Flex>
+      );
+    }
 
   return (
     <Box mx="10" mt={10}>

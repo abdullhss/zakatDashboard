@@ -33,7 +33,7 @@ const Projects = () => {
   const [PaymentsData, setPaymentsData] = useState([]);
   const [PaymentsCount, setPaymentsCount] = useState(0);
   const [page, setPage] = useState(1);
-
+  const [totals , setTotals] = useState({});
   /** -------------------- GET OFFICES ------------------- */
   const { data: officesData, isLoading: officesLoading } = useGetOffices(
     1,
@@ -62,7 +62,6 @@ const Projects = () => {
 
   /** -------------------- FETCH PAYMENTS ------------------- */
   const fetchPayments = async () => {
-    if(selectedProject_Id!=0 && selectedOffice!=0 ){
       const params = `${selectedProject_Id}#${selectedStatus}#${selectedFromDate}#${selectedToDate}#${(page - 1) * PAGE_LIMIT + 1}#${PAGE_LIMIT}`;
       const response = await executeProcedure(
         "GMsU6f48hgetwzDlgiPhATMetDyVNsb7AWn69gdli4c=",
@@ -74,7 +73,11 @@ const Projects = () => {
       setPaymentsData(
         response.decrypted.data?.Result[0].OfficePaymentsData ? JSON.parse(response.decrypted.data?.Result[0].OfficePaymentsData) : []
       );
-    }
+      setTotals({
+        TotalCreditValue : response.decrypted.data?.Result[0].TotalCreditValue , 
+        TotalDebitValue : response.decrypted.data?.Result[0].TotalDebitValue , 
+        TotalNetValue : response.decrypted.data?.Result[0].TotalNetValue , 
+      })
   };
 
   /** Fetch when page changes */
@@ -234,7 +237,7 @@ useEffect(() => {
 
       {/* DataTable */}
       <Box mt={8}>
-        {selectedProject_Id!=0 && selectedOffice!=0 ? (
+        {
           PaymentsData.length > 0?(
             <div id="printable-table">
             <DataTable
@@ -246,6 +249,26 @@ useEffect(() => {
               onPageChange={setPage}
               totalRows={PaymentsCount}
               startIndex={(page - 1) * PAGE_LIMIT + 1}
+              footerRow={
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  px={4}
+                >
+                  <Text color="green.600">
+                    إجمالي المقبوضات: {totals.TotalDebitValue}
+                  </Text>
+
+                  <Text color="red.600">
+                    إجمالي المصروفات: {totals.TotalNetValue}
+                  </Text>
+
+                  <Text fontWeight="bold">
+                    الصافي: {totals.TotalCreditValue}
+                  </Text>
+                </Box>
+              }
             />
           </div>
           ):(
@@ -253,11 +276,7 @@ useEffect(() => {
               لا توجد مشاريع
             </p>
           )
-        ) : (
-            <p style={{ fontSize: "20px", width: "full", textAlign: "center" }}>
-            يرجى اختيار المكتب والمشروع لعرض البيانات
-            </p>
-        )}
+        }
 
         {/* زر الطباعة */}
         {PaymentsData.length > 0 && selectedProject_Id!=0 && selectedOffice!=0  && (

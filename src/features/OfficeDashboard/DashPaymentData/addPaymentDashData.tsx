@@ -96,7 +96,7 @@ export default function AddPaymentData() {
 
     const zakatOrSadqa = Number(form.actionId) === 1 ? "z" : "s";
 
-    const params = `${officeId}#${form.zakatTypeId || "0"}#${zakatOrSadqa}#1#6`;
+    const params = `${officeId}#${form.zakatTypeId || "0"}#${zakatOrSadqa}##1#6`;
 
     try {
       const response = await executeProcedure(
