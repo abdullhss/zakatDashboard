@@ -206,7 +206,7 @@ export default function App() {
     <Route path="KafaraReport" element={<KafaraReport />} />
     <Route path="SacirificeReport" element={<SacirificeReport />} />
     <Route path="FitrZakatReport" element={<FitrZakatReport />} />
-    <Route path="ZemmaReport" element={<ZemmaReport />} />
+    {/* <Route path="ZemmaReport" element={<ZemmaReport />} /> */}
     <Route path="FedyaReport" element={<FedyaReport />} />
     <Route path="LoverDonationReport" element={<LoverDonationReport />} />
     <Route path="ZakatReport" element={<ZakatReport />} />

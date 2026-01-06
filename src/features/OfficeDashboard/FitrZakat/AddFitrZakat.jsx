@@ -43,9 +43,20 @@ const AddFitrZakat = () => {
       "jkE/EfUyfEzbwqK/HolgChI5O++hElNV6y+iDEMHKxo=",
       `${officeId}#1#1000`
     );
+    const rawData = response?.decrypted?.data?.Result?.[0]?.ZakatFitrItemsData;
 
-    const parsed = JSON.parse(response.decrypted.data.Result[0].ZakatFitrItemsData);
+    let parsed = [];
 
+    if (rawData && rawData.trim() !== "") {
+      try {
+        parsed = JSON.parse(rawData);
+      } catch (e) {
+        console.error("JSON parse error:", e);
+        parsed = [];
+      }
+    } else {
+      parsed = [];
+    }
     // 2) اتأكد إن الاسم غير موجود
     const exists = parsed.some(
       (item) => item.ItemName.trim() === formData.name.trim()

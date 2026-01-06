@@ -13,25 +13,25 @@ import { useGetOffices } from '../../MainDepartment/Offices/hooks/useGetOffices'
 import { useAddPaymentApproval } from './hooks/useAddPayment'; // هوك الموافقة
 import { executeProcedure } from '../../../api/apiClient';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 const BASE_ATTACHMENT_URL = "https://framework.md-license.com:8093/ZakatImages/"; 
 
 // ===================================
 // تعريف الأعمدة (لضمان وجودها عند البدء)
 // ===================================
 const PAYMENT_COLUMNS_BASE: Column[] = [
-    { key: "Id", header: "رقم المعاملة", width: "10%", render: (row: AnyRec) => row.Id ?? '—', },
-    { key: "review", header: "مراجعة", width: "10%", render: (row: AnyRec) => <Button>مراجعة</Button>, },
-    { key: "OfficeName", header: "المكتب", width: "10%", render: (row: AnyRec) => row.OfficeName ?? '—' },
-    { key: "PaymentDate", header: "تاريخ الدفع", width: "10%", render: (row: AnyRec) => row.PaymentDate ? new Date(row.PaymentDate).toLocaleDateString("ar-EG") : '—', },
-    { key: "PaymentValue", header: "المبلغ", width: "10%", render: (row: AnyRec) => (<Text fontWeight="700" color="green.600">{row.PaymentValue ?? '0'} د.ل.</Text>) },
-    { key: "PaymentWayName", header: "طريقة الدفع", width: "10%", render: (row: AnyRec) => row.PaymentWayName ?? '—' },
-    { key: "IsApproved", header: "الحالة", width: "10%", render: (row: AnyRec) => row.IsApproved ? 'موافقة' : 'معلقة' },
-    { key: "GeneralUser_Id", header: "مقدم الطلب", width: "10%", render: (row: AnyRec) => row.UserName ?? '—' }, 
-    { key: "ActionName", header: "نوع الخدمة", width: "10%", render: (row: AnyRec) => row.ActionName ?? '—' }, 
-    { key: "ProjectName", header: "اسم المشروع", width: "10%", render: (row: AnyRec) => row.ProjectName ?? '—' }, 
-    { key: "SubventionTypeName", header: "نوع الإعانة", width: "10%", render: (row: AnyRec) => row.SubventionTypeName ?? '—' }, 
-    { key: "AttachmentPhotoName", header: "الوصل", width: "10%", render: (row: AnyRec) => row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}.jpg`} isExternal color="blue.500">وصل</Link> : '—', },
+    { key: "Id", header: "رقم المعاملة", render: (row: AnyRec) => row.Id ?? '—', },
+    { key: "review", header: "مراجعة", render: (row: AnyRec) => <Button>مراجعة</Button>, },
+    { key: "OfficeName", header: "المكتب", render: (row: AnyRec) => row.OfficeName ?? '—' },
+    { key: "PaymentDate", header: "تاريخ الدفع", render: (row: AnyRec) => row.PaymentDate ? new Date(row.PaymentDate).toLocaleDateString("ar-EG") : '—', },
+    { key: "PaymentValue", header: "المبلغ", render: (row: AnyRec) => (<Text fontWeight="700" color="green.600">{row.PaymentValue ?? '0'} د.ل.</Text>) },
+    { key: "PaymentWayName", header: "طريقة الدفع", render: (row: AnyRec) => row.PaymentWayName ?? '—' },
+    { key: "IsApproved", header: "الحالة", render: (row: AnyRec) => row.IsApproved ? 'موافقة' : 'معلقة' },
+    { key: "GeneralUser_Id", header: "مقدم الطلب", render: (row: AnyRec) => row.UserName ?? '—' }, 
+    { key: "ActionName", header: "نوع الخدمة", render: (row: AnyRec) => row.ActionName ?? '—' }, 
+    { key: "ProjectName", header: "اسم المشروع", render: (row: AnyRec) => row.ProjectName ?? '—' }, 
+    { key: "SubventionTypeName", header: "نوع الإعانة", render: (row: AnyRec) => row.SubventionTypeName ?? '—' }, 
+    { key: "AttachmentPhotoName", header: "الوصل", render: (row: AnyRec) => row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}.jpg`} isExternal color="blue.500">وصل</Link> : '—', },
 ];
 
 

@@ -125,7 +125,7 @@ console.log(data);
       width: "12%",
       render: (row: AnyRec) => {
         const r = row as Row;
-        const v = r.SacrificeTotalAmount ?? r.TotalAmount ?? 0;
+        const v = r.SacrificeOrderTotalAmount;
         return <Text fontWeight="600">{String(v)} د.ل</Text>;
       },
     },
@@ -144,7 +144,7 @@ console.log(data);
               colorScheme={isApproved ? "green" : "red"}
             /> */}
             <Text as="span" color="gray.600">
-              {isApproved ? "مقبول" : "مرفوض"}
+              {isApproved ? "مقبول" : "معلقة"}
             </Text>
           </HStack>
         );

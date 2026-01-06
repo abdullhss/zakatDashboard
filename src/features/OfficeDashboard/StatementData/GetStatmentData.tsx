@@ -142,9 +142,18 @@ export default function GetStatmentData() {
   } = useGetDashBankData(officeId);
   
   const [selectedAccount, setSelectedAccount] = useState<string>("");
-  const [fromDate, setFromDate] = useState("2025-01-01");
-  const [toDate, setToDate] = useState("2025-12-31");
+  const today = new Date();
+  const year = today.getFullYear();
 
+  const formatDate = (date) => date.toISOString().split("T")[0];
+
+  const [fromDate, setFromDate] = useState(
+    `${year}-01-01`
+  );
+
+  const [toDate, setToDate] = useState(
+    formatDate(today)
+  );
   const [page, setPage] = useState(1);
   const limit = 10;
   const offset = useMemo(() => (page - 1) * limit, [page, limit]);
