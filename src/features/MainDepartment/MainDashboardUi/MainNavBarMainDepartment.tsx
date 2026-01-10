@@ -105,6 +105,8 @@ export default function MainNavBar() {
       <SidebarDropdown title="الاساسيات" icon={RiHandHeartLine}>
         {renderLink("cities", "المدن", FiMapPin)}
         {renderLink("banks", "البنوك", FiCreditCard)}
+        {renderLink("internationalAccounts", "الحسابات الدولية", FiCreditCard)}
+        {renderLink("ebraaZemmaAccounts", "حسابات ابراء الذمة", FiCreditCard)}
         {renderLink("zakah", "أصناف الزكاة", RiHandCoinLine)}
         {renderLink("subventionTypes", "تصنيف الإعانات", TbCategory2)}
         {renderLink("kafara", "الكفارة والفدية", RiHandHeartLine)}

@@ -88,6 +88,8 @@ import AddSearcher from "../features/OfficeDashboard/Searcher/Add/AddSearcher"
 import EditSearcher from "../features/OfficeDashboard/Searcher/Edit/EditSearcher.js";
 import Notification from "../features/OfficeDashboard/Notification/Notification.jsx";
 
+import InternationalAccounts from "../features/MainDepartment/InternationalAccounts/InternatinalAccounts";
+import EbraaZemmaAccounts from "../features/MainDepartment/EbraaZemmaAccounts/EbraaZemmaAccounts.js";
 
 export default function App() {
   useEffect(() => {
@@ -115,6 +117,8 @@ export default function App() {
             <Route index element={<HomePage />} />
             <Route path="home" element={<HomePage />} />
             <Route path="cities" element={<Cities />} />
+            <Route path="internationalAccounts" element={<InternationalAccounts />} />
+            <Route path="ebraaZemmaAccounts" element={<EbraaZemmaAccounts />} />
             <Route path="banks" element={<Banks />} />
             <Route path="offices" element={<Office />} />
             <Route path="offices/add" element={<AddOffice />} />

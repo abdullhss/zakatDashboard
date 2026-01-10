@@ -6,11 +6,12 @@ import {
   Input, Textarea, Switch, Checkbox,
   HStack, Box, useToast, useColorModeValue,
   SimpleGrid, IconButton, Flex, Text,
+  Select,
 } from "@chakra-ui/react";
 import { AiFillCloseSquare } from "react-icons/ai";
 import SharedButton from "../SharedButton/Button";
 
-export type FieldType = "input" | "textarea" | "switch" | "checkbox" | "hidden" | "radio";
+export type FieldType = "input" | "textarea" | "switch" | "checkbox" | "hidden" | "radio" | "select";
 
 export type FieldConfig = {
   name: string;
@@ -176,6 +177,12 @@ export default function FormModal<TValues extends Record<string, any> = Record<s
                     colorScheme="teal"
                   />
                 </HStack>
+              ) : type === "select" ? (
+                <Select style={{paddingRight:"30px"}} {...(textCommon as any)}>
+                  {f.options?.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </Select>
               ) : (
                 <Input {...(textCommon as any)} />
               )}
