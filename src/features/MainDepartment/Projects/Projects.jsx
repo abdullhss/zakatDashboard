@@ -94,8 +94,12 @@ const columns = [
   },
   { header: "بيان الدفع", render: (row) => row.PaymentDesc || "-" },
   { 
-    header: "القيمة", 
-    render: (row) => row.DebitValue || row.CreditValue || 0  
+    header: "القبض", 
+    render: (row) => row.DebitValue  
+  },
+  { 
+    header: "الصرف", 
+    render: (row) => row.CreditValue  
   },
   { header: "نوع العملية", render: (row) => row.ActionName || "-" },
   { header: "نوع الإعانة", render: (row) => row.SubventionTypeName || "-" },

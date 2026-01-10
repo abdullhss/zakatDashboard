@@ -28,6 +28,8 @@ const Payments = () => {
   const [selectedSubventionTypeId, setSelectedSubventionTypeId] = useState(0);
   const [selectedProject_Id, setSelectedProject_Id] = useState(0);
   const [projects, setProjects] = useState([]);
+  const [actionTypes, setActionTypes] = useState([]);
+  const [selectedActionType, setselectedActionType] = useState(0);
 
   const [selectedFromDate, setSelectedFromDate] = useState("");
   const [selectedToDate, setSelectedToDate] = useState("");
@@ -63,9 +65,25 @@ const Payments = () => {
     getProjects();
   }, [selectedOffice]);
 
+
+  /** -------------------- GET ACTION TYPES ------------------- */
+    useEffect(() => {
+    const getActionTypes = async () => {
+      const params = ``;
+
+      const res = await executeProcedure(
+        "jMuz+t7lAQU3w5nJUBtwxA==",
+        params
+      );
+      setActionTypes(JSON.parse(res.decrypted.data?.Result[0].ActionsData));
+      
+    };
+
+    getActionTypes();
+  }, []);
   /** -------------------- FETCH PAYMENTS ------------------- */
   const fetchPayments = async () => {
-    const params = `${selectedOffice}#${selectedSubventionTypeId}#${selectedProject_Id}#${selectedFromDate}#${selectedToDate}#${(page - 1) * PAGE_LIMIT + 1}#${PAGE_LIMIT}`;
+    const params = `${selectedOffice}#${selectedActionType}#${selectedSubventionTypeId}#${selectedProject_Id}#${selectedFromDate}#${selectedToDate}#${(page - 1) * PAGE_LIMIT + 1}#${PAGE_LIMIT}`;
 
     const response = await executeProcedure(
       "nMzFI8XoIbwxjuKdXGFF0YViCloApN9Mz74pViz7qf0=",
@@ -147,25 +165,20 @@ const Payments = () => {
                   )}
                 </Box>
         
-                {/* الإعانة */}
                 <Box>
-                  <Text mb={1}>اختر الإعانة</Text>
-                  {subventionsLoading ? (
-                    <Spinner />
-                  ) : (
+                  <Text mb={1}>النوع</Text>
                     <Select
-                      placeholder="اختر الإعانة"
-                      value={selectedSubventionTypeId}
+                      placeholder="اختر النوع"
+                      value={selectedActionType}
                       padding={3}
-                      onChange={(e) => setSelectedSubventionTypeId(e.target.value || 0)}
+                      onChange={(e) => setselectedActionType(e.target.value || 0)}
                     >
-                      {subventionsData?.rows?.map((s) => (
+                      {actionTypes.map((s) => (
                         <option key={s.Id} value={s.Id}>
-                          {s.SubventionTypeName}
+                          {s.ActionName}
                         </option>
                       ))}
                     </Select>
-                  )}
                 </Box>
         
                 {/* المشروع */}

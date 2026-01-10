@@ -55,7 +55,7 @@ const PAYMENTS_COLUMNS = [
   {
     key: "DebitValue",
     header: "القيمة",
-    render: (row) => row.DebitValue,
+    render: (row) => row.DebitValue != 0 ? row.DebitValue : row.CreditValue,
   },
   {
     key: "ActionName",

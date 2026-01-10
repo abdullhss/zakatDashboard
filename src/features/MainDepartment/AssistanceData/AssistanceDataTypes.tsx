@@ -571,7 +571,7 @@ export default function AssistanceDataTypes() {
         width: "14%",
         render: (r: AnyRec) => {
           const rr = r as AssistanceRow;
-          return rr.ResearcherName || (rr.Researcher_Id ? "غير معروف" : "غير مسند");
+          return rr.ResreacherName || "غير مسند";
         },
       },
       {

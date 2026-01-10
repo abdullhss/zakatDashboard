@@ -58,7 +58,7 @@ export default function MainStatement() {
 
   // التاريخ
   const [fromDate, setFromDate] = useState("2025-01-01");
-  const [toDate, setToDate] = useState("2025-12-31");
+  const [toDate, setToDate] = useState(getTodayDate());
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -109,6 +109,13 @@ export default function MainStatement() {
 
   const rows = statementData?.rows ?? [];
 
+  function getTodayDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
 
   // 📌 Table Columns
   const PAYMENTS_COLUMNS = [
