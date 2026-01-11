@@ -56,6 +56,8 @@ export default function AddPaymentData() {
 
   const session = getSession();
   const officeId = session?.officeId || 0;
+  const isMainDepartment = localStorage.getItem("role") == "M";
+  const [officeBanks , setOfficeBanks] = useState({}) ;
 
   const [form, setForm] = useState<PaymentFormState>({
     paymentDate: new Date().toISOString().slice(0, 10),
@@ -66,7 +68,7 @@ export default function AddPaymentData() {
     projectId: "",
     bankId: "",
     accountNum: "",
-    usersCount: "1",
+    usersCount: "0",
     zakahName: "",
   });
   const [ACTION_TYPES , setACTION_TYPES] = useState([]) ;
@@ -162,12 +164,36 @@ console.log(subventionTypes);
     paymentMethodId: 2,
     enabled: !!officeId,
   });
-  const { data: officeBanks, isLoading: banksLoading, refetch } = query;
+  const { data, isLoading: banksLoading, refetch } = query;
+
   useEffect(() => {
     if (officeId) {
       refetch();
     }
   }, [zakatOrSadqa]);
+  console.log(officeBanks);
+  
+  useEffect(() => {
+    const fetchBanks = async () => {
+      const response = await executeProcedure("NJ4Pn13/Fmu75bylIUDbD5FLwUl6QiMGGZ0Okh5MPas=","2");
+      setOfficeBanks ( {
+        totalRows : response.rows.length , 
+        rows : response.rows,
+      }
+    )
+      
+    }
+    if(isMainDepartment){
+      fetchBanks() ;
+    }
+  } ,[])
+
+  useEffect(() => {
+  if (!isMainDepartment && data) {
+    setOfficeBanks(data);
+  }
+}, [data, isMainDepartment]);
+
 
   const toBankOptions = useMemo(() => {
     return (
@@ -207,7 +233,7 @@ console.log(subventionTypes);
         projectId: Number(form.projectId) || 0,
         bankId: Number(form.bankId) || 0,
         accountNum: form.accountNum,
-        usersCount: Number(form.usersCount) || 1,
+        usersCount: Number(form.usersCount) || 0,
         zakahName: form.zakahName,
         officeId: Number(officeId),
       };
@@ -261,13 +287,14 @@ console.log(subventionTypes);
               <FormLabel>نوع العملية</FormLabel>
               <Select mx={-3} px={3}
                 placeholder="اختر نوع العملية"
-                value={form.actionId}
+                value={isMainDepartment ? 12 : form.actionId}
                 onChange={(e) => {
                   update("actionId", e.target.value);
                   update("zakatTypeId", "");
                   update("subventionTypeId", "");
                   update("projectId", "");
                 }}
+                disabled={isMainDepartment}
               >
                 {ACTION_TYPES.map((a) => (
                   <option key={a.id} value={a.id}>
@@ -365,11 +392,11 @@ console.log(subventionTypes);
               />
             </FormControl>
 
-            <FormControl mb={4}>
+              <FormControl style={isMainDepartment ? {"display" : "none"} : {}} mb={4}>
               <FormLabel>عدد المستفيدين</FormLabel>
               <Input
                 type="number"
-                min="1"
+                min="0"
                 value={form.usersCount}
                 onChange={(e) => update("usersCount", e.target.value)}
               />

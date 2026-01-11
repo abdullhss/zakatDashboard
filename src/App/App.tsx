@@ -154,7 +154,9 @@ export default function App() {
             <Route path="UsersQuestions" element={<UsersQuestions />} />
             <Route path="OldUsersQuestions" element={<OldUsersQuestions />} />
             <Route path="FAQLinks" element={<FAQLinks />} />
-            
+
+            <Route path="dashpayment/add" element={<AddPaymentData />} />
+
             <Route path="FitrZakat" element={<FitrZakatMain />} />
             <Route path="statement" element={<MainStatement />} />
             <Route path="payments" element={<Payments />} />

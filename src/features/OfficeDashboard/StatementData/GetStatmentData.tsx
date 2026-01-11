@@ -251,9 +251,7 @@ export default function GetStatmentData() {
       key: "NetValue",
       header: "الصافي",
       render: (row: any) => {
-        const debit = row.DebitValue ?? 0;
-        const credit = row.CreditValue ?? 0;
-        const net = debit - credit;
+        const net = row.RunningTotal;
         return (
           <Text fontWeight="bold" color={net >= 0 ? "green.700" : "red.700"}>
             {net}
