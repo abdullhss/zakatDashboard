@@ -131,6 +131,7 @@ const weeklyPaymentsData = statsData1.WeeklyPayments?.map(
             {
                 mainuser.role === "M" && (
                     <Select px={3} style={{width:"250px"}} onChange={(e) => setOfficeId(Number(e.target.value))} value={officeId}>
+                        <option key={-1} value={-1}>الكل</option>
                         {allOffices.map((office) => (
                             <option key={office.Id} value={office.Id}>{office.OfficeName}</option>
                         ))}
