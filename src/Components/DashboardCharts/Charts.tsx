@@ -287,10 +287,10 @@ export default function DashboardCharts({pieChartData,weeklyPaymentsData , isMai
     <SimpleGrid style={{height:"60vh" , display:"flex" , flexDirection:"column" , gap:20}} >
       <div style={{display:"flex" , alignItems:"start" , justifyContent:"space-around" , width:"100%" , flexDirection:"row" , gap:20}}>
         <div>
-          <PieChartSection pieChartData={pieChartData} />
+          <BarChartSection1 weeklyPaymentsData={weeklyPaymentsData} />
         </div>
         <div>
-          <BarChartSection1 weeklyPaymentsData={weeklyPaymentsData} />
+          <PieChartSection pieChartData={pieChartData} />
         </div>
       </div>
       {isMainUser && (

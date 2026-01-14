@@ -30,10 +30,11 @@ export default function StatsCard({ title, value, unit, type } :any) {
             boxShadow="md"
             p={6} 
             flex="1" 
-            minW="250px"
+            maxH={"120px"}
+            minW="200px"
         >
             <Flex 
-                justifyContent="space-between" 
+                gap={4} 
                 alignItems="center" 
                 h="100px"
             >

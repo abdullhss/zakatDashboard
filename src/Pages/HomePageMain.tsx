@@ -142,8 +142,8 @@ const weeklyPaymentsData = statsData1.WeeklyPayments?.map(
         
         <StatsContainer>
           <SimpleGrid 
-            columns={{ base: 1, md: 2, lg: 2 }} // ⬅️ تم تصحيح الـ md: 3
-            spacing={6}
+            columns={{ base: 1, md: 2, lg: 4 }} // ⬅️ تم تصحيح الـ md: 3
+            spacing={4}
           >
             {statsData.map((stat, index) => (
               <StatsCard 
