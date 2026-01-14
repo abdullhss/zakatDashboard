@@ -95,7 +95,7 @@ export default function MainNavBarOfficeDepartment() {
 
   return (
     <NavList>
-    {/* {renderLink(".", "الصفحة الرئيسية", FiHome)} */}
+    {renderLink(".", "الصفحة الرئيسية", FiHome)}
 
     <SidebarDropdown title="إدارة المستخدمين" icon={FiUsers}>
       {renderLink("privelgesOffice", "الصلاحيات", RiShieldKeyholeLine)}
