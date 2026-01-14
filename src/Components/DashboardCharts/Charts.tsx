@@ -11,22 +11,6 @@ import { executeProcedure } from '../../api/apiClient';
 // ===================================
 
 // بيانات الرسم البياني الدائري ("الخدمات")
-const pieData = [
- { name: 'للمشاريع', value: 400, color: '#0b564fff' }, // تركواز فاتح
- { name: 'الصدقات', value: 350, color: '#0d8a83ff' }, 
- { name: 'الزكاة', value: 250, color: '#17343B' },  
-];
-
-
-const barData = [
-  { name: 'السبت', uv: 5.5 },
-  { name: 'الجمعة', uv: 7 },
-  { name: 'الخميس', uv: 10 },
-  { name: 'الأربعاء', uv: 4 },
-  { name: 'الثلاثاء', uv: 8 },
-  { name: 'الاثنين', uv: 9 },
- { name: 'الأحد', uv: 6 },
-];
 
 
 // ===================================
@@ -41,8 +25,8 @@ const ChartContainer = (props:any) => (
     border="1px solid"
     borderColor="gray.200"
     boxShadow="sm"
-    h="450px" 
-w="450px"
+    h="50vh" 
+    w="450px"
 margin="auto"
       {...props}
   />

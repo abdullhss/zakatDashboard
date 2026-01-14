@@ -98,16 +98,28 @@ const weeklyPaymentsData = statsData1.WeeklyPayments?.map(
     })
   ) || [];
 
+  const colors = [
+    "#07574F", // أخضر غامق
+    "#E9B949", // ذهبي
+    "#2B6CB0", // أزرق
+    "#9F7AEA", // بنفسجي
+    "#ED8936", // برتقالي
+    "#38B2AC", // تركواز
+    "#E53E3E", // أحمر
+    "#4A5568", // رمادي غامق
+    "#319795", // أخضر مائل للأزرق
+    "#DD6B20", // برتقالي غامق
+  ];
+  
 
   const pieChartData = statsData1.ActionsPayments?.map(
     (item: any, index: number) => ({
       name: item.ActionName,
       value: item.percentValue,
-      color: index % 2 === 0 ? "#07574f" : "#E9B949",
+      color: colors[index],
     })
-  ) || [];
+    ) || [];
 
-  
 
   return (
     <VStack spacing={8} align="stretch" > 
