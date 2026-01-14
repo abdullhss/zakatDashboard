@@ -11,12 +11,9 @@ import SectionCard from "./SectionCard";
 import { useCitiesQuery } from "../Cities/hooks/useCities";
 import MapPicker, { type LatLng as MapLatLng } from "../../../Components/Map/MapPicker";
 import { HandelFile } from "../../../HandleFile.js";
+import { useImagesPathContext } from "../../../Context/ImagesPathContext";
 
 const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg"];
-const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
-const buildPhotoUrl = (id?: string | number, ext = ".jpg") =>
-  id && id !== "0" && id !== "undefined" ? `${ZAKAT_IMAGES_BASE}/${id}${ext}` : "";
-
 const FieldInput = chakra(Input, { baseStyle: { h: "50px", rounded: "lg", w: "100%" } });
 const FieldSelect = chakra(Select, {
   baseStyle: {
@@ -102,10 +99,13 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
   const [progress, setProgress] = useState(0);
   const [extraPhotoId, setExtraPhotoId] = useState("");
   const [headerPreviewUrl, setHeaderPreviewUrl] = useState<string>("");
-
+  const { imagesPath } = useImagesPathContext();
+  const buildPhotoUrl = (id?: string | number, ext = ".jpg") =>
+    id && id !== "0" && id !== "undefined" ? `${imagesPath}/${id}${ext}` : "";
+  
   useEffect(() => {
   if (defaultValues?.officeHeaderPhotoNamePreview) {
-    setHeaderPreviewUrl("https://framework.md-license.com:8093/ZakatImages/" + defaultValues.officeHeaderPhotoNamePreview + ".jpg");
+    setHeaderPreviewUrl(`${imagesPath}/${defaultValues.officeHeaderPhotoNamePreview}.jpg`);
   }
 }, [defaultValues?.officeHeaderPhotoNamePreview]);
 console.log(headerPreviewUrl);

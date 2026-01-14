@@ -17,6 +17,7 @@ import { PAGE_SIZE } from "./helpers/constants";
 import { useGetSubventionTypes } from "../Subvention/hooks/useGetubventionTypes";
 import { uploadAssistanceAttachmentViaHF } from "./hooks/uploadAssistanceAttachment";
 import { doTransaction, executeProcedure } from "../../../api/apiClient";
+import { useImagesPathContext } from "../../../Context/ImagesPathContext";
 
 type Opt = { id: string | number; name: string };
 
@@ -127,7 +128,6 @@ function AssistanceDetailsModal({
   const [localRow, setLocalRow] = useState<AssistanceRow | null>(row);
   const [localPdfFile, setLocalPdfFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  
   const toast = useToast();
 
   useEffect(() => {
@@ -430,6 +430,7 @@ function AssistanceDetailsModal({
 }
 
 export default function AssistanceDataTypes() {
+  const { imagesPath } = useImagesPathContext();
   const [officeId, setOfficeId] = useState<number | string>(() =>
     localStorage.getItem("role") == "O" ? JSON.parse(localStorage.getItem("mainUser") || "{}").Office_Id : 0
   );
@@ -586,7 +587,7 @@ export default function AssistanceDataTypes() {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href={`https://framework.md-license.com:8093/ZakatImages/${fileName}.pdf`}
+                href={`${imagesPath}/${fileName}.pdf`}
                 style={{
                   color: "#5555ff",
                   textUnderlineOffset: 4,

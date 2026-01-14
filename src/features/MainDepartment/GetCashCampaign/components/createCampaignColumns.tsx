@@ -3,6 +3,7 @@ import type { AnyRec, Column } from "../../../../Components/Table/TableTypes";
 import type { CampaignRow } from "../utils/types";
 import ActionButtons from "../../../../Components/SharedButton/ActionButtons";
 import { isOffice } from "../../../../session";
+import { useImagesPathContext } from "../../../../Context/ImagesPathContext";
 
 type Args = {
   hasOfficeInfo: boolean;
@@ -19,6 +20,7 @@ export function createCampaignColumns({
   onApprove,
   onReject,
 }: Args): Column[] {
+  const { imagesPath } = useImagesPathContext();
   const baseCols: Column[] = [
     {
       key: "CampaignName",
@@ -59,7 +61,7 @@ export function createCampaignColumns({
       header: "عرض الصورة",
       width: "12%",
       render: (r: AnyRec) => {
-        return <a style={{color:"#005599"}} target="_blank" href={`https://framework.md-license.com:8093/ZakatImages/${r.CampaignPhotoName}.jpg`}>
+        return <a style={{color:"#005599"}} target="_blank" href={`${imagesPath}/${r.CampaignPhotoName}.jpg`}>
           عرض
         </a>;
       },

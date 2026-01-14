@@ -13,14 +13,7 @@ import { useAddLaw } from "./hooks/useAddLaw";
 import { useUpdateLaw } from "./hooks/useUpdateLaw"; 
 import { HandelFile } from "../../../HandleFile";
 import { getSession } from "../../../session"; 
-
-const LAWS_FILES_BASE = "https://framework.md-license.com:8093/ZakatImages";
-
-// 🔗 دالة مساعدة لبناء رابط عرض الملف المرفق
-const buildAttachmentUrlByName = (fileId?: string | number) => {
-  if (!fileId || fileId === "0") return "";
-  return `${LAWS_FILES_BASE}/${fileId}.pdf`; 
-};
+import { useImagesPathContext } from "../../../Context/ImagesPathContext";
 
 // تحديد شكل الحالة للقوانين
 interface FormShape {
@@ -37,7 +30,7 @@ export default function AddLawForm() {
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation() as any;
-  
+  const { imagesPath } = useImagesPathContext();
   const lawRow = location?.state?.lawRow ?? null;
 console.log(lawRow);
 
@@ -65,6 +58,12 @@ console.log(lawRow);
   const update = (k: keyof FormShape, v: any) => setForm(s => ({ ...s, [k]: v }));
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => setAttachmentFile(e.target.files?.[0] || null);
 
+const buildAttachmentUrlByName = (fileId?: string | number) => {
+    if (!fileId || fileId === "0") return "";
+    return `${imagesPath}/${fileId}.pdf`; 
+  };
+
+  
   const onSubmit = async () => {
     const title = form.lawTitle.trim();
     const text = form.lawText.trim();

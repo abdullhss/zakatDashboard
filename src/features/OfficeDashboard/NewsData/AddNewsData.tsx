@@ -11,26 +11,8 @@ import { useGetTypesNewsData } from "./hooks/useGetTypesNewsData";
 import { HandelFile } from "../../../HandleFile.js";
 import { getSession } from "../../../session";
 import { updateNewsData } from "./Services/updateNewsData";
+import { useImagesPathContext } from "../../../Context/ImagesPathContext";
 const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg"];
-
-// 🔗 مسار عرض الصور/الملفات
-const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
-const ZAKAT_FILES_BASE  = "https://framework.md-license.com:8093/ZakatImages";
-
-const buildPhotoUrlByName = (name?: string | number, ext?: string) => {
-  if (!name) return "";
-  const normalized = ext && ext.startsWith(".") ? ext : ".jpg";
-  return `${ZAKAT_IMAGES_BASE}/${name}${normalized}`;
-};
-
-const buildAttachmentUrlByName = (name?: string | number, ext?: string) => {
-  if (!name) return "";
-  const normalized = (ext && ext.startsWith(".")) ? ext.toLowerCase() : "";
-  const isImage = [".jpg", ".jpeg", ".png", ".gif", ".webp"].includes(normalized);
-  const base = isImage ? ZAKAT_IMAGES_BASE : ZAKAT_FILES_BASE;
-  const suffix = normalized || ".pdf";
-  return `${base}/${name}${suffix}`;
-};
 
 type NewsFormState = {
   id?: number | string;
@@ -51,7 +33,22 @@ export default function AddNewsForm() {
   const navigate = useNavigate();
   const location = useLocation() as any;  // navigate('/.../add', { state: { row } }) في حالة التعديل
   const hf = useMemo(() => new HandelFile(), []);
+  const { imagesPath } = useImagesPathContext();
 
+  const buildPhotoUrlByName = (name?: string | number, ext?: string) => {
+    if (!name) return "";
+    const normalized = ext && ext.startsWith(".") ? ext : ".jpg";
+    return `${imagesPath}/${name}${normalized}`;
+  };
+  
+  const buildAttachmentUrlByName = (name?: string | number, ext?: string) => {
+    if (!name) return "";
+    const normalized = (ext && ext.startsWith(".")) ? ext.toLowerCase() : "";
+    const isImage = [".jpg", ".jpeg", ".png", ".gif", ".webp"].includes(normalized);
+    const base = imagesPath;
+    const suffix = normalized || ".pdf";
+    return `${base}/${name}${suffix}`;
+  };
   // هل تعديل؟
   const incoming = location?.state?.row ?? null;
   const isEdit = !!incoming;

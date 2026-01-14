@@ -10,6 +10,7 @@ import theme from "./theme";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'; 
 import "leaflet/dist/leaflet.css";
+import { ImagesPathProvider } from "./Context/ImagesPathProvider.js";
 // 1. إعداد Cache لـ RTL (كما هو لديك)
 const cacheRtl = createCache({ key: "chakra-rtl", stylisPlugins: [stylisRTLPlugin] });
 
@@ -23,15 +24,17 @@ const queryClient = new QueryClient({
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-        <CacheProvider value={cacheRtl}>
-          <ChakraProvider theme={theme}>
-            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-            <App />
-          </ChakraProvider>
-        </CacheProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  </React.StrictMode>
+    <React.StrictMode>
+        <QueryClientProvider client={queryClient}>
+            <CacheProvider value={cacheRtl}>
+        <ChakraProvider theme={theme}>
+        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+        <ImagesPathProvider>
+            <App />
+        </ImagesPathProvider>
+        </ChakraProvider>
+        </CacheProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+    </React.StrictMode>
 );

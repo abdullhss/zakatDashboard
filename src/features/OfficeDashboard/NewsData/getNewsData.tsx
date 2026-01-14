@@ -9,27 +9,23 @@ import type { AnyRec, Column } from "../../../Components/Table/TableTypes";
 import { useGetNewsData } from "./hooks/useGetDashNewsData";
 import { useDeleteNewsData } from "./hooks/useDeleteNewsData";
 import { getSession } from "../../../session";
-import { FiMoreVertical, FiFileText, FiImage } from "react-icons/fi";
+import { FiImage } from "react-icons/fi";
 import SharedButton from "../../../Components/SharedButton/Button";
 import { AddIcon } from "@chakra-ui/icons";
-
+import { useImagesPathContext } from "../../../Context/ImagesPathContext.js";
 const PAGE_SIZE = 10;
 
-// روابط عرض الملفات/الصور
-const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
-const ZAKAT_FILES_BASE  = "https://framework.md-license.com:8093/ZakatImages";
-
-const buildPhotoUrlByName = (name?: string | number, ext?: string) => {
-  if (!name) return "";
+const buildPhotoUrlByName = (imagesPath: string, name?: string | number, ext?: string) => {
+  if (!name || !imagesPath) return "";
   const normalized = ext && ext.startsWith(".") ? ext : ".jpg";
-  return `${ZAKAT_IMAGES_BASE}/${name}${normalized}`;
+  return `${imagesPath}/${name}${normalized}`;
 };
 
-const buildAttachmentUrlByName = (name?: string | number, ext?: string) => {
-  if (!name) return "";
+const buildAttachmentUrlByName = (imagesPath: string, name?: string | number, ext?: string) => {
+  if (!name || !imagesPath) return "";
   const normalized = (ext && ext.startsWith(".")) ? ext.toLowerCase() : "";
   const isImage = [".jpg", ".jpeg", ".png", ".gif", ".webp"].includes(normalized);
-  const base = isImage ? ZAKAT_IMAGES_BASE : ZAKAT_FILES_BASE;
+  const base = isImage ? imagesPath : imagesPath;
   const suffix = normalized || ".pdf";
   return `${base}/${name}${suffix}`;
 };
@@ -47,7 +43,6 @@ function parseDDMMYYYY(s?: string) {
   return new Date(Number(yyyy), Number(mm) - 1, Number(dd));
 }
 
-// تطبيع باي بايلود مدمج
 function normalizeServerPayload(payload: any, offset: number, limit: number) {
   const root = payload?.data ?? payload;
   const bucket = root?.Result?.[0];
@@ -67,9 +62,10 @@ type MakeColsArgs = {
   goToType: (id?: number | string) => void;
   onEdit: (row: AnyRec) => void;
   onDelete: (row: AnyRec) => void;
+  imagesPath: string;
 };
 
-const makeColumns = ({ startIndex, goToType, onEdit, onDelete }: MakeColsArgs): Column[] => [
+const makeColumns = ({ startIndex, goToType, onEdit, onDelete, imagesPath }: MakeColsArgs): Column[] => [
   {
     key: "NewsMainTitle",
     header: "العنوان الرئيسي",
@@ -95,7 +91,7 @@ const makeColumns = ({ startIndex, goToType, onEdit, onDelete }: MakeColsArgs): 
     render: (row: AnyRec) => {
       const name: string | number | undefined = row.NewsMainPhotoName;
       const ext: string = ".jpg";
-      const src = buildPhotoUrlByName(name, ext);
+      const src = buildPhotoUrlByName(imagesPath, name, ext);
       console.log(src);
       
       return src ? (
@@ -108,7 +104,7 @@ const makeColumns = ({ startIndex, goToType, onEdit, onDelete }: MakeColsArgs): 
           style={{cursor:"pointer"}}
           fallback={<Icon as={FiImage} />}
           title={name ? `${name}${ext || ""}` : ""}
-          onClick={()=>{window.open(`${ZAKAT_IMAGES_BASE}/${row.NewsMainPhotoName}.jpg`)}}
+          onClick={()=>{window.open(`${imagesPath}/${row.NewsMainPhotoName}.jpg`)}}
         />
       ) : (
         <Icon as={FiImage} title="لا توجد صورة" />
@@ -120,14 +116,13 @@ const makeColumns = ({ startIndex, goToType, onEdit, onDelete }: MakeColsArgs): 
     header: "المرفقات",
     width: "12%",
     render: (row: AnyRec) => {
-      const name: string | number | undefined = row.AttachmentFile || row.NewsMainPhotoName;  // هنا نعرض الـ ID للصورة في المرفق إذا كانت الصورة موجودة
-      const ext: string | undefined = row.AttachmentFileExt || ".jpg";  // التأكد من استخدام امتداد الصورة
-      const url = buildAttachmentUrlByName(name, ext);
+      const name: string | number | undefined = row.AttachmentFile || row.NewsMainPhotoName;
+      const ext: string | undefined = row.AttachmentFileExt || ".jpg";
+      const url = buildAttachmentUrlByName(imagesPath, name, ext);
       return name ? (
         <HStack spacing={2}>
           <Icon as={FiImage} />
           <Link href={url} target="_blank" rel="noopener noreferrer">
-            {/* {`${name}${ext || ""}`} */}
             عرض
           </Link>
         </HStack>
@@ -168,41 +163,16 @@ const makeColumns = ({ startIndex, goToType, onEdit, onDelete }: MakeColsArgs): 
     width: "7%",
     render: (row: AnyRec) => (
       <HStack>
-        {/* <Switch isChecked={!!row.IsActive} isReadOnly /> */}
         <Text >{row.IsActive ? "مفعل" : "غير مفعل"}</Text>
       </HStack>
     ),
   },
-  // {
-  //   key: "Actions",
-  //   header: "",
-  //   width: "3%",
-  //   render: (row: AnyRec) => (
-  //     <Menu>
-  //       <Tooltip label="إجراءات">
-  //         <MenuButton
-  //           as={IconButton}
-  //           size="sm"
-  //           aria-label="actions"
-  //           icon={<FiMoreVertical />}
-  //           variant="ghost"
-  //         />
-  //       </Tooltip>
-  //       <MenuList>
-  //         <MenuItem onClick={() =>}>تعديل</MenuItem>
-  //         <MenuItem color="red.500" onClick={() => }>
-  //           حذف
-  //         </MenuItem>
-  //       </MenuList>
-  //     </Menu>
-  //   ),
-  // },
 ];
 
 export default function GetNewsData() {
   const toast = useToast();
   const delNews = useDeleteNewsData();
-
+  const { imagesPath } = useImagesPathContext();
   const [page, setPage] = useState(1);
   const limit = PAGE_SIZE;
   const offset = useMemo(() => (page - 1) * limit, [page, limit]);
@@ -291,8 +261,14 @@ export default function GetNewsData() {
   }
 
   const columns = useMemo(
-    () => makeColumns({ startIndex: offset + 1, goToType, onEdit, onDelete: handleDelete }),
-    [offset, goToType, onEdit]
+    () => makeColumns({ 
+      startIndex: offset + 1, 
+      goToType, 
+      onEdit, 
+      onDelete: handleDelete,
+      imagesPath: imagesPath || ""
+    }),
+    [offset, goToType, onEdit, imagesPath]
   );
 
   return (
@@ -304,7 +280,6 @@ export default function GetNewsData() {
           variant="brandGradient"
           leftIcon={
             <Box
-              // bg=""
               color="white"
               w="22px"
               h="22px"

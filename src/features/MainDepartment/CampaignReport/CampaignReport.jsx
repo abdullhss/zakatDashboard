@@ -16,14 +16,14 @@ import { executeProcedure, PROCEDURE_NAMES } from "../../../api/apiClient";
 import { useGetOffices } from "../Offices/hooks/useGetOffices";
 import { InputGroup, InputLeftElement } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
-
+import { useImagesPathContext } from "../../../Context/ImagesPathContext";
 const PAGE_LIMIT = 10;
 
 const CampaignReport = () => {
   const userId = getCurrentUserId(); 
   const role = localStorage.getItem("role");
   const officeName = localStorage.getItem("officeName")
-
+  const { imagesPath } = useImagesPathContext();
   const [selectedStatus, setSelectedStatus] = useState(0);
 
   const [selectedFromDate, setSelectedFromDate] = useState("");
@@ -82,7 +82,7 @@ const columns = [
   {
     header: "عرض الصورة",
     render: (r) => {
-      return <a style={{color:"#005599"}} target="_blank" href={`https://framework.md-license.com:8093/ZakatImages/${r.CampaignPhotoName}.jpg`}>
+      return <a style={{color:"#005599"}} target="_blank" href={`${imagesPath}/${r.CampaignPhotoName}.jpg`}>
         عرض
       </a>;
     },

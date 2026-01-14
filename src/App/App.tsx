@@ -90,8 +90,10 @@ import Notification from "../features/OfficeDashboard/Notification/Notification.
 
 import InternationalAccounts from "../features/MainDepartment/InternationalAccounts/InternatinalAccounts";
 import EbraaZemmaAccounts from "../features/MainDepartment/EbraaZemmaAccounts/EbraaZemmaAccounts.js";
-
+import { executeProcedure } from "../api/apiClient.js";
+import { useImagesPathContext } from "../Context/ImagesPathContext.js";
 export default function App() {
+  const { setImagesPath } = useImagesPathContext();
   useEffect(() => {
     const now = Date.now();
     const lastVisit = localStorage.getItem("lastVisit");
@@ -103,6 +105,23 @@ export default function App() {
     // حدّث وقت آخر زيارة
     localStorage.setItem("lastVisit", now);
   }, []);
+  useEffect(() => {
+
+    const getStatsData = async () => {
+        const response = await executeProcedure(
+        "SDzK3NU+KnRw1A6l8udHoQ==",
+        `-1`
+        );
+
+        const result = response.decrypted?.data?.Result?.[0];
+        if (!result) return;
+
+        console.log(result.ImagesPath);
+        setImagesPath(result.ImagesPath);
+    };
+
+    getStatsData();
+}, []);
   return (
     <BrowserRouter>
       <Routes>

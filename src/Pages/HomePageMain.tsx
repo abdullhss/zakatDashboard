@@ -5,7 +5,6 @@ import StatsCard from '../Components/HomeStatesCard/StatsCard';
 import DashboardCharts from '../Components/DashboardCharts/Charts'; 
 import { useEffect, useState } from 'react';
 import { executeProcedure } from '../api/apiClient';
-
 const StatsContainer = (props :any) => (
   <Box
     p={8} 
@@ -65,7 +64,6 @@ export default function HomePage() {
             );
 
             const result = response.decrypted?.data?.Result?.[0];
-
             if (!result) return;
 
             setStatsData({
