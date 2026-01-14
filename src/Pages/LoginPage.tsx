@@ -205,7 +205,7 @@ export default function LoginPage() {
           isClosable: true,
         });
 
-        const defaultTarget = role === "M" ? "/maindashboard" : "/officedashboard/privelgesOffice";
+        const defaultTarget = role === "M" ? "/maindashboard" : "/maindashboard";
         const from = (location.state as any)?.from?.pathname as string | undefined;
         
         // Add a small delay for smooth transition
