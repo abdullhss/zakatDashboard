@@ -347,6 +347,26 @@ export default function AddOffice() {
       toast({ title: "خطأ أثناء التعديل", status: "error" });
     }
   };
+  const handleActiveChange = async (accountId : string | number, isEnabled: boolean) => {
+    try {
+      const res = await doTransaction({
+        TableName: BANK_TABLE,
+        WantedAction: 1,
+        ColumnsNames: "Id#IsActive",
+        ColumnsValues: `${accountId}#${isEnabled ? "False" : "True"}`,
+        PointId: 0,
+      });
+      if (res.success) {
+        toast({ title: "تم تغيير حالة الحساب.", status: "success" });
+      } else {
+        toast({ title: "فشل تغيير حالة الحساب", description: (res as any)?.error || "", status: "error" });
+      }
+    } catch (e: any) {
+      toast({ title: "خطأ أثناء تغيير حالة الحساب", status: "error" });
+    } finally {
+      refetchBanks();
+    }
+  };
 
   if (banksLoading && isEdit) {
     return <Flex justify="center" p={10}><Spinner size="xl" /></Flex>;
@@ -398,6 +418,10 @@ export default function AddOffice() {
       ) : (
         displayAccounts.map((b: DisplayBank, i: number) => (
           <BankAccountSection
+            isActive={b.isEnabled}
+            onActiveChange={() => {
+              handleActiveChange(b.serverId!, b.isEnabled!);
+            }}
             key={(b.serverId ?? i) as any}
             index={i + 1}
             bankName={b.bankId}

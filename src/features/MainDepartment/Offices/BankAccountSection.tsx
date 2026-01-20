@@ -2,6 +2,7 @@ import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Box, HStack, VStack, Grid, GridItem, Text,
   IconButton, Divider, useColorModeValue,
+  Switch,
 } from "@chakra-ui/react";
 import { useBanksQuery } from "../Banks/hooks/useGetBanks";
 import { useGetAccountTypes } from "./hooks/useGetAccountTypes";
@@ -11,16 +12,18 @@ const INNER_BORDER = "#B7B7B7";
 
 type Props = {
   index?: number | string;
-  bankName: string | number;       // ✅ خليها تقبل ID
+  bankName: string | number;       
   accountNumber: string | number;
   openingBalance: string | number;
-  accountType: string | number;    // ✅ نفس الشيء
+  accountType: string | number;
   serviceType: string | number;
   serviceTypeLabel:string ;
   hasCard: boolean;
+  isActive: boolean;
   onDelete?: () => void;
   onEdit?: () => void;
   onAdd?: () => void;
+  onActiveChange ?: (checked: boolean) => void;
 };
 
 export default function BankAccountSection({
@@ -32,9 +35,11 @@ export default function BankAccountSection({
   serviceType,
   serviceTypeLabel,
   hasCard,
+  isActive,
   onDelete,
   onEdit,
   onAdd,
+  onActiveChange,
 }: Props) {
   const outerBorder = useColorModeValue("background.border", "gray.600");
 
@@ -72,6 +77,11 @@ export default function BankAccountSection({
         </HStack>
 
         <HStack spacing={2}>
+          <Switch
+            aria-label="تفعيل الحساب"
+            isChecked={isActive}
+            onChange={(e) => onActiveChange?.(e.target.checked)}
+          />
           <IconButton
             aria-label="حذف"
             icon={<DeleteIcon />}

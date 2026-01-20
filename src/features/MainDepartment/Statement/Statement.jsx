@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -12,6 +12,11 @@ import {
   Input,
   HStack,
   Button,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
 } from "@chakra-ui/react";
 
 import DataTable from "../../../Components/Table/DataTable";
@@ -22,6 +27,7 @@ import { useGetOfficePayment } from "../../../features/OfficeDashboard/Statement
 import { useGetDashBankData } from "../../MainDepartment/Offices/hooks/useGetDashBankData";
 
 import { useGetOffices } from "../Offices/hooks/useGetOffices";
+import { executeProcedure } from "../../../api/apiClient";
 
 
 function formatDateToMMDDYYYY(date){
@@ -60,6 +66,31 @@ export default function MainStatement() {
   const [fromDate, setFromDate] = useState("2025-01-01");
   const [toDate, setToDate] = useState(getTodayDate());
 
+  const [statementType, setStatementType] = useState("local"); // local | international
+  const [internationalBankAccountsData, setInternationalBankAccountsData] = useState([]);
+  const [selectedInternationalAccount, setSelectedInternationalAccount] = useState("");
+  async function getInternationalAccounts() {
+    const response = await executeProcedure(
+      "ImyBmglW7DWznCguP6on2NPvg+wEyBZypFCDrNeFKn0MOCivVpSW2QdNIPSDoSko",
+      3
+    );
+    console.log(response);
+    const internationalData = JSON.parse(
+      response?.decrypted?.data?.Result[0]?.InternationalBankAccountsData || "[]"
+    );
+  
+    setInternationalBankAccountsData(internationalData);
+  }
+  useEffect(() => {
+    if (statementType === "international") {
+      getInternationalAccounts();
+      setSelectedOfficeId(null);
+      setSelectedAccount("");
+    }
+  }, [statementType]);
+  console.log(internationalBankAccountsData);
+  
+
   // Pagination
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -91,12 +122,12 @@ export default function MainStatement() {
   // 📄 جلب كشف الحساب
   const params = useMemo(
     () => ({
-      officeId: selectedOfficeId ?? 0,
-      accountNum: selectedAccount,
+      officeId: statementType === "international" ? -1 : (selectedOfficeId ?? 0),
+      accountNum: statementType === "international" ? selectedInternationalAccount : selectedAccount,
       fromDate: formatDateToMMDDYYYY(fromDate),
       toDate: formatDateToMMDDYYYY(toDate),
     }),
-    [selectedOfficeId, selectedAccount, fromDate, toDate]
+    [selectedOfficeId, selectedAccount, fromDate, toDate, selectedInternationalAccount]
   );
 
   const {
@@ -169,63 +200,84 @@ export default function MainStatement() {
       <VStack align="stretch" spacing={6}>
         <Heading size="lg">كشف حساب المكتب</Heading>
 
-        {/* 🏢 اختيار المكتب */}
-        <Box>
-          <Text mb={2} fontWeight="600">اختر المكتب:</Text>
-          <Select
-            placeholder="اختر المكتب"
-            value={selectedOfficeId ?? ""}
-            padding={3}
-            onChange={(e) => {
-              setSelectedOfficeId(Number(e.target.value));
-              setSelectedAccount("");
-            }}
-          >
-            {offices.map((office) => (
-              <option key={office.Id} value={office.Id}>
-                {office.OfficeName}
-              </option>
-            ))}
-          </Select>
-        </Box>
+        <Tabs
+          isFitted
+          variant="enclosed"
+          onChange={(index) =>
+            setStatementType(index === 0 ? "local" : "international")
+          }
+        >
+          <TabList mb="1em">
+            <Tab>محلي</Tab>
+            <Tab>دولي</Tab>
+          </TabList>
 
-        {/* 🏦 اختيار الحساب */}
-        {selectedOfficeId && (
-          <Box>
-            <Text mb={2} fontWeight="600">اختر رقم الحساب البنكي:</Text>
-            {bankLoading ? (
-              <Spinner />
-            ) : (
-              <Select
-                placeholder="اختر الحساب"
-                padding={3}
-                value={selectedAccount}
-                onChange={(e) => setSelectedAccount(e.target.value)}
-              >
-                {officeAccounts.map((acc) => (
-                  <option key={acc.id} value={acc.accountNumber}>
-                    {acc.accountNumber} — {acc.bankName}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </Box>
-        )}
+          <TabPanels>
 
-        {/* 🗓️ فلاتر التاريخ */}
-        <HStack spacing={4}>
-          <Box flex="1">
-            <Text mb={1}>من تاريخ:</Text>
-            <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-          </Box>
-          <Box flex="1">
-            <Text mb={1}>إلى تاريخ:</Text>
-            <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-          </Box>
-        </HStack>
+            {/* ================= محلي ================= */}
+            <TabPanel>
+              {/* اختيار المكتب */}
+              <Box>
+                <Text mb={2} fontWeight="600">اختر المكتب:</Text>
+                <Select
+                  placeholder="اختر المكتب"
+                  value={selectedOfficeId ?? ""}
+                  padding={3}
+                  isDisabled={statementType === "international"}
+                  onChange={(e) => {
+                    setSelectedOfficeId(Number(e.target.value));
+                    setSelectedAccount("");
+                  }}
+                >
+                  {offices.map((office) => (
+                    <option key={office.Id} value={office.Id}>
+                      {office.OfficeName}
+                    </option>
+                  ))}
+                </Select>
+              </Box>
+
+              {/* اختيار الحساب */}
+              {selectedOfficeId && (
+                <Box mt={4}>
+                  <Text mb={2} fontWeight="600">اختر رقم الحساب البنكي:</Text>
+                  <Select
+                    placeholder="اختر الحساب"
+                    padding={3}
+                    value={selectedAccount}
+                    isDisabled={statementType === "international"}
+                    onChange={(e) => setSelectedAccount(e.target.value)}
+                  >
+                    {officeAccounts.map((acc) => (
+                      <option key={acc.id} value={acc.accountNumber}>
+                        {acc.accountNumber} — {acc.bankName}
+                      </option>
+                    ))}
+                  </Select>
+                </Box>
+              )}
+            </TabPanel>
+
+            {/* ================= دولي ================= */}
+            <TabPanel>
+              <Box>
+                <Text mb={2} fontWeight="600">الحسابات البنكية الدولية:</Text>
+
+                <Select placeholder="اختر الحساب الدولي" padding={3} value={selectedInternationalAccount} onChange={(e) => setSelectedInternationalAccount(e.target.value)}>
+                  {internationalBankAccountsData.map((acc, index) => (
+                    <option key={index} value={acc.AccountNum}>
+                      {acc.AccountNum} — {acc.BankName}
+                    </option>
+                  ))}
+                </Select>
+              </Box>
+            </TabPanel>
+
+          </TabPanels>
+        </Tabs>
 
         {/* 📄 جدول كشف الحساب */}
-        {selectedOfficeId && selectedAccount ? (
+        {(selectedOfficeId && selectedAccount) || (statementType === "international" && selectedInternationalAccount) ? (
           statementLoading ? (
             <Flex justify="center"><Spinner size="lg" /></Flex>
           ) : rows.length > 0 ? (

@@ -77,7 +77,7 @@ export const PieChartSection = ({pieChartData}:any) => {
           cy="50%"
           outerRadius={120}
           innerRadius={80} 
-          paddingAngle={3}
+          paddingAngle={2}
           style={{ 
             filter: 'drop-shadow(0 0 10px rgba(0, 0, 0, 0.1))',
           }} 
@@ -95,7 +95,7 @@ export const PieChartSection = ({pieChartData}:any) => {
           verticalAlign="bottom" 
           align="center" 
           iconType="square" 
-          wrapperStyle={{ paddingTop: '20px' }}
+          wrapperStyle={{ paddingTop: '0px' }}
           content={({ payload }) => (
             <Flex justify="center" mt={4} dir="rtl"> {/* ⬅️ إضافة dir="rtl" هنا */}
               {payload?.map((entry:any, index:any) => (
