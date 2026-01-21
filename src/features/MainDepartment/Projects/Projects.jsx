@@ -48,7 +48,7 @@ const Projects = () => {
     if (!selectedOffice) return;
 
     const getProjects = async () => {
-      const params = `${selectedOffice}#0#N#1#10000`;
+      const params = `${selectedOffice}#0#A#1#10000`;
 
       const res = await executeProcedure(
         PROCEDURE_NAMES.GetDashBoardOfficeProjectsData,
@@ -241,54 +241,70 @@ useEffect(() => {
 
       {/* DataTable */}
       <Box mt={8}>
-        {
-          PaymentsData.length > 0?(
-            <div id="printable-table">
-            <DataTable
-              title="المشاريع"
-              columns={columns}
-              data={PaymentsData}
-              page={page}
-              pageSize={PAGE_LIMIT}
-              onPageChange={setPage}
-              totalRows={PaymentsCount}
-              startIndex={(page - 1) * PAGE_LIMIT + 1}
-              footerRow={
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  px={4}
-                >
-                  <Text color="green.600">
-                    إجمالي المقبوضات: {totals.TotalDebitValue}
-                  </Text>
+        {/* حالة: مكتب مختار لكن مفيش مشروع */}
+        {selectedOffice !== 0 && selectedProject_Id === 0 && (
+          <Text
+            fontSize="lg"
+            textAlign="center"
+            color="red.500"
+            fontWeight="bold"
+          >
+            يجب اختيار مشروع بعد اختيار المكتب
+          </Text>
+        )}
 
-                  <Text color="red.600">
-                    إجمالي المصروفات: {totals.TotalNetValue}
-                  </Text>
+        {/* حالة: مكتب + مشروع مختارين */}
+        {((selectedOffice !== 0 && selectedProject_Id !== 0) || (selectedOffice == 0 && selectedProject_Id == 0)) && (
+          <>
+            {PaymentsData.length > 0 ? (
+              <div id="printable-table">
+                <DataTable
+                  title="المشاريع"
+                  columns={columns}
+                  data={PaymentsData}
+                  page={page}
+                  pageSize={PAGE_LIMIT}
+                  onPageChange={setPage}
+                  totalRows={PaymentsCount}
+                  startIndex={(page - 1) * PAGE_LIMIT + 1}
+                  footerRow={
+                    <Box
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      px={4}
+                    >
+                      <Text color="green.600">
+                        إجمالي المقبوضات: {totals.TotalDebitValue}
+                      </Text>
 
-                  <Text fontWeight="bold">
-                    الصافي: {totals.TotalCreditValue}
-                  </Text>
-                </Box>
-              }
-            />
-          </div>
-          ):(
-            <p style={{ fontSize: "20px", width: "full", textAlign: "center" }}>
-              لا توجد مشاريع
-            </p>
-          )
-        }
+                      <Text color="red.600">
+                        إجمالي المصروفات: {totals.TotalNetValue}
+                      </Text>
 
-        {/* زر الطباعة */}
-        {PaymentsData.length > 0 && selectedProject_Id!=0 && selectedOffice!=0  && (
-          <Button mt={4} w={"full"} onClick={() => window.print()}>
-            طباعة
-          </Button>
+                      <Text fontWeight="bold">
+                        الصافي: {totals.TotalCreditValue}
+                      </Text>
+                    </Box>
+                  }
+                />
+              </div>
+            ) : (
+              <Text fontSize="lg" textAlign="center">
+                لا توجد بيانات
+              </Text>
+            )}
+
+            {/* زر الطباعة */}
+            {PaymentsData.length > 0 && (
+              <Button mt={4} w="full" onClick={() => window.print()}>
+                طباعة
+              </Button>
+            )}
+          </>
         )}
       </Box>
+
 
     </Box>
   );

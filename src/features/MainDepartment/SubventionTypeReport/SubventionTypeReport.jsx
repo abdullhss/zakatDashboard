@@ -33,6 +33,8 @@ const CampaignReport = () => {
   const [PaymentsCount, setPaymentsCount] = useState(0);
   const [actionType , setActionType] = useState(0);;
   const [page, setPage] = useState(1);
+  const [totals , setTotals] = useState({});
+
 
   useEffect(() => {
     const fetchSubventions = async () => {
@@ -60,6 +62,11 @@ const CampaignReport = () => {
       setPaymentsData(
         response.decrypted.data?.Result[0].OfficePaymentsData ? JSON.parse(response.decrypted.data?.Result[0].OfficePaymentsData) : []
       );
+      setTotals({
+        TotalCreditValue : response.decrypted.data?.Result[0].TotalCreditValue , 
+        TotalDebitValue : response.decrypted.data?.Result[0].TotalDebitValue , 
+        TotalNetValue : response.decrypted.data?.Result[0].TotalNetValue , 
+      })
   };
 
   /** Fetch when page changes */
@@ -78,14 +85,13 @@ const columns = [
     header: "وصف الدفع",
     render: (row) => row.PaymentDesc || "-",
   },
-  {
-    header: "القيمة",
-    render: (row) =>
-      row.DebitValue !== 0
-        ? row.DebitValue
-        : row.CreditValue !== 0
-        ? row.CreditValue
-        : 0,
+  { 
+    header: "القبض", 
+    render: (row) => row.DebitValue  
+  },
+  { 
+    header: "الصرف", 
+    render: (row) => row.CreditValue  
   },
   {
     header: "نوع العملية",
@@ -213,6 +219,18 @@ const columns = [
               onPageChange={setPage}
               totalRows={PaymentsCount}
               startIndex={(page - 1) * PAGE_LIMIT + 1}
+              footerRow={
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  px={4}
+                >
+                  <Text color="green.600">إجمالي المقبوضات: {totals.TotalDebitValue}</Text>
+                  <Text color="red.600">إجمالي المصروفات: {totals.TotalNetValue}</Text>
+                  <Text fontWeight="bold">الصافي: {totals.TotalCreditValue}</Text>
+                </Box>
+              }
             />
           </div>
           ):(
