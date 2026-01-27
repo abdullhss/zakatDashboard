@@ -187,7 +187,7 @@ const BarChartSection = () => {
                 style={{ fontSize: "12px"}}
               />
 
-              <Tooltip />
+              <Tooltip cursor={{ fill: "#00000010" }} />
 
               <Bar
                 dataKey="zakat"
@@ -239,7 +239,7 @@ const BarChartSection1 = ({ weeklyPaymentsData }: any) => {
             textAnchor="start"
             axisLine={false}
             tickLine={false}
-            style={{ fontSize: "14px" }}
+            style={{ fontSize: "14px"}}
           />
 
           <YAxis
@@ -249,7 +249,8 @@ const BarChartSection1 = ({ weeklyPaymentsData }: any) => {
           />
 
           <Tooltip
-            formatter={(value) => [`${value} جنيه`, "القيمة"]}
+            cursor={{ fill: "#00000010" }}
+            formatter={(value) => [`${value} دينار ليبي`, "القيمة"]}
           />
 
           <Bar

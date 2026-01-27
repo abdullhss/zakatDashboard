@@ -17,7 +17,7 @@ const InternatinalAccounts = () => {
 
   const fetchData = async () => {
     const response = await executeProcedure(
-      "ImyBmglW7DWznCguP6on2NPvg+wEyBZypFCDrNeFKn0MOCivVpSW2QdNIPSDoSko",
+      "SV1IsgA8uRsKeQZjcLreMyT0Rxnv+1urcdzQtgWklCCusN/sxpBrs/dclaMlSiJ0",
       "3"
     );
     console.log(response.rows);
@@ -94,7 +94,6 @@ const InternatinalAccounts = () => {
         page={1}
         onPageChange={() => {}}
         totalRows={accounts.length}
-        pageSize={10}
         onEditRow={(row) => {
           setAddAccountModal(true)
           setEditingRow(row)

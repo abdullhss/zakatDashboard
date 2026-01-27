@@ -218,13 +218,13 @@ const BankDetailsSection = forwardRef<BankDetailsHandle, Props>(
           {/* سويتشات */}
           <GridItem marginTop="30px" colSpan={[12, 4]}>
             <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={3}>
-              <HStack justify="space-between" h={FIELD_HEIGHT} px={3} rounded={FIELD_RADIUS} borderColor={FIELD_BORDER} bg={FIELD_BG}>
-                <SwitchComp {...register("hasCard")} isChecked={hasCard} />
+              <HStack h={FIELD_HEIGHT} px={3} rounded={FIELD_RADIUS} borderColor={FIELD_BORDER} bg={FIELD_BG}>
                 <Text>بطاقة مصرفية</Text>
+                <SwitchComp {...register("hasCard")} isChecked={hasCard} />
               </HStack>
-              <HStack justify="space-between" h={FIELD_HEIGHT} px={3} rounded={FIELD_RADIUS} borderColor={FIELD_BORDER} bg={FIELD_BG}>
-                <SwitchComp {...register("isEnabled")} isChecked={isEnabled} />
+              <HStack h={FIELD_HEIGHT} px={3} rounded={FIELD_RADIUS} borderColor={FIELD_BORDER} bg={FIELD_BG}>
                 <Text>تفعيل الحساب</Text>
+                <SwitchComp {...register("isEnabled")} isChecked={isEnabled} />
               </HStack>
             </Grid>
           </GridItem>

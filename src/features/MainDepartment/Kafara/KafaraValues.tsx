@@ -121,17 +121,21 @@ export default function Kafara() {
           <Text fontSize="2xl" fontWeight="700" textAlign="center" mb="10px">
             القيمة الحالية
           </Text>
-
           <Input
             value={value}
-            onChange={(e) => setValue(e.target.value)}
             type="number"
-            step="0.01"
             inputMode="decimal"
             textAlign="center"
             fontSize="lg"
             fontWeight="500"
             borderColor={borderClr}
+            step="0.01"
+            onChange={(e) => {
+              let val = e.target.value;
+              if (/^\d*\.?\d{0,2}$/.test(val)) {
+                setValue(val);
+              }
+            }}
             _focus={{ borderColor: "teal.500", boxShadow: "0 0 0 1px teal" }}
           />
 
