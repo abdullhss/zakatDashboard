@@ -31,7 +31,7 @@ export default function LoginForm({ username, password, setUsername, setPassword
     <FieldsStack>
       <FormControl isRequired>
         <FormLabel color="gray.700" mb={1}>
-          اسم مستخدم 
+          اسم المستخدم 
         </FormLabel>
         <InputGroup>
           <InputLeftElement pointerEvents="none">
@@ -39,7 +39,7 @@ export default function LoginForm({ username, password, setUsername, setPassword
           </InputLeftElement>
           <Input
             type="text"
-            placeholder="رجاء إدخال اسم المستخدم"
+            placeholder="الرجاء إدخال اسم المستخدم"
             bg="white"
             borderColor="gray.300"
             rounded="8px"

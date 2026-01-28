@@ -152,7 +152,7 @@ export default function LoginPage() {
       if (!u || !p) {
         toast({
           title: "البيانات ناقصة",
-          description: "الرجاء إدخال اسم المستخدم وكلمة المرور.",
+          description: "الالرجاء إدخال اسم المستخدم وكلمة المرور.",
           status: "warning",
           duration: 3000,
           isClosable: true,
