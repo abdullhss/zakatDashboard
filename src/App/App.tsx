@@ -87,7 +87,8 @@ import Searcher from "../features/OfficeDashboard/Searcher/Searcher.js"
 import AddSearcher from "../features/OfficeDashboard/Searcher/Add/AddSearcher"
 import EditSearcher from "../features/OfficeDashboard/Searcher/Edit/EditSearcher.js";
 import Notification from "../features/OfficeDashboard/Notification/Notification.jsx";
-
+import FitrZakatTypes from "../features/MainDepartment/FitrZakatTypes/FitrZakatTypes"
+import AddFitrZakatTypes from "../features/MainDepartment/FitrZakatTypes/AddFitrZakatTypes.jsx"
 import InternationalAccounts from "../features/MainDepartment/InternationalAccounts/InternatinalAccounts";
 import EbraaZemmaAccounts from "../features/MainDepartment/EbraaZemmaAccounts/EbraaZemmaAccounts.js";
 import { executeProcedure } from "../api/apiClient.js";
@@ -175,7 +176,9 @@ export default function App() {
             <Route path="FAQLinks" element={<FAQLinks />} />
 
             <Route path="dashpayment/add" element={<AddPaymentData />} />
-
+            <Route path="FitrZakatTypes" element={<FitrZakatTypes />} />
+            <Route path="fitrZakatTypes/add" element={<AddFitrZakatTypes />} />
+            <Route path="fitrZakatTypes/edit/:id" element={<AddFitrZakatTypes />} />
             <Route path="FitrZakat" element={<FitrZakatMain />} />
             <Route path="statement" element={<MainStatement />} />
             <Route path="payments" element={<Payments />} />
@@ -225,7 +228,6 @@ export default function App() {
     <Route path="assistanceData" element={<AssistanceDataTypes />} />
     <Route path="fitrZakat" element={<FitrZakat />} />
     <Route path="fitrZakat/add" element={<AddFitrZakat />} />
-    
     <Route path="payments" element={<Payments />} />
     <Route path="receipts" element={<Receipts />} />
     <Route path="KafaraReport" element={<KafaraReport />} />

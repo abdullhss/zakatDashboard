@@ -113,6 +113,7 @@ export default function MainNavBar() {
         {renderLink("zakatGold", "حاسبة الزكاة", AiOutlineCalculator)}
         {renderLink("sacirificeTypes", "أنواع الأضاحي", GiSheep)}
         {renderLink("FitrZakat", "زكاة الفطر", GiBowlOfRice)}
+        {renderLink("FitrZakatTypes", "أصناف زكاة الفطر", GiBowlOfRice)}
       </SidebarDropdown>
       
 
