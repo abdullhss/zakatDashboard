@@ -93,6 +93,11 @@ import InternationalAccounts from "../features/MainDepartment/InternationalAccou
 import EbraaZemmaAccounts from "../features/MainDepartment/EbraaZemmaAccounts/EbraaZemmaAccounts.js";
 import { executeProcedure } from "../api/apiClient.js";
 import { useImagesPathContext } from "../Context/ImagesPathContext.js";
+import { PriceDetection } from "../features/OfficeDashboard/FitrZakat/PriceDetection.jsx";
+import AddItemsFitrZakat from "../features/OfficeDashboard/FitrZakat/AddItmes.jsx";
+import OutFitrZakat from "../features/OfficeDashboard/FitrZakat/OutFitrZakat.jsx";
+import OutFitrTable from "../features/OfficeDashboard/FitrZakat/OutFitrTable.jsx";
+import OutDetails from "../features/OfficeDashboard/FitrZakat/OutDetails.jsx";
 export default function App() {
   const { setImagesPath } = useImagesPathContext();
   useEffect(() => {
@@ -237,6 +242,11 @@ export default function App() {
     <Route path="FedyaReport" element={<FedyaReport />} />
     <Route path="LoverDonationReport" element={<LoverDonationReport />} />
     <Route path="ZakatReport" element={<ZakatReport />} />
+    <Route path="PriceDetection" element={<PriceDetection />} />
+    <Route path="AddItemsFitrZakat" element={<AddItemsFitrZakat />} />
+    <Route path="OutFitrZakat" element={<OutFitrZakat />} />
+    <Route path="OutFitrTable" element={<OutFitrTable />} />
+    <Route path="fitrOutput/details/:id" element={<OutDetails />} />
     <Route path="SadakaReport" element={<SadakaReport />} />
     <Route path="NazrReport" element={<NazrReport />} />
     <Route path="searcher" element={<Searcher />} />

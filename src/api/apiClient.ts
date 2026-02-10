@@ -430,6 +430,7 @@ export async function doTransaction(
         }
       }
     }
+    const NewId = AES256Encryption.decrypt(raw.NewId, API_CONFIG.PUBLIC_KEY);
 
     const code = Number(dec.result);
     const { rows, row, total } = pickRows(dec.data);
@@ -441,7 +442,7 @@ export async function doTransaction(
         rows,
         row,
         meta: { total, serverTime: dec.serverTime },
-        decrypted: dec,
+        decrypted: {...dec, NewId},
         raw,
       };
     }

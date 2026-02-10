@@ -17,7 +17,7 @@ import {
   RiNewspaperLine,
 } from "react-icons/ri";
 import { TbCategory2 } from "react-icons/tb";
-import { GiChecklist, GiFoodChain, GiSheep } from "react-icons/gi";
+import { GiBowlOfRice, GiChecklist, GiFoodChain, GiSheep } from "react-icons/gi";
 import { MdOutlineWork, MdPayments, MdReport } from "react-icons/md";
 import { BsCashCoin } from "react-icons/bs";
 
@@ -134,6 +134,15 @@ export default function MainNavBarOfficeDepartment() {
       {/* {renderLink("ZemmaReport", "ابراء الذمة", MdPayments)} */}
       {renderLink("NazrReport", "النذور", MdPayments)}
       {renderLink("LoverDonationReport", "تبرع لمن تحب", MdPayments)}
+    </SidebarDropdown>
+
+
+
+    <SidebarDropdown title="زكاة الفطر" icon={GiBowlOfRice}>
+      {renderLink("PriceDetection", "تحديد الاسعار", GiBowlOfRice)}
+      {renderLink("AddItemsFitrZakat", "اضافة الاصناف", GiBowlOfRice)}
+      {renderLink("OutFitrZakat", "اخراج الاصناف", GiBowlOfRice)}
+      {renderLink("OutFitrTable", "جدول الاخراج", GiBowlOfRice)}
     </SidebarDropdown>
 
 
