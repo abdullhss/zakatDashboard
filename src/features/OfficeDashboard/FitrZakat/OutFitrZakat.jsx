@@ -35,7 +35,7 @@ export default function OutFitrZakat() {
         response.decrypted.data.Result[0].ZakatFitrMainItemsData
       ).map((item) => ({
         ...item,
-        Qty: "",
+        Qty: 0,
       }));
 
       setOutFitrZakatData(parsed);
@@ -87,7 +87,7 @@ export default function OutFitrZakat() {
   // ========================
   const handleChange = (index, value) => {
     const updated = [...outFitrZakatData];
-    updated[index].Qty = value;
+    updated[index].Qty = Number(value) || 0;
     setOutFitrZakatData(updated);
   };
 
@@ -100,14 +100,14 @@ export default function OutFitrZakat() {
   };
 
   const handleSave = async () => {
-    const invalidItem = outFitrZakatData.find(
-      (item) => !item.Qty
+    const hasAtLeastOneQty = outFitrZakatData.some(
+      (item) => item.Qty > 0
     );
 
-    if (invalidItem) {
+    if (!hasAtLeastOneQty) {
       return toast({
         status: "warning",
-        title: "يرجى إدخال الكمية لكل الأصناف",
+        title: "يرجى إدخال كمية لصنف واحد على الأقل",
       });
     }
 

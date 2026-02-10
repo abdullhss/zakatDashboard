@@ -134,6 +134,7 @@ export default function MainNavBarOfficeDepartment() {
       {/* {renderLink("ZemmaReport", "ابراء الذمة", MdPayments)} */}
       {renderLink("NazrReport", "النذور", MdPayments)}
       {renderLink("LoverDonationReport", "تبرع لمن تحب", MdPayments)}
+      {renderLink("FitrZakatSanfReport", "اصناف زكاة الفطر", MdPayments)}
     </SidebarDropdown>
 
 

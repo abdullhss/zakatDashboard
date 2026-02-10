@@ -19,6 +19,8 @@ export default function AddItemsFitrZakat() {
 
   const [addItemsFitrZakatData, setAddItemsFitrZakatData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
 
   const toast = useToast();
 
@@ -36,13 +38,20 @@ export default function AddItemsFitrZakat() {
         response.decrypted.data.Result[0].ZakatFitrMainItemsData
       ).map((item) => ({
         ...item,
-        Qty: "",
-        InputDate: "",
+        Qty: 0,
       }));
 
       setAddItemsFitrZakatData(parsed);
       setLoading(false);
     };
+
+    // Initialize date and time with current values
+    const now = new Date();
+    const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const currentTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM format
+    
+    setSelectedDate(currentDate);
+    setSelectedTime(currentTime);
 
     getAddItemsFitrZakatData();
   }, []);
@@ -50,10 +59,25 @@ export default function AddItemsFitrZakat() {
   // ========================
   // Helpers
   // ========================
-  const handleChange = (index, field, value) => {
+  const handleChange = (index, value) => {
     const updated = [...addItemsFitrZakatData];
-    updated[index][field] = value;
+    updated[index].Qty = Number(value) || 0;
     setAddItemsFitrZakatData(updated);
+  };
+
+
+  const formatSelectedDateTime = () => {
+    if (!selectedDate) return formatDateTime(new Date());
+    
+    // Combine date and time
+    const dateTime = new Date(`${selectedDate}T${selectedTime}`);
+    
+    // Check if date is valid
+    if (isNaN(dateTime.getTime())) {
+      return formatDateTime(new Date());
+    }
+    
+    return formatDateTime(dateTime);
   };
 
   const formatDateTime = (value) => {
@@ -69,18 +93,38 @@ export default function AddItemsFitrZakat() {
     )}:${pad(date.getSeconds())}`;
   };
 
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+  };
+
+  const handleTimeChange = (e) => {
+    setSelectedTime(e.target.value);
+  };
+
   const handleSave = async () => {
-    // Validation بسيط
-    const invalidItem = addItemsFitrZakatData.find(
-      (item) => !item.Qty || !item.InputDate
+    // Validate all items have quantity
+    const hasAtLeastOneQty = addItemsFitrZakatData.some(
+      (item) => item.Qty > 0
     );
 
-    if (invalidItem) {
+    if (!hasAtLeastOneQty) {
       return toast({
         status: "warning",
-        title: "يرجى إدخال الكمية والتاريخ لكل الأصناف",
+        title: "يرجى إدخال كمية لصنف واحد على الأقل",
       });
     }
+
+
+    // Validate date and time are selected
+    if (!selectedDate || !selectedTime) {
+      return toast({
+        status: "warning",
+        title: "يرجى إدخال التاريخ والوقت",
+      });
+    }
+
+    // Format the selected date and time
+    const formattedDateTime = formatSelectedDateTime();
 
     const response = await doMultiTransaction({
       MultiTableName: Array(addItemsFitrZakatData.length)
@@ -90,16 +134,15 @@ export default function AddItemsFitrZakat() {
       MultiColumnsValues: addItemsFitrZakatData
         .map(
           (item) =>
-            `0#${officeId}#${item.Id}#${formatDateTime(
-              item.InputDate
-            )}#${item.Qty}`
+            `0#${officeId}#${item.Id}#${formattedDateTime}#${item.Qty}`
         )
         .join("^"),
 
       WantedAction: 0,
       PointId: 0,
     });
-
+    console.log(response);
+    
     if (response.code === 200) {
       toast({
         status: "success",
@@ -131,6 +174,42 @@ export default function AddItemsFitrZakat() {
   return (
     <Box maxW="800px" mx="auto" mt={10} p={5}>
       <VStack spacing={6} align="stretch">
+        {/* Date and Time Selection */}
+        <Box p={4} borderWidth={1} borderRadius="lg" bg="gray.50">
+          <VStack spacing={4} align="stretch">
+            <Text fontSize="lg" fontWeight="bold" textAlign="center">
+              إضافة أصناف زكاة الفطر
+            </Text>
+            
+            <HStack spacing={6} align="flex-end">
+              <FormControl flex={1}>
+                <FormLabel>تاريخ الإضافة</FormLabel>
+                <Input
+                  type="date"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                />
+              </FormControl>
+              
+              <FormControl flex={1}>
+                <FormLabel>وقت الإضافة</FormLabel>
+                <Input
+                  type="time"
+                  value={selectedTime}
+                  onChange={handleTimeChange}
+                />
+              </FormControl>
+              
+              <Box flex={1} pt={8}>
+                <Text fontSize="sm" color="gray.600">
+                  {formatSelectedDateTime()}
+                </Text>
+              </Box>
+            </HStack>
+          </VStack>
+        </Box>
+
+        {/* Items List */}
         {addItemsFitrZakatData.map((item, index) => (
           <Box
             key={item.Id}
@@ -139,29 +218,18 @@ export default function AddItemsFitrZakat() {
             borderRadius="lg"
           >
             <VStack spacing={4} align="stretch">
-              <Text fontSize="lg" fontWeight="bold">
-                {item.ItemName}
-              </Text>
-
-              <HStack spacing={4}>
+              <HStack justifyContent="space-between">
+                <Text fontSize="lg" fontWeight="bold" minW="120px">
+                  {item.ItemName}
+                </Text>
+                
                 <FormControl>
                   <FormLabel>الكمية</FormLabel>
                   <Input
                     type="number"
                     value={item.Qty}
                     onChange={(e) =>
-                      handleChange(index, "Qty", e.target.value)
-                    }
-                  />
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel>التاريخ والوقت</FormLabel>
-                  <Input
-                    type="datetime-local"
-                    value={item.InputDate}
-                    onChange={(e) =>
-                      handleChange(index, "InputDate", e.target.value)
+                      handleChange(index, e.target.value)
                     }
                   />
                 </FormControl>

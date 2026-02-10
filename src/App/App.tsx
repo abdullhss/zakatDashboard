@@ -98,6 +98,8 @@ import AddItemsFitrZakat from "../features/OfficeDashboard/FitrZakat/AddItmes.js
 import OutFitrZakat from "../features/OfficeDashboard/FitrZakat/OutFitrZakat.jsx";
 import OutFitrTable from "../features/OfficeDashboard/FitrZakat/OutFitrTable.jsx";
 import OutDetails from "../features/OfficeDashboard/FitrZakat/OutDetails.jsx";
+import ZakatFitrSanfReport from "../features/OfficeDashboard/FitrZakat/ZakatFitrSanfReport.jsx";
+
 export default function App() {
   const { setImagesPath } = useImagesPathContext();
   useEffect(() => {
@@ -238,6 +240,7 @@ export default function App() {
     <Route path="KafaraReport" element={<KafaraReport />} />
     <Route path="SacirificeReport" element={<SacirificeReport />} />
     <Route path="FitrZakatReport" element={<FitrZakatReport />} />
+    <Route path="FitrZakatSanfReport" element={<ZakatFitrSanfReport />} />
     {/* <Route path="ZemmaReport" element={<ZemmaReport />} /> */}
     <Route path="FedyaReport" element={<FedyaReport />} />
     <Route path="LoverDonationReport" element={<LoverDonationReport />} />
