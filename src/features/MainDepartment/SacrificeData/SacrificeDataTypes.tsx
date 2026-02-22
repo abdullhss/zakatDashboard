@@ -42,9 +42,7 @@ export default function SacrificeDataTypes() {
 
   const sourceRows = (data?.rows ?? []) as AnyRec[];
   const rows: SacrificeRow[] = useMemo(() => mapApiRowsToSacrificeRows(sourceRows), [sourceRows]);
-  console.log(data?.decrypted.data.Result[0].SacrificeTypesCount);
-  
-  const totalRows = Number(data?.decrypted.data.Result[0].SacrificeTypesCount) || 1;
+  const totalRows = Number(data?.decrypted?.data?.Result?.[0]?.SacrificeTypesCount) || 1;
   
 
   const onEditRow = useCallback(
@@ -69,8 +67,13 @@ export default function SacrificeDataTypes() {
 
   /* ✅ تحقق من الاسم قبل الإضافة */
   const handleAddSubmit = useCallback(
-    async (vals: { name: string; price: string | number; isActive?: boolean }) => {
+    async (vals: { name: string; price: string | number; isActive?: boolean; sacrificeCategory_Id?: number | string }) => {
       const name = vals.name.trim();
+      const categoryId = Number(vals.sacrificeCategory_Id) || 1;
+      if (![1, 2, 3].includes(categoryId)) {
+        toast({ status: "warning", title: "يرجى اختيار النوع (تبرع بأضحية / صدقة لحم / تصدق بعقيقة)" });
+        return;
+      }
 
       const isDuplicate = rows.some((r) => r.Name?.toLowerCase() === name.toLowerCase());
       if (isDuplicate) {
@@ -86,6 +89,7 @@ export default function SacrificeDataTypes() {
         name,
         price: Number(vals.price),
         isActive: !!vals.isActive,
+        sacrificeCategory_Id: categoryId,
       });
       toast({
         status: "success",
@@ -100,14 +104,16 @@ export default function SacrificeDataTypes() {
 
   /* ✅ تعديل يشمل التفعيل والإلغاء */
   const handleEditSubmit = useCallback(
-    async (vals: { name: string; price: string | number; isActive?: boolean }) => {
+    async (vals: { name: string; price: string | number; isActive?: boolean; sacrificeCategory_Id?: number | string }) => {
       if (!editingRow?.Id) return;
+      const categoryId = Number(vals.sacrificeCategory_Id) ?? editingRow.SacrificeCategory_Id ?? 1;
 
       await updateSacrifice.mutateAsync({
         id: editingRow.Id,
         name: vals.name.trim(),
         price: Number(vals.price),
         isActive: vals.isActive ?? editingRow.IsActive,
+        sacrificeCategory_Id: categoryId,
       });
 
       toast({
@@ -166,7 +172,7 @@ export default function SacrificeDataTypes() {
         onClose={addModal.onClose}
         title="إضافة نوع أضحية"
         mode="add"
-        initialValues={{ name: "", price: "", isActive: true }}
+        initialValues={{ name: "", price: "", isActive: true, sacrificeCategory_Id: 1 }}
         onSubmit={handleAddSubmit}
         isSubmitting={addSacrifice.isPending}
       />
@@ -183,7 +189,8 @@ export default function SacrificeDataTypes() {
         initialValues={{
           name: editingRow?.Name ?? "",
           price: editingRow?.Price ?? "",
-          isActive: editingRow?.IsActive ?? false, // ✅ تم إضافته هنا
+          isActive: editingRow?.IsActive ?? false,
+          sacrificeCategory_Id: editingRow?.SacrificeCategory_Id ?? 1,
         }}
         onSubmit={handleEditSubmit}
         isSubmitting={updateSacrifice.isPending}

@@ -1,7 +1,15 @@
 import React, { useMemo } from "react";
 import FormModal, { type FieldConfig } from "../../../../Components/ModalAction/FormModel";
+import { SACRIFICE_CATEGORIES } from "../helpers/types";
 
-export type SacrificeFormValues = { name: string; price: number | string; isActive?: boolean };
+export type SacrificeFormValues = {
+  name: string;
+  price: number | string;
+  isActive?: boolean;
+  sacrificeCategory_Id: number | string;
+};
+
+const categoryOptions = SACRIFICE_CATEGORIES.map((c) => ({ label: c.label, value: c.id }));
 
 export default function SacrificeForm(props: {
   isOpen: boolean;
@@ -15,19 +23,21 @@ export default function SacrificeForm(props: {
   const { isOpen, onClose, title, mode, initialValues, onSubmit, isSubmitting } = props;
 
   const fields: FieldConfig[] = useMemo(() => {
-    if (mode === "add") {
-      return [
-        { name: "name", label: "اسم النوع", placeholder: "مثال: حري", required: true, inputProps: { dir: "rtl" } },
-        { name: "price", label: "السعر", placeholder: "مثال: 9000", required: true, inputProps: { type: "number", inputMode: "numeric", min: 0 } },
-        { name: "isActive", label: "مفعّل", type: "switch", colSpan: 2 },
-      ];
-    }
-    return [
-      { name: "name", label: "اسم النوع", required: true, inputProps: { dir: "rtl" } },
-      { name: "price", label: "السعر", required: true, inputProps: { type: "number", inputMode: "numeric", min: 0 } },
-      { name: "isActive", label: "مفعّل", type: "switch", colSpan: 2 }, // إضافة الـ Switch لحالة "مفعّل"
+    const base = [
+      {
+        name: "sacrificeCategory_Id",
+        label: "النوع",
+        type: "select" as const,
+        required: true,
+        options: categoryOptions,
+        placeholder: "اختر النوع",
+      },
+      { name: "name", label: "اسم النوع", placeholder: "مثال: حري", required: true, inputProps: { dir: "rtl" } },
+      { name: "price", label: "السعر", placeholder: "مثال: 9000", required: true, inputProps: { type: "number", inputMode: "numeric", min: 0 } },
+      { name: "isActive", label: "مفعّل", type: "switch", colSpan: 2 },
     ];
-  }, [mode]);
+    return base;
+  }, []);
 
   return (
     <FormModal

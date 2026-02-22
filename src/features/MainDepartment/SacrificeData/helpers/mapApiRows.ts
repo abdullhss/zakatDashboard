@@ -7,7 +7,8 @@ export function mapApiRowsToSacrificeRows(sourceRows: AnyRec[]): SacrificeRow[] 
     Id: r.Id ?? r.SacrificeTypeId ?? r.TypeId ?? r.Code ?? r.id ?? r.code ?? Math.random().toString(36).slice(2),
     Name: (r.SacrificeTypeName ?? r.TypeName ?? r.Name ?? r.name ?? "—") as string,
     Price: r.SacrificeTypePrice != null ? Number(r.SacrificeTypePrice) : null,
-    IsActive: (r.IsActive === 'T' || r.isActive === 'T' || r.IsActive === true) // هنا نضيف تحويل القيم من T و F إلى true و false
+    IsActive: (r.IsActive === 'T' || r.isActive === 'T' || r.IsActive === true),
+    SacrificeCategory_Id: r.SacrificeCategory_Id != null ? Number(r.SacrificeCategory_Id) : null,
   }));
 }
 

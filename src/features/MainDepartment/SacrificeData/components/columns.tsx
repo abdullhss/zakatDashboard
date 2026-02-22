@@ -1,12 +1,19 @@
 // src/features/sacrifices/table/columns.tsx
 import React from "react";
-import { Text, VStack, Switch } from "@chakra-ui/react";
+import { Text, VStack } from "@chakra-ui/react";
 import type { AnyRec } from "../../../../api/apiClient";
 import type { SacrificeRow } from "../helpers/types";
-import { formatLYD } from "../helpers/types";
+import { formatLYD, getSacrificeCategoryLabel } from "../helpers/types";
 
 export function buildColumns() {
   return [
+    {
+      key: "SacrificeCategory_Id",
+      header: "النوع",
+      render: (r: AnyRec) => (
+        <Text color="gray.700">{getSacrificeCategoryLabel((r as SacrificeRow).SacrificeCategory_Id)}</Text>
+      ),
+    },
     {
       key: "Name",
       header: "اسم النوع",

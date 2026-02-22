@@ -29,7 +29,7 @@ const ZakatFitrSanfReport = () => {
     },
     {
       key: "InQty",
-      header: "الكمية الداخلة",
+      header: "المخزون",
       render: (row) => row.InQty ?? 0,
     },
     {
@@ -39,8 +39,18 @@ const ZakatFitrSanfReport = () => {
     },
     {
       key: "OrderQty",
-      header: "الكمية المطلوبة",
+      header: "الفطرات المطلوبة",
       render: (row) => row.OrderQty ?? 0,
+    },
+    {
+      key: "AvailableQty",
+      header: "الفطرات المتاحة",
+      render: (row) => (row.OrderQty && row.InQty ? row.InQty - row.OrderQty : 0),
+    },
+    {
+      key: "remainQty",
+      header: "الكمية المتبقية",
+      render: (row) => (row.OutQty && row.InQty ? row.InQty - row.OutQty : 0),
     },
   ];
 

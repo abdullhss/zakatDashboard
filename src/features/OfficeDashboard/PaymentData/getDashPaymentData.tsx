@@ -30,7 +30,7 @@ export default function GetDashPaymentData() {
         { key: "Id", header: "رقم المعاملة", render: (row: AnyRec) => row.Id ?? '—', },
         { key: "review", header: "مراجعة", render: (row: AnyRec) => <Button>مراجعة</Button>, },
         { key: "OfficeName", header: "المكتب", render: (row: AnyRec) => row.OfficeName ?? '—' },
-        { key: "PaymentDate", header: "تاريخ الدفع", render: (row: AnyRec) => row.PaymentDate ? new Date(row.PaymentDate).toLocaleDateString("ar-EG") : '—', },
+        { key: "PaymentDate", header: "تاريخ الدفع", render: (row: AnyRec) => row.PaymentDate ? new Date(row.PaymentDate).toLocaleDateString() : '—', },
         { key: "PaymentValue", header: "المبلغ", render: (row: AnyRec) => (<Text fontWeight="700" color="green.600">{row.PaymentValue ?? '0'} د.ل.</Text>) },
         { key: "PaymentWayName", header: "طريقة الدفع", render: (row: AnyRec) => row.PaymentWayName ?? '—' },
         { key: "IsApproved", header: "الحالة", render: (row: AnyRec) => row.IsApproved ? 'موافقة' : 'معلقة' },
@@ -38,7 +38,7 @@ export default function GetDashPaymentData() {
         { key: "ActionName", header: "نوع الخدمة", render: (row: AnyRec) => row.ActionName ?? '—' }, 
         { key: "ProjectName", header: "اسم المشروع", render: (row: AnyRec) => row.ProjectName ?? '—' }, 
         { key: "SubventionTypeName", header: "نوع الإعانة", render: (row: AnyRec) => row.SubventionTypeName ?? '—' }, 
-        { key: "AttachmentPhotoName", header: "الوصل", render: (row: AnyRec) => row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}.jpg`} isExternal color="blue.500">وصل</Link> : '—', },
+        { key: "AttachmentPhotoName", header: "الوصل", render: (row: AnyRec) => row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}.jpg`} isExternal color="blue.500">الايصال</Link> : '—', },
     ];
     const [page, setPage] = useState(1);
     const limit = PAGE_SIZE;
