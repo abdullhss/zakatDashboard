@@ -108,7 +108,7 @@ export default function MainNavBarOfficeDepartment() {
       {renderLink("newsdata", "الأخبار", RiNewspaperLine)}
       {renderLink("sacrificesDashData", "طلبات الاضاحي", GiSheep)}
       {renderLink("assistanceData", "طلبات الاعانة", GiChecklist)}
-      {renderLink("fitrZakat", "زكاة الفطر", GiFoodChain)}
+      {/* {renderLink("fitrZakat", "زكاة الفطر", GiFoodChain)} */}
     </SidebarDropdown>
 
     {renderLink("paymentData", "المدفوعات", BsCashCoin)}
