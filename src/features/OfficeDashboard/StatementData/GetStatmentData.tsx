@@ -11,21 +11,15 @@ import {
   Select,
   Input,
   HStack,
-  SimpleGrid,
   Button,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
 } from "@chakra-ui/react";
 import { useGetOfficePayment } from "./hooks/useGetDashBankStatmentData";
 import { useGetDashBankData } from "../../MainDepartment/Offices/hooks/useGetDashBankData";
 import { getSession } from "../../../session";
 import DataTable from "../../../Components/Table/DataTable";
+import Pagination from "../../../Components/Table/Pagination"; // adjust path if needed
 
+// Helper to format date as MM-DD-YYYY
 function formatDateToMMDDYYYY(date: string | Date): string {
   const d = new Date(date);
   const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -34,7 +28,7 @@ function formatDateToMMDDYYYY(date: string | Date): string {
   return `${month}-${day}-${year}`;
 }
 
-// ✅ طباعة كشف الحساب بشكل رسمي يحتوي على اسم المكتب + الفترة + الإجماليات
+// Print function (unchanged)
 function printAllOperations(rows: any[], officeName: string, fromDate: string, toDate: string) {
   if (!rows.length) {
     alert("لا توجد بيانات للطباعة.");
@@ -133,30 +127,28 @@ function printAllOperations(rows: any[], officeName: string, fromDate: string, t
 }
 
 export default function GetStatmentData() {
-  const { officeId, officeName } = getSession(); // ✅ نجيب اسم المكتب من الـ session
+  const { officeId, officeName } = getSession();
 
+  // All hooks must be called unconditionally at the top level
   const {
     data: bankData,
     isLoading: bankLoading,
     isError: bankError,
   } = useGetDashBankData(officeId);
-  
+
   const [selectedAccount, setSelectedAccount] = useState<string>("");
   const today = new Date();
   const year = today.getFullYear();
 
-  const formatDate = (date) => date.toISOString().split("T")[0];
+  const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
-  const [fromDate, setFromDate] = useState(
-    `${year}-01-01`
-  );
+  const [fromDate, setFromDate] = useState(`${year}-01-01`);
+  const [toDate, setToDate] = useState(formatDate(today));
 
-  const [toDate, setToDate] = useState(
-    formatDate(today)
-  );
-  const [page, setPage] = useState(1);
-  const limit = 10;
-  const offset = useMemo(() => (page - 1) * limit, [page, limit]);
+  // Pagination for the API call (fetching up to 10,000 rows)
+  const [apiPage, setApiPage] = useState(1);
+  const limit = 10000;
+  const offset = useMemo(() => (apiPage - 1) * limit, [apiPage, limit]);
 
   const params = useMemo(
     () => ({
@@ -174,21 +166,27 @@ export default function GetStatmentData() {
     isError: statementError,
     error,
   } = useGetOfficePayment(params, offset, limit);
-  
-  if (bankLoading)
+
+  // Local pagination state for the displayed table
+  const [dataPage, setDataPage] = useState(1);
+
+  // Early returns after all hooks
+  if (bankLoading) {
     return (
       <Flex justify="center" p={10}>
         <Spinner size="xl" />
       </Flex>
     );
+  }
 
-  if (bankError)
+  if (bankError) {
     return (
       <Alert status="error" m={6}>
         <AlertIcon />
         حدث خطأ أثناء جلب الحسابات البنكية.
       </Alert>
     );
+  }
 
   const allAccounts = bankData?.rows ?? [];
   const officeAccounts = allAccounts.filter(
@@ -196,71 +194,112 @@ export default function GetStatmentData() {
   );
 
   const rows = statementData?.rows ?? [];
-  const PAYMENTS_COLUMNS: any[] = [
-    {
-      key: "PaymentDate",
-      header: "التاريخ",
-      render: (row: any) => {
-        const dateStr = row.PaymentDate;
-        return dateStr
-          ? new Date(dateStr).toLocaleDateString("en-GB") // اليوم/الشهر/السنة
-          : "—";
-      },
-    },
-    
-    {
-      key: "UserName",
-      header: "المستخدم",
-      render: (row: any) => row.UserName ?? "—",
-    },
-    
-    {
-      key: "ActionName",
-      header: "نوع العملية",
-      render: (row: any) => row.ActionName ?? "—",
-    },
-    {
-      key: "SubventionTypeName",
-      header: "اسم المشروع / الاعانة",
-      render: (row: any) => row.SubventionTypeName || row.ProjectName || "—",
-    },
-    {
-      key: "PaymentDesc",
-      header: "الوصف",
-      render: (row: any) => row.PaymentDesc ?? "—",
-    },
-    {
-      key: "DebitValue",
-      header: "القبض",
-      render: (row: any) => (
-        <Text fontWeight="600" color="green.600">
-          {row.DebitValue ?? 0}
-        </Text>
-      ),
-    },
-    {
-      key: "CreditValue",
-      header: "الصرف",
-      render: (row: any) => (
-        <Text fontWeight="600" color="red.600">
-          {row.CreditValue ?? 0}
-        </Text>
-      ),
-    },
-    {
-      key: "NetValue",
-      header: "الصافي",
-      render: (row: any) => {
-        const net = row.RunningTotal;
-        return (
-          <Text fontWeight="bold" color={net >= 0 ? "green.700" : "red.700"}>
-            {net}
-          </Text>
-        );
-      },
-    },
+
+  // --- Pagination for the displayed table (27 data rows per page) ---
+  const dataPageSize = 27; // number of actual data rows per page (excluding opening balance and page total)
+
+  const totalDataRows = rows.length;
+  const totalDataPages = Math.ceil(totalDataRows / dataPageSize);
+
+  // Slice the data for current page
+  const startIdx = (dataPage - 1) * dataPageSize;
+  const endIdx = Math.min(startIdx + dataPageSize, totalDataRows);
+  const dataRowsForPage = rows.slice(startIdx, endIdx);
+
+  // Cumulative totals before this page (for opening balance row)
+  const previousRows = rows.slice(0, startIdx);
+  const previousTotalDebit = previousRows.reduce((sum, r) => sum + (Number(r.DebitValue) || 0), 0);
+  const previousTotalCredit = previousRows.reduce((sum, r) => sum + (Number(r.CreditValue) || 0), 0);
+  const previousNet = previousTotalDebit - previousTotalCredit;
+
+  // Totals for the current page (for page total row)
+  const pageDebit = dataRowsForPage.reduce((sum, r) => sum + (Number(r.DebitValue) || 0), 0);
+  const pageCredit = dataRowsForPage.reduce((sum, r) => sum + (Number(r.CreditValue) || 0), 0);
+  const pageNet = pageDebit - pageCredit;
+
+  // Cumulative totals including previous balance (for page total row)
+  const cumulativeDebit = previousTotalDebit + pageDebit;
+  const cumulativeCredit = previousTotalCredit + pageCredit;
+  const cumulativeNet = cumulativeDebit - cumulativeCredit; // same as previousNet + pageNet
+
+  // Get bank name from selected account
+  const selectedAccountObj = officeAccounts.find(acc => acc.accountNumber === selectedAccount);
+  const bankName = selectedAccountObj?.bankName || '—';
+
+  // Build the rows to display (1 opening balance + up to 27 data rows + 1 page total)
+  const displayRows = [];
+
+  // 1. Opening balance / previous cumulative row
+  displayRows.push({
+    id: 'prev',
+    officeName: officeName || '—',
+    accountNum: selectedAccount,
+    bankName: bankName,
+    operationId: '—',
+    seqNum: '—',
+    paymentMethod: '—',
+    paymentDate: '—',
+    description: dataPage === 1 ? 'رصيد أول المدة' : 'رصيد ماقبله',
+    subventionType: '—',
+    debit: previousTotalDebit,
+    credit: previousTotalCredit,
+    net: previousNet,
+  });
+
+  // 2. Data rows (up to 27)
+  dataRowsForPage.forEach((row) => {
+    displayRows.push({
+      id: row.Id,
+      officeName: row.OfficeName || officeName || '—',
+      accountNum: row.AccountNum || selectedAccount,
+      bankName: row.BankName || bankName,
+      operationId: row.Id,
+      seqNum: row.row_num || '—',
+      paymentMethod: row.ActionName || '—',
+      paymentDate: row.PaymentDate ? new Date(row.PaymentDate).toLocaleDateString('en-GB') : '—',
+      description: row.PaymentDesc || '—',
+      subventionType: row.SubventionTypeName || '—',
+      debit: Number(row.DebitValue) || 0,
+      credit: Number(row.CreditValue) || 0,
+      net: Number(row.RunningTotal) || 0,
+    });
+  });
+
+  // 3. Page total row (only if there is at least one data row)
+  if (dataRowsForPage.length > 0) {
+    displayRows.push({
+      id: 'page-total',
+      officeName: officeName || '—',
+      accountNum: selectedAccount,
+      bankName: bankName,
+      operationId: '—',
+      seqNum: '—',
+      paymentMethod: '—',
+      paymentDate: '—',
+      description: 'إجمالي الصفحة',
+      subventionType: '—',
+      debit: cumulativeDebit,
+      credit: cumulativeCredit,
+      net: cumulativeNet,
+    });
+  }
+
+  // Column definitions for DataTable
+  const columns = [
+    { header: 'اسم المكتب', accessor: 'officeName', isNumeric: false },
+    { header: 'رقم الحساب', accessor: 'accountNum', isNumeric: false },
+    { header: 'نوع الحساب', accessor: 'bankName', isNumeric: false },
+    { header: 'رقم العملية', accessor: 'operationId', isNumeric: false },
+    { header: 'رقم التسلسل', accessor: 'seqNum', isNumeric: false },
+    { header: 'طريقة الدفع', accessor: 'paymentMethod', isNumeric: false },
+    { header: 'تاريخ العملية', accessor: 'paymentDate', isNumeric: false },
+    { header: 'الوصف', accessor: 'description', isNumeric: false },
+    { header: 'نوع الإعانة', accessor: 'subventionType', isNumeric: false },
+    { header: 'إيرادات', accessor: 'debit', isNumeric: true },
+    { header: 'مصروفات', accessor: 'credit', isNumeric: true },
+    { header: 'الإجمالي الكلي', accessor: 'net', isNumeric: true },
   ];
-  
+
   return (
     <Box p={6} dir="rtl">
       <VStack align="stretch" spacing={6}>
@@ -272,7 +311,7 @@ export default function GetStatmentData() {
           المكتب: {officeName || "غير معروف"}
         </Text>
 
-        {/* 🔹 اختيار الحساب البنكي */}
+        {/* Bank account selection */}
         <Box>
           <Text mb={2} fontWeight="600" color="gray.700">
             اختر رقم الحساب البنكي:
@@ -282,7 +321,10 @@ export default function GetStatmentData() {
             px={3}
             placeholder="اختر رقم الحساب"
             value={selectedAccount}
-            onChange={(e) => setSelectedAccount(e.target.value)}
+            onChange={(e) => {
+              setSelectedAccount(e.target.value);
+              setDataPage(1); // reset data page when account changes
+            }}
           >
             {officeAccounts.map((acc: any) => (
               <option key={acc.id} value={acc.accountNumber}>
@@ -292,7 +334,7 @@ export default function GetStatmentData() {
           </Select>
         </Box>
 
-        {/* 🔹 فلاتر التاريخ */}
+        {/* Date filters */}
         <HStack spacing={4}>
           <Box flex="1">
             <Text mb={1} fontWeight="600" color="gray.700">
@@ -301,7 +343,10 @@ export default function GetStatmentData() {
             <Input
               type="date"
               value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
+              onChange={(e) => {
+                setFromDate(e.target.value);
+                setDataPage(1);
+              }}
             />
           </Box>
 
@@ -312,12 +357,15 @@ export default function GetStatmentData() {
             <Input
               type="date"
               value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
+              onChange={(e) => {
+                setToDate(e.target.value);
+                setDataPage(1);
+              }}
             />
           </Box>
         </HStack>
 
-        {/* 🔹 عرض بيانات كشف الحساب */}
+        {/* Data display */}
         {statementLoading ? (
           <Flex justify="center" p={8}>
             <Spinner size="lg" />
@@ -330,68 +378,55 @@ export default function GetStatmentData() {
           </Alert>
         ) : selectedAccount ? (
           rows.length > 0 ? (
-              <>
-                <Flex justify="end" mb={3}>
-                  <Button
-                    colorScheme="green"
-                    size="sm"
-                    onClick={() =>
-                      printAllOperations(rows, officeName, fromDate, toDate)
+            <>
+              <Flex justify="end" mb={3}>
+                <Button
+                  colorScheme="green"
+                  size="sm"
+                  onClick={() =>
+                    printAllOperations(rows, officeName, fromDate, toDate)
+                  }
+                >
+                  🖨️ طباعة كشف الحساب بالكامل
+                </Button>
+              </Flex>
+
+              {/* DataTable with custom rows */}
+              <Box borderWidth="1px" borderRadius="xl" overflow="hidden" p={4}>
+                <DataTable
+                  data={displayRows}
+                  columns={columns.map(col => ({
+                    key: col.accessor,
+                    header: col.header,
+                    render: (row: any) => {
+                      let value = row[col.accessor];
+                      if (col.isNumeric && typeof value === 'number') {
+                        value = value.toFixed(2);
+                      }
+                      return value;
                     }
-                  >
-                    🖨️ طباعة كشف الحساب بالكامل
-                  </Button>
-                </Flex>
+                  }))}
+                  viewHashTag={false} // we have our own "رقم التسلسل" column
+                  // Pass a function to style the page total row
+                  getRowProps={(row: any) => ({
+                    bg: row.id === 'page-total' ? 'gray.50' : undefined,
+                  })}
+                />
 
-                {/* ✅ نحسب الإجماليات */}
-                {(() => {
-                  const totalDebit = rows.reduce(
-                    (sum, r) => sum + (Number(r.DebitValue) || 0),
-                    0
-                  );
-                  const totalCredit = rows.reduce(
-                    (sum, r) => sum + (Number(r.CreditValue) || 0),
-                    0
-                  );
-                  const totalNet = totalDebit - totalCredit;
-
-                  return (
-                    <Box borderWidth="1px" borderRadius="xl" overflow="hidden" p={4}>
-                      <DataTable
-                        columns={PAYMENTS_COLUMNS}
-                        data={rows}
-                        page={page}
-                        pageSize={limit}
-                        onPageChange={setPage}
-                        totalRows={
-                          Number(statementData?.decrypted.data.Result[0].OfficePaymentsCount) || 1
-                        }
-                        totals={{
-                          PaymentDate: "الإجمالي:",
-                          DebitValue: (
-                            <Text fontWeight="bold" color="green.700">
-                              {totalDebit.toFixed(2)}
-                            </Text>
-                          ),
-                          CreditValue: (
-                            <Text fontWeight="bold" color="red.700">
-                              {totalCredit.toFixed(2)}
-                            </Text>
-                          ),
-                          NetValue: (
-                            <Text
-                              fontWeight="bold"
-                              color={totalNet >= 0 ? "green.700" : "red.700"}
-                            >
-                              {totalNet.toFixed(2)}
-                            </Text>
-                          ),
-                        }}
-                      />
-                    </Box>
-                  );
-                })()}
-              </>
+                {/* Pagination component for page selection */}
+                {rows.length > 0 && (
+                  <Flex justify="center" mt={4}>
+                    <Pagination
+                      page={dataPage}
+                      pageSize={dataPageSize}
+                      totalRows={totalDataRows}
+                      onPageChange={setDataPage}
+                      maxVisible={5}
+                    />
+                  </Flex>
+                )}
+              </Box>
+            </>
           ) : (
             <Text color="gray.500" textAlign="center">
               لا توجد بيانات متاحة لهذا الحساب في هذا النطاق الزمني.
