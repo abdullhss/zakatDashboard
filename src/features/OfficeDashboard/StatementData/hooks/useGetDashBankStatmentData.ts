@@ -1,4 +1,4 @@
-// src/features/BankStatements/hooks/useGetDashBankStatmentData.ts
+// src/features/BankStatements/hooks/useGetDashBankStatmentData.ts (بعد التعديل)
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import {
@@ -8,14 +8,12 @@ import {
 import type { NormalizedSummary, AnyRec } from "../../../../api/apiClient";
 import { getSession } from "../../../../session";
 
-// ✅ شكل البيانات اللي بترجع بعد التحليل
 export interface BankStatementData {
   rows: AnyRec[];
   totalRows: number | null;
-  decrypted:any;
+  decrypted: any;
 }
 
-// ✅ دالة لتنسيق التاريخ لصيغة MM-dd-yyyy
 function formatDateToMMDDYYYY(date: string | Date): string {
   const d = new Date(date);
   const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -24,9 +22,6 @@ function formatDateToMMDDYYYY(date: string | Date): string {
   return `${month}-${day}-${year}`;
 }
 
-/**
- * 🔹 هوك React Query لجلب كشف الحساب البنكي مع فلترة بالتاريخ
- */
 export function useGetOfficePayment(
   params: StatementParams,
   offset: number = 0,
@@ -34,7 +29,6 @@ export function useGetOfficePayment(
 ): UseQueryResult<BankStatementData, Error> {
   const { officeId } = getSession();
 
-  // ✅ تنسيق التاريخين قبل إرسالهم في البارامترات
   const formattedParams = {
     ...params,
     officeId: params.officeId ?? officeId ?? 0,
@@ -42,17 +36,14 @@ export function useGetOfficePayment(
     toDate: formatDateToMMDDYYYY(params.toDate),
   };
 
-  // ✅ نمنع الكويري إلا لو في رقم حساب + تاريخين صالحين
+  // ✅ الشرط الآن: التاريخين فقط مطلوبين، رقم الحساب يمكن أن يكون فارغًا
   const isReady =
-    Boolean(formattedParams.accountNum) &&
-    Boolean(formattedParams.fromDate) &&
-    Boolean(formattedParams.toDate);
+    Boolean(formattedParams.fromDate) && Boolean(formattedParams.toDate);
 
-  // ✅ مفتاح الكويري عشان React Query تعرف تميّز الطلبات المختلفة
   const queryKey = [
     "bank-statement",
     formattedParams.officeId,
-    formattedParams.accountNum,
+    formattedParams.accountNum, // سيظل جزءًا من المفتاح حتى لو كان فارغًا
     formattedParams.fromDate,
     formattedParams.toDate,
     offset,
@@ -75,7 +66,7 @@ export function useGetOfficePayment(
       return {
         rows: summary.rows,
         totalRows: summary.totalRows,
-        decrypted:summary.decrypted
+        decrypted: summary.decrypted,
       };
     },
     staleTime: 60_000,
