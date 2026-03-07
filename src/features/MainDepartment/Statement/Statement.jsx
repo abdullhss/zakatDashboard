@@ -56,55 +56,32 @@ function getCurrentUserId() {
   return 1;
 }
 
-// دالة الطباعة المطورة (مع الأعمدة الجديدة)
-function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName) {
-  if (!rows.length) {
+// ========== دالة الطباعة الجديدة (لطباعة الصفحة الحالية) ==========
+function printStatement(rowsToPrint, officeName, fromDate, toDate, accountNum, bankName) {
+  if (!rowsToPrint.length) {
     alert("لا توجد بيانات للطباعة.");
     return;
   }
 
-  // حساب الرصيد الافتتاحي
-  const first = rows[0];
-  const openingBalance = first.RunningTotal - (first.DebitValue - first.CreditValue);
-
-  // إجماليات
-  const totalDebit = rows.reduce((sum, r) => sum + (Number(r.DebitValue) || 0), 0);
-  const totalCredit = rows.reduce((sum, r) => sum + (Number(r.CreditValue) || 0), 0);
-  const finalBalance = rows[rows.length - 1]?.RunningTotal || 0;
-
-  // بناء صفوف الجدول (مع الرصيد الافتتاحي)
-  let tableRows = `
-    <tr>
-      <td>—</td> <!-- اسم المكتب -->
-      <td>${accountNum || '—'}</td> <!-- رقم الحساب -->
-      <td>${bankName || '—'}</td> <!-- نوع الحساب -->
-      <td>—</td> <!-- رقم العملية -->
-      <td>—</td> <!-- رقم التسلسل -->
-      <td>—</td> <!-- طريقة الدفع -->
-      <td>—</td> <!-- تاريخ العملية -->
-      <td>رصيد أول المدة</td> <!-- الوصف -->
-      <td>—</td> <!-- نوع الإعانة -->
-      <td>0.00</td> <!-- إيرادات -->
-      <td>0.00</td> <!-- مصروفات -->
-      <td>${openingBalance.toFixed(2)}</td> <!-- الإجمالي الكلي -->
-    </tr>
-  `;
-
-  rows.forEach((row) => {
+  // بناء صفوف الجدول من المصفوفة المعروضة (displayRows)
+  let tableRows = '';
+  rowsToPrint.forEach(row => {
+    // تمييز صف الإجمالي بلون خلفية مختلف (اختياري)
+    const rowStyle = row.id === 'page-total' ? ' style="background-color: #e8f5e9; font-weight: bold;"' : '';
     tableRows += `
-      <tr>
-        <td>${row.OfficeName || '—'}</td>
-        <td>${row.AccountNum || '—'}</td>
-        <td>${row.BankName || '—'}</td>
-        <td>${row.Id || '—'}</td>
-        <td>${row.SystemReference || '—'}</td>
-        <td>${row.PaymentMethodName || '—'}</td>
-        <td>${formatDateForDisplay(row.PaymentDate)}</td>
-        <td>${row.PaymentDesc || '—'}</td>
-        <td>${row.SubventionTypeName || '—'}</td>
-        <td>${(Number(row.DebitValue) || 0).toFixed(2)}</td>
-        <td>${(Number(row.CreditValue) || 0).toFixed(2)}</td>
-        <td>${(Number(row.RunningTotal) || 0).toFixed(2)}</td>
+      <tr${rowStyle}>
+        <td>${row.officeName || '—'}</td>
+        <td>${row.accountNum || '—'}</td>
+        <td>${row.bankName || '—'}</td>
+        <td>${row.operationId || '—'}</td>
+        <td>${row.systemReference || '—'}</td>
+        <td>${row.paymentMethod || '—'}</td>
+        <td>${row.paymentDate || '—'}</td>
+        <td>${row.description || '—'}</td>
+        <td>${row.subventionType || '—'}</td>
+        <td>${(row.debit || 0).toFixed(2)}</td>
+        <td>${(row.credit || 0).toFixed(2)}</td>
+        <td>${(row.net || 0).toFixed(2)}</td>
       </tr>
     `;
   });
@@ -113,7 +90,7 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
     <html dir="rtl">
     <head>
       <meta charset="UTF-8" />
-      <title>كشف حساب المكتب</title>
+      <title>كشف حساب المكتب - الصفحة الحالية</title>
       <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 30px; }
         h2 { text-align: center; margin-bottom: 5px; }
@@ -121,16 +98,16 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
         th, td { border: 1px solid #444; padding: 6px; text-align: center; }
         th { background-color: #f2f2f2; }
-        tfoot td { font-weight: bold; background: #e8f5e9; }
         .info { text-align: center; margin-top: 10px; color: #555; }
         .footer { text-align: center; margin-top: 20px; font-size: 13px; color: #777; }
       </style>
     </head>
     <body>
-      <h2>📄 كشف حساب العمليات المالية</h2>
+      <h2>📄 كشف حساب العمليات المالية (الصفحة الحالية)</h2>
       <h3>${officeName || "اسم المكتب غير متاح"}</h3>
       <div class="info">
         <strong>الفترة:</strong> من ${fromDate} إلى ${toDate}<br>
+        <strong>رقم الحساب:</strong> ${accountNum} - ${bankName}<br>
         <strong>تاريخ الطباعة:</strong> ${new Date().toLocaleDateString()}
       </div>
 
@@ -154,14 +131,6 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
         <tbody>
           ${tableRows}
         </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="9">الإجمالي</td>
-            <td>${totalDebit.toFixed(2)}</td>
-            <td>${totalCredit.toFixed(2)}</td>
-            <td>${finalBalance.toFixed(2)}</td>
-          </tr>
-        </tfoot>
       </table>
 
       <div class="footer">
@@ -178,6 +147,13 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
     newWin.print();
   }
 }
+
+// (اختياري) يمكنك إبقاء الدالة القديمة معلقة للرجوع إليها لاحقاً
+/*
+function printAllStatement(rows, officeName, fromDate, toDate, accountNum, bankName) {
+  // ... الكود القديم ...
+}
+*/
 
 export default function MainStatement() {
   const userId = getCurrentUserId();
@@ -481,7 +457,7 @@ export default function MainStatement() {
           </Box>
         </HStack>
 
-        {/* عرض البيانات - المعدل لإظهار الجدول فور وجود بيانات */}
+        {/* عرض البيانات */}
         {statementLoading ? (
           <Flex justify="center" p={8}>
             <Spinner size="lg" />
@@ -516,10 +492,11 @@ export default function MainStatement() {
                     const intAcc = internationalBankAccountsData.find(a => a.AccountNum === selectedInternationalAccount);
                     bankNameForPrint = intAcc?.BankName || "—";
                   }
-                  printStatement(rows, officeNameForPrint, fromDate, toDate, accountNumForPrint, bankNameForPrint);
+                  // استدعاء دالة الطباعة الجديدة وتمرير displayRows
+                  printStatement(displayRows, officeNameForPrint, fromDate, toDate, accountNumForPrint, bankNameForPrint);
                 }}
               >
-                🖨️ طباعة كشف الحساب بالكامل
+                🖨️ طباعة الصفحة الحالية
               </Button>
             </Flex>
 
