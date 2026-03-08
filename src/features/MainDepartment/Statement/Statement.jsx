@@ -17,9 +17,10 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  Tr
 } from "@chakra-ui/react";
 
-import DataTable from "../../../Components/Table/DataTable";
+import DataTable, { TableDataCell } from "../../../Components/Table/DataTable";
 import Pagination from "../../../Components/Table/Pagination";
 import { useGetOfficePayment } from "../../../features/OfficeDashboard/StatementData/hooks/useGetDashBankStatmentData";
 import { useGetDashBankData } from "../../MainDepartment/Offices/hooks/useGetDashBankData";
@@ -56,58 +57,98 @@ function getCurrentUserId() {
   return 1;
 }
 
-// دالة الطباعة المطورة (مع الأعمدة الجديدة)
-function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName) {
+// دالة الطباعة المطورة - تطبع كل الصفحات مع إضافة صف الرصيد الافتتاحي وصف الإجمالي بعد كل 27 صف
+function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName, pageSize = 27) {
   if (!rows.length) {
     alert("لا توجد بيانات للطباعة.");
     return;
   }
 
-  // حساب الرصيد الافتتاحي
-  const first = rows[0];
-  const openingBalance = first.RunningTotal - (first.DebitValue - first.CreditValue);
-
-  // إجماليات
+  // إجماليات عامة
   const totalDebit = rows.reduce((sum, r) => sum + (Number(r.DebitValue) || 0), 0);
   const totalCredit = rows.reduce((sum, r) => sum + (Number(r.CreditValue) || 0), 0);
   const finalBalance = rows[rows.length - 1]?.RunningTotal || 0;
 
-  // بناء صفوف الجدول (مع الرصيد الافتتاحي)
-  let tableRows = `
-    <tr>
-      <td>—</td> <!-- اسم المكتب -->
-      <td>${accountNum || '—'}</td> <!-- رقم الحساب -->
-      <td>${bankName || '—'}</td> <!-- نوع الحساب -->
-      <td>—</td> <!-- رقم العملية -->
-      <td>—</td> <!-- رقم التسلسل -->
-      <td>—</td> <!-- طريقة الدفع -->
-      <td>—</td> <!-- تاريخ العملية -->
-      <td>رصيد أول المدة</td> <!-- الوصف -->
-      <td>—</td> <!-- نوع الإعانة -->
-      <td>0.00</td> <!-- إيرادات -->
-      <td>0.00</td> <!-- مصروفات -->
-      <td>${openingBalance.toFixed(2)}</td> <!-- الإجمالي الكلي -->
-    </tr>
-  `;
+  // بداية بناء HTML
+  let tableRows = '';
 
-  rows.forEach((row) => {
+  // تقسيم البيانات إلى صفحات
+  for (let i = 0; i < rows.length; i += pageSize) {
+    const pageRows = rows.slice(i, i + pageSize);
+    const startIdx = i;
+
+    // حساب المجاميع قبل هذه الصفحة
+    const prevRows = rows.slice(0, startIdx);
+    const prevDebit = prevRows.reduce((sum, r) => sum + (Number(r.DebitValue) || 0), 0);
+    const prevCredit = prevRows.reduce((sum, r) => sum + (Number(r.CreditValue) || 0), 0);
+    const prevNet = prevDebit - prevCredit;
+
+    // حساب مجاميع الصفحة
+    let pageDebit = 0, pageCredit = 0;
+    pageRows.forEach(r => {
+      pageDebit += Number(r.DebitValue) || 0;
+      pageCredit += Number(r.CreditValue) || 0;
+    });
+    const pageNet = pageRows[pageRows.length - 1]?.RunningTotal || 0; // الرصيد بعد الصفحة
+
+    // المجاميع التراكمية بعد الصفحة (لصف إجمالي الصفحة)
+    const cumulativeDebit = prevDebit + pageDebit;
+    const cumulativeCredit = prevCredit + pageCredit;
+    const cumulativeNet = cumulativeDebit - cumulativeCredit; // يساوي pageNet
+
+    // صف الرصيد الافتتاحي للصفحة (مدمج)
+    const openingText = i === 0 ? 'رصيد أول المدة' : 'رصيد ما قبله';
     tableRows += `
-      <tr>
-        <td>${row.OfficeName || '—'}</td>
-        <td>${row.AccountNum || '—'}</td>
-        <td>${row.BankName || '—'}</td>
-        <td>${row.Id || '—'}</td>
-        <td>${row.SystemReference || '—'}</td>
-        <td>${row.PaymentMethodName || '—'}</td>
-        <td>${formatDateForDisplay(row.PaymentDate)}</td>
-        <td>${row.PaymentDesc || '—'}</td>
-        <td>${row.SubventionTypeName || '—'}</td>
-        <td>${(Number(row.DebitValue) || 0).toFixed(2)}</td>
-        <td>${(Number(row.CreditValue) || 0).toFixed(2)}</td>
-        <td>${(Number(row.RunningTotal) || 0).toFixed(2)}</td>
+      <tr class="opening-row">
+        <td colspan="9">${openingText}</td>
+        <td>${prevDebit.toFixed(2)}</td>
+        <td>${prevCredit.toFixed(2)}</td>
+        <td>${prevNet.toFixed(2)}</td>
       </tr>
     `;
-  });
+
+    // صفوف البيانات
+    pageRows.forEach(row => {
+      const debit = Number(row.DebitValue) || 0;
+      const credit = Number(row.CreditValue) || 0;
+      tableRows += `
+        <tr>
+          <td>${row.OfficeName || '—'}</td>
+          <td>${row.AccountNum || '—'}</td>
+          <td>${row.BankName || '—'}</td>
+          <td>${row.Id || '—'}</td>
+          <td>${row.SystemReference || '—'}</td>
+          <td>${row.PaymentMethodName || '—'}</td>
+          <td>${formatDateForDisplay(row.PaymentDate)}</td>
+          <td>${row.PaymentDesc || '—'}</td>
+          <td>${row.SubventionTypeName || '—'}</td>
+          <td>${debit.toFixed(2)}</td>
+          <td>${credit.toFixed(2)}</td>
+          <td>${(Number(row.RunningTotal) || 0).toFixed(2)}</td>
+        </tr>
+      `;
+    });
+
+    // صف إجمالي الصفحة (مدمج)
+    tableRows += `
+      <tr class="page-total">
+        <td colspan="9">إجمالي الصفحة</td>
+        <td>${cumulativeDebit.toFixed(2)}</td>
+        <td>${cumulativeCredit.toFixed(2)}</td>
+        <td>${cumulativeNet.toFixed(2)}</td>
+      </tr>
+    `;
+  }
+
+  // صف الإجمالي العام (اختياري)
+  tableRows += `
+    <tr class="grand-total">
+      <td colspan="9">الإجمالي العام</td>
+      <td>${totalDebit.toFixed(2)}</td>
+      <td>${totalCredit.toFixed(2)}</td>
+      <td>${finalBalance.toFixed(2)}</td>
+    </tr>
+  `;
 
   const printContent = `
     <html dir="rtl">
@@ -121,7 +162,9 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
         th, td { border: 1px solid #444; padding: 6px; text-align: center; }
         th { background-color: #f2f2f2; }
-        tfoot td { font-weight: bold; background: #e8f5e9; }
+        .opening-row { background-color: #e8f4f8; }
+        .page-total { background-color: #fff3cd; font-weight: bold; }
+        .grand-total { background-color: #d4edda; font-weight: bold; }
         .info { text-align: center; margin-top: 10px; color: #555; }
         .footer { text-align: center; margin-top: 20px; font-size: 13px; color: #777; }
       </style>
@@ -131,6 +174,8 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
       <h3>${officeName || "اسم المكتب غير متاح"}</h3>
       <div class="info">
         <strong>الفترة:</strong> من ${fromDate} إلى ${toDate}<br>
+        <strong>رقم الحساب:</strong> ${accountNum}<br>
+        <strong>البنك:</strong> ${bankName}<br>
         <strong>تاريخ الطباعة:</strong> ${new Date().toLocaleDateString()}
       </div>
 
@@ -154,14 +199,6 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
         <tbody>
           ${tableRows}
         </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="9">الإجمالي</td>
-            <td>${totalDebit.toFixed(2)}</td>
-            <td>${totalCredit.toFixed(2)}</td>
-            <td>${finalBalance.toFixed(2)}</td>
-          </tr>
-        </tfoot>
       </table>
 
       <div class="footer">
@@ -369,6 +406,34 @@ export default function MainStatement() {
     { header: 'الإجمالي الكلي', accessor: 'net', isNumeric: true },
   ];
 
+  const renderSpecialRow = (row, index) => {
+    // التحقق من أن الصف هو الصف الأول (id='prev') أو الأخير (id='page-total')
+    if (row.id === 'prev' || row.id === 'page-total') {
+      // إيجاد أول عمود رقمي (isNumeric = true)
+      const firstNumericIndex = columns.findIndex(col => col.isNumeric);
+      // عدد الأعمدة غير الرقمية = firstNumericIndex (في هذه الحالة 9)
+      const colSpan = firstNumericIndex; // 9
+
+      return (
+        <Tr
+          key={row.id}
+          bg={row.id === 'page-total' ? 'gray.50' : undefined}
+        >
+          {/* الخلية المدمجة: تحتوي على الوصف (رصيد أول المدة أو إجمالي الصفحة) - توسيط */}
+          <TableDataCell colSpan={colSpan} fontWeight="700" textAlign="center">
+            {row.systemReference}
+          </TableDataCell>
+          {/* الخلايا الرقمية الثلاث - توسيط */}
+          <TableDataCell isNumeric textAlign="center">{row.debit.toFixed(2)}</TableDataCell>
+          <TableDataCell isNumeric textAlign="center">{row.credit.toFixed(2)}</TableDataCell>
+          <TableDataCell isNumeric textAlign="center">{row.net.toFixed(2)}</TableDataCell>
+        </Tr>
+      );
+    }
+    // للصفوف الأخرى نرجع null لاستخدام الرسم الافتراضي
+    return null;
+  };
+
   return (
     <Box p={6} dir="rtl">
       <VStack align="stretch" spacing={6}>
@@ -481,7 +546,7 @@ export default function MainStatement() {
           </Box>
         </HStack>
 
-        {/* عرض البيانات - المعدل لإظهار الجدول فور وجود بيانات */}
+        {/* عرض البيانات */}
         {statementLoading ? (
           <Flex justify="center" p={8}>
             <Spinner size="lg" />
@@ -516,7 +581,8 @@ export default function MainStatement() {
                     const intAcc = internationalBankAccountsData.find(a => a.AccountNum === selectedInternationalAccount);
                     bankNameForPrint = intAcc?.BankName || "—";
                   }
-                  printStatement(rows, officeNameForPrint, fromDate, toDate, accountNumForPrint, bankNameForPrint);
+                  // تمرير dataPageSize ليطبع كل الصفحات بنفس التقسيم
+                  printStatement(rows, officeNameForPrint, fromDate, toDate, accountNumForPrint, bankNameForPrint, dataPageSize);
                 }}
               >
                 🖨️ طباعة كشف الحساب بالكامل
@@ -538,9 +604,7 @@ export default function MainStatement() {
                   },
                 }))}
                 viewHashTag={false}
-                getRowProps={(row) => ({
-                  bg: row.id === "page-total" ? "gray.50" : undefined,
-                })}
+                renderRow={renderSpecialRow} // استخدام الدالة المخصصة لرسم الصفوف الخاصة
               />
 
               {rows.length > 0 && (

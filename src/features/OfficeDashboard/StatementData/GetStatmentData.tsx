@@ -12,11 +12,12 @@ import {
   Input,
   HStack,
   Button,
+  Tr,
 } from "@chakra-ui/react";
 import { useGetOfficePayment } from "./hooks/useGetDashBankStatmentData";
 import { useGetDashBankData } from "../../MainDepartment/Offices/hooks/useGetDashBankData";
 import { getSession } from "../../../session";
-import DataTable from "../../../Components/Table/DataTable";
+import DataTable, { TableDataCell } from "../../../Components/Table/DataTable";
 import Pagination from "../../../Components/Table/Pagination";
 
 // Helper to format date as MM-DD-YYYY (for API)
@@ -32,57 +33,103 @@ function formatDateToMMDDYYYY(date: string | Date): string {
 function formatDateForDisplay(dateString: string): string {
   if (!dateString) return "—";
   const d = new Date(dateString);
-  return d.toLocaleDateString("en-GB"); // dd/mm/yyyy
+  return d.toLocaleDateString("en-GB");
 }
 
-// Updated print function with opening balance row
+// Updated print function - prints all pages with opening and page total rows after every pageSize rows
 function printStatement(
   rows: any[],
   officeName: string,
   fromDate: string,
-  toDate: string
+  toDate: string,
+  pageSize: number = 27
 ) {
   if (!rows.length) {
     alert("لا توجد بيانات للطباعة.");
     return;
   }
 
-  // Calculate opening balance (balance before first transaction)
-  const first = rows[0];
-  const openingBalance = first.RunningTotal - (first.DebitValue - first.CreditValue);
-
-  // Calculate totals (only from transaction rows)
+  // Overall totals
   const totalDebit = rows.reduce((sum, r) => sum + (Number(r.DebitValue) || 0), 0);
   const totalCredit = rows.reduce((sum, r) => sum + (Number(r.CreditValue) || 0), 0);
   const finalBalance = rows[rows.length - 1]?.RunningTotal || 0;
 
-  // Build table rows: start with opening balance row
-  let tableRows = `
-    <tr>
-      <td>—</td>
-      <td>رصيد أول المدة</td>
-      <td>—</td>
-      <td>—</td>
-      <td>0.00</td>
-      <td>0.00</td>
-      <td>${openingBalance.toFixed(2)}</td>
-    </tr>
-  `;
+  // Start building HTML
+  let tableRows = "";
 
-  // Add transaction rows
-  rows.forEach((row) => {
+  // Loop through pages
+  for (let i = 0; i < rows.length; i += pageSize) {
+    const pageRows = rows.slice(i, i + pageSize);
+    const startIdx = i;
+
+    // Calculate balances before this page
+    const prevRows = rows.slice(0, startIdx);
+    const prevDebit = prevRows.reduce((sum, r) => sum + (Number(r.DebitValue) || 0), 0);
+    const prevCredit = prevRows.reduce((sum, r) => sum + (Number(r.CreditValue) || 0), 0);
+    const prevNet = prevDebit - prevCredit;
+
+    // Calculate page totals
+    let pageDebit = 0,
+      pageCredit = 0;
+    pageRows.forEach((r) => {
+      pageDebit += Number(r.DebitValue) || 0;
+      pageCredit += Number(r.CreditValue) || 0;
+    });
+    const pageNet = pageRows[pageRows.length - 1]?.RunningTotal || 0; // balance after this page
+
+    // Cumulative after page (for page total row)
+    const cumulativeDebit = prevDebit + pageDebit;
+    const cumulativeCredit = prevCredit + pageCredit;
+    const cumulativeNet = cumulativeDebit - cumulativeCredit; // equals pageNet
+
+    // Opening balance row (merged)
+    const openingText = i === 0 ? "رصيد أول المدة" : "رصيد ما قبله";
     tableRows += `
-      <tr>
-        <td>${row.Id ?? "—"}</td>
-        <td>${row.SystemReference ?? "—"}</td>
-        <td>${row.PaymentMethodName ?? "—"}</td>
-        <td>${formatDateForDisplay(row.PaymentDate)}</td>
-        <td>${(Number(row.DebitValue) || 0).toFixed(2)}</td>
-        <td>${(Number(row.CreditValue) || 0).toFixed(2)}</td>
-        <td>${(Number(row.RunningTotal) || 0).toFixed(2)}</td>
+      <tr class="opening-row">
+        <td colspan="4">${openingText}</td>
+        <td>${prevDebit.toFixed(2)}</td>
+        <td>${prevCredit.toFixed(2)}</td>
+        <td>${prevNet.toFixed(2)}</td>
       </tr>
     `;
-  });
+
+    // Data rows
+    pageRows.forEach((row) => {
+      const debit = Number(row.DebitValue) || 0;
+      const credit = Number(row.CreditValue) || 0;
+      tableRows += `
+        <tr>
+          <td>${row.Id ?? "—"}</td>
+          <td>${row.SystemReference ?? "—"}</td>
+          <td>${row.PaymentMethodName ?? "—"}</td>
+          <td>${formatDateForDisplay(row.PaymentDate)}</td>
+          <td>${debit.toFixed(2)}</td>
+          <td>${credit.toFixed(2)}</td>
+          <td>${(Number(row.RunningTotal) || 0).toFixed(2)}</td>
+        </tr>
+      `;
+    });
+
+    // Page total row (merged)
+    tableRows += `
+      <tr class="page-total">
+        <td colspan="4">إجمالي الصفحة</td>
+        <td>${cumulativeDebit.toFixed(2)}</td>
+        <td>${cumulativeCredit.toFixed(2)}</td>
+        <td>${cumulativeNet.toFixed(2)}</td>
+      </tr>
+    `;
+  }
+
+  // Grand total row (optional)
+  tableRows += `
+    <tr class="grand-total">
+      <td colspan="4">الإجمالي العام</td>
+      <td>${totalDebit.toFixed(2)}</td>
+      <td>${totalCredit.toFixed(2)}</td>
+      <td>${finalBalance.toFixed(2)}</td>
+    </tr>
+  `;
 
   const printContent = `
     <html dir="rtl">
@@ -93,10 +140,12 @@ function printStatement(
         body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 30px; }
         h2 { text-align: center; margin-bottom: 5px; }
         h3 { text-align: center; margin-top: 0; color: #444; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #444; padding: 8px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        th, td { border: 1px solid #444; padding: 6px; text-align: center; }
         th { background-color: #f2f2f2; }
-        tfoot td { font-weight: bold; background: #e8f5e9; }
+        .opening-row { background-color: #e8f4f8; }
+        .page-total { background-color: #fff3cd; font-weight: bold; }
+        .grand-total { background-color: #d4edda; font-weight: bold; }
         .info { text-align: center; margin-top: 10px; color: #555; }
         .footer { text-align: center; margin-top: 20px; font-size: 13px; color: #777; }
       </style>
@@ -124,14 +173,6 @@ function printStatement(
         <tbody>
           ${tableRows}
         </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="4">الإجمالي</td>
-            <td>${totalDebit.toFixed(2)}</td>
-            <td>${totalCredit.toFixed(2)}</td>
-            <td>${finalBalance.toFixed(2)}</td>
-          </tr>
-        </tfoot>
       </table>
 
       <div class="footer">
@@ -189,6 +230,7 @@ export default function GetStatmentData() {
   } = useGetOfficePayment(params, offset, limit);
 
   const [dataPage, setDataPage] = useState(1);
+  const dataPageSize = 27;
 
   // Early returns after hooks
   if (bankLoading) {
@@ -215,8 +257,7 @@ export default function GetStatmentData() {
 
   const rows = statementData?.rows ?? [];
 
-  // Pagination for displayed table (27 data rows per page)
-  const dataPageSize = 27;
+  // Pagination for displayed table
   const totalDataRows = rows.length;
   const startIdx = (dataPage - 1) * dataPageSize;
   const endIdx = Math.min(startIdx + dataPageSize, totalDataRows);
@@ -234,10 +275,9 @@ export default function GetStatmentData() {
   const cumulativeCredit = previousTotalCredit + pageCredit;
   const cumulativeNet = cumulativeDebit - cumulativeCredit;
 
-  // Build display rows (with opening balance and page total)
+  // Build display rows
   const displayRows = [];
 
-  // Opening balance row
   displayRows.push({
     id: 'prev',
     operationId: '—',
@@ -249,7 +289,6 @@ export default function GetStatmentData() {
     net: previousNet,
   });
 
-  // Data rows
   dataRowsForPage.forEach((row) => {
     displayRows.push({
       id: row.Id,
@@ -263,7 +302,6 @@ export default function GetStatmentData() {
     });
   });
 
-  // Page total row
   if (dataRowsForPage.length > 0) {
     displayRows.push({
       id: 'page-total',
@@ -277,7 +315,6 @@ export default function GetStatmentData() {
     });
   }
 
-  // Column definitions for the screen table
   const columns = [
     { header: 'رقم العملية', accessor: 'operationId', isNumeric: false },
     { header: 'رقم التسلسل', accessor: 'systemReference', isNumeric: false },
@@ -287,6 +324,28 @@ export default function GetStatmentData() {
     { header: 'مصروفات', accessor: 'credit', isNumeric: true },
     { header: 'الإجمالي الكلي', accessor: 'net', isNumeric: true },
   ];
+
+  const renderSpecialRow = (row: any, index: number) => {
+    if (row.id === 'prev' || row.id === 'page-total') {
+      const firstNumericIndex = columns.findIndex(col => col.isNumeric);
+      const colSpan = firstNumericIndex;
+
+      return (
+        <Tr
+          key={row.id}
+          bg={row.id === 'page-total' ? 'gray.50' : undefined}
+        >
+          <TableDataCell colSpan={colSpan} fontWeight="700" textAlign="center">
+            {row.systemReference}
+          </TableDataCell>
+          <TableDataCell isNumeric textAlign="center">{row.debit.toFixed(2)}</TableDataCell>
+          <TableDataCell isNumeric textAlign="center">{row.credit.toFixed(2)}</TableDataCell>
+          <TableDataCell isNumeric textAlign="center">{row.net.toFixed(2)}</TableDataCell>
+        </Tr>
+      );
+    }
+    return null;
+  };
 
   return (
     <Box p={6} dir="rtl">
@@ -299,7 +358,6 @@ export default function GetStatmentData() {
           المكتب: {officeName || "غير معروف"}
         </Text>
 
-        {/* Bank account selection */}
         <Box>
           <Text mb={2} fontWeight="600" color="gray.700">
             اختر رقم الحساب البنكي:
@@ -322,7 +380,6 @@ export default function GetStatmentData() {
           </Select>
         </Box>
 
-        {/* Date filters */}
         <HStack spacing={4}>
           <Box flex="1">
             <Text mb={1} fontWeight="600" color="gray.700">
@@ -352,7 +409,6 @@ export default function GetStatmentData() {
           </Box>
         </HStack>
 
-        {/* Data display */}
         {statementLoading ? (
           <Flex justify="center" p={8}>
             <Spinner size="lg" />
@@ -370,7 +426,7 @@ export default function GetStatmentData() {
                   colorScheme="green"
                   size="sm"
                   onClick={() =>
-                    printStatement(rows, officeName, fromDate, toDate)
+                    printStatement(rows, officeName, fromDate, toDate, dataPageSize)
                   }
                 >
                   🖨️ طباعة كشف الحساب بالكامل
@@ -395,6 +451,7 @@ export default function GetStatmentData() {
                   getRowProps={(row: any) => ({
                     bg: row.id === "page-total" ? "gray.50" : undefined,
                   })}
+                  renderRow={renderSpecialRow}
                 />
 
                 {rows.length > 0 && (

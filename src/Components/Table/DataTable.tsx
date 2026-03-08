@@ -35,6 +35,8 @@ type ExtraProps = {
   stickyHeader?: boolean;
   /** ✅ صف الإجماليات الاختياري */
   totals?: Record<string, React.ReactNode>;
+  /** ✅ دالة لتخصيص رسم صف معين (تُرجع <Tr> مخصص أو null/undefined للاستخدام الافتراضي) */
+  renderRow?: (row: AnyRec, index: number) => React.ReactNode;
 };
 
 export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
@@ -54,11 +56,12 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
   viewHashTag = true,
   totals,
   runEdit = false,
-  canEditTitle = false ,
+  canEditTitle = false,
   handleChangeTitle,
-  updatedTitle ,
-  setUpdatedTitle, 
+  updatedTitle,
+  setUpdatedTitle,
   footerRow,
+  renderRow, // الخاصية الجديدة
 }) => {
   const hasActions = !!(renderActions || onEditRow || onDeleteRow);
   const total = typeof totalRows === "number" ? totalRows : data.length;
@@ -68,21 +71,38 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
     <TableCardContainer w="100%">
       {/* Header */}
       <TableHeader>
-        {
-          !canEditTitle ?
-          (<Heading size="md" fontWeight="700" color="gray.700">
+        {!canEditTitle ? (
+          <Heading size="md" fontWeight="700" color="gray.700">
             {title}
-          </Heading>) : (
-            <div>
-              <input type="text" defaultValue={updatedTitle} onChange={(e)=>{setUpdatedTitle(e.target.value)}} style={{fontWeight:600 , fontSize:"1.4rem" , padding:"2px 8px" , border:"1px solid #CCC" , borderRadius:"6px" ,}}>
-              
-              </input>
-              <button onClick={()=>{handleChangeTitle()}} style={{color:"#FFF" , padding:"8px" , borderRadius:"4px" , margin:"0px 16px" , backgroundColor:"#1B5853"}}>
-                تعديل الاسم
-              </button>
-            </div>
-          )
-        }
+          </Heading>
+        ) : (
+          <div>
+            <input
+              type="text"
+              defaultValue={updatedTitle}
+              onChange={(e) => setUpdatedTitle(e.target.value)}
+              style={{
+                fontWeight: 600,
+                fontSize: "1.4rem",
+                padding: "2px 8px",
+                border: "1px solid #CCC",
+                borderRadius: "6px",
+              }}
+            />
+            <button
+              onClick={handleChangeTitle}
+              style={{
+                color: "#FFF",
+                padding: "8px",
+                borderRadius: "4px",
+                margin: "0px 16px",
+                backgroundColor: "#1B5853",
+              }}
+            >
+              تعديل الاسم
+            </button>
+          </div>
+        )}
         <Box>{headerAction}</Box>
       </TableHeader>
 
@@ -130,69 +150,77 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
           </Thead>
 
           <Tbody>
-            {data.map((row: AnyRec, index) => (
-              <Tr key={(row as any).id ?? index}>
-                {viewHashTag && (
-                  <TableDataCell fontWeight="700" color="gray.700">
-                    {startIndex + index}
-                  </TableDataCell>
-                )}
-                {columns.map((col) => (
-                  <TableDataCell
-                    fontWeight="500"
-                    fontSize={16}
-                    textAlign="start"
-                    key={col.key}
-                  >
-                    {col.render ? col.render(row, index) : (row as any)[col.key]}
-                  </TableDataCell>
-                ))}
-                {hasActions && (
-                  <TableDataCell>
-                    <Flex justify="flex-end">
-                      {renderActions ? (
-                        renderActions(row, index)
-                      ) : (
-                        <Menu placement="bottom-end" isLazy>
-                          <MenuButton
-                            as={IconButton}
-                            aria-label="إجراءات"
-                            icon={<BsThreeDotsVertical />}
-                            size="sm"
-                            variant="brandOutline"
-                            onClick={
-                              ()=>{
-                                    if(runEdit && onEditRow){
-                                      onEditRow(row, index)
-                                  }
-                                  else{
-                                    (e) => e.stopPropagation()
-                                  }
+            {data.map((row: AnyRec, index) => {
+              // إذا وجدت دالة renderRow وأرجعت عنصراً نستخدمه
+              if (renderRow) {
+                const customRow = renderRow(row, index);
+                if (customRow) return customRow;
+              }
+
+              // الرسم الافتراضي
+              return (
+                <Tr key={(row as any).id ?? index}>
+                  {viewHashTag && (
+                    <TableDataCell fontWeight="700" color="gray.700">
+                      {startIndex + index}
+                    </TableDataCell>
+                  )}
+                  {columns.map((col) => (
+                    <TableDataCell
+                      fontWeight="500"
+                      fontSize={16}
+                      textAlign="start"
+                      key={col.key}
+                    >
+                      {col.render ? col.render(row, index) : (row as any)[col.key]}
+                    </TableDataCell>
+                  ))}
+                  {hasActions && (
+                    <TableDataCell>
+                      <Flex justify="flex-end">
+                        {renderActions ? (
+                          renderActions(row, index)
+                        ) : (
+                          <Menu placement="bottom-end" isLazy>
+                            <MenuButton
+                              as={IconButton}
+                              aria-label="إجراءات"
+                              icon={<BsThreeDotsVertical />}
+                              size="sm"
+                              variant="brandOutline"
+                              onClick={() => {
+                                if (runEdit && onEditRow) {
+                                  onEditRow(row, index);
+                                } else {
+                                  (e) => e.stopPropagation();
                                 }
-                              }
-                          />
-                          { !(runEdit && onEditRow) &&<MenuList>
-                            <MenuItem
-                              onClick={() => onEditRow?.(row, index)}
-                              isDisabled={!onEditRow}
-                            >
-                              تعديل
-                            </MenuItem>
-                            <MenuItem
-                              color="red.500"
-                              onClick={() => onDeleteRow?.(row, index)}
-                              isDisabled={!onDeleteRow}
-                            >
-                              حذف
-                            </MenuItem>
-                          </MenuList>}
-                        </Menu>
-                      )}
-                    </Flex>
-                  </TableDataCell>
-                )}
-              </Tr>
-            ))}
+                              }}
+                            />
+                            {!(runEdit && onEditRow) && (
+                              <MenuList>
+                                <MenuItem
+                                  onClick={() => onEditRow?.(row, index)}
+                                  isDisabled={!onEditRow}
+                                >
+                                  تعديل
+                                </MenuItem>
+                                <MenuItem
+                                  color="red.500"
+                                  onClick={() => onDeleteRow?.(row, index)}
+                                  isDisabled={!onDeleteRow}
+                                >
+                                  حذف
+                                </MenuItem>
+                              </MenuList>
+                            )}
+                          </Menu>
+                        )}
+                      </Flex>
+                    </TableDataCell>
+                  )}
+                </Tr>
+              );
+            })}
           </Tbody>
 
           {/* ✅ إجمالي القيم */}
@@ -216,22 +244,22 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
             </Tfoot>
           )}
           {footerRow && (
-          <Tfoot>
-            <Tr bg="background.subtle">
-              <TableDataCell
-                colSpan={
-                  columns.length +
-                  (viewHashTag ? 1 : 0) +
-                  (hasActions ? 1 : 0)
-                }
-                fontWeight="700"
-                fontSize={16}
-              >
-                {footerRow}
-              </TableDataCell>
-            </Tr>
-          </Tfoot>
-        )}
+            <Tfoot>
+              <Tr bg="background.subtle">
+                <TableDataCell
+                  colSpan={
+                    columns.length +
+                    (viewHashTag ? 1 : 0) +
+                    (hasActions ? 1 : 0)
+                  }
+                  fontWeight="700"
+                  fontSize={16}
+                >
+                  {footerRow}
+                </TableDataCell>
+              </Tr>
+            </Tfoot>
+          )}
         </Table>
       </Box>
 
@@ -252,3 +280,4 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
 };
 
 export default DataTable;
+export { TableDataCell }; // ⬅️ تصدير الخلية المنسقة لاستخدامها في المكون الأب
