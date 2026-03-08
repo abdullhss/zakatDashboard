@@ -35,34 +35,51 @@ function formatDateForDisplay(dateString: string): string {
   return d.toLocaleDateString("en-GB"); // dd/mm/yyyy
 }
 
-// ========== دالة الطباعة الجديدة (لطباعة الصفحة الحالية) ==========
+// Updated print function with opening balance row
 function printStatement(
-  rowsToPrint: any[],               // displayRows (الصفوف المعروضة في الجدول)
+  rows: any[],
   officeName: string,
   fromDate: string,
-  toDate: string,
-  accountNumber?: string,
-  bankName?: string
+  toDate: string
 ) {
-  if (!rowsToPrint.length) {
+  if (!rows.length) {
     alert("لا توجد بيانات للطباعة.");
     return;
   }
 
-  // بناء صفوف الجدول من المصفوفة المعروضة
-  let tableRows = '';
-  rowsToPrint.forEach(row => {
-    // تمييز صف الإجمالي بخلفية مختلفة (اختياري)
-    const rowStyle = row.id === 'page-total' ? ' style="background-color: #e8f5e9; font-weight: bold;"' : '';
+  // Calculate opening balance (balance before first transaction)
+  const first = rows[0];
+  const openingBalance = first.RunningTotal - (first.DebitValue - first.CreditValue);
+
+  // Calculate totals (only from transaction rows)
+  const totalDebit = rows.reduce((sum, r) => sum + (Number(r.DebitValue) || 0), 0);
+  const totalCredit = rows.reduce((sum, r) => sum + (Number(r.CreditValue) || 0), 0);
+  const finalBalance = rows[rows.length - 1]?.RunningTotal || 0;
+
+  // Build table rows: start with opening balance row
+  let tableRows = `
+    <tr>
+      <td>—</td>
+      <td>رصيد أول المدة</td>
+      <td>—</td>
+      <td>—</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>${openingBalance.toFixed(2)}</td>
+    </tr>
+  `;
+
+  // Add transaction rows
+  rows.forEach((row) => {
     tableRows += `
-      <tr${rowStyle}>
-        <td>${row.operationId || '—'}</td>
-        <td>${row.systemReference || '—'}</td>
-        <td>${row.paymentMethodName || '—'}</td>
-        <td>${row.paymentDate || '—'}</td>
-        <td>${(row.debit || 0).toFixed(2)}</td>
-        <td>${(row.credit || 0).toFixed(2)}</td>
-        <td>${(row.net || 0).toFixed(2)}</td>
+      <tr>
+        <td>${row.Id ?? "—"}</td>
+        <td>${row.SystemReference ?? "—"}</td>
+        <td>${row.PaymentMethodName ?? "—"}</td>
+        <td>${formatDateForDisplay(row.PaymentDate)}</td>
+        <td>${(Number(row.DebitValue) || 0).toFixed(2)}</td>
+        <td>${(Number(row.CreditValue) || 0).toFixed(2)}</td>
+        <td>${(Number(row.RunningTotal) || 0).toFixed(2)}</td>
       </tr>
     `;
   });
@@ -71,24 +88,24 @@ function printStatement(
     <html dir="rtl">
     <head>
       <meta charset="UTF-8" />
-      <title>كشف حساب المكتب - الصفحة الحالية</title>
+      <title>كشف حساب المكتب</title>
       <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 30px; }
         h2 { text-align: center; margin-bottom: 5px; }
         h3 { text-align: center; margin-top: 0; color: #444; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-        th, td { border: 1px solid #444; padding: 6px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #444; padding: 8px; text-align: center; }
         th { background-color: #f2f2f2; }
+        tfoot td { font-weight: bold; background: #e8f5e9; }
         .info { text-align: center; margin-top: 10px; color: #555; }
         .footer { text-align: center; margin-top: 20px; font-size: 13px; color: #777; }
       </style>
     </head>
     <body>
-      <h2>📄 كشف حساب العمليات المالية (الصفحة الحالية)</h2>
+      <h2>📄 كشف حساب العمليات المالية</h2>
       <h3>${officeName || "اسم المكتب غير متاح"}</h3>
       <div class="info">
         <strong>الفترة:</strong> من ${fromDate} إلى ${toDate}<br>
-        ${accountNumber ? `<strong>رقم الحساب:</strong> ${accountNumber} - ${bankName || ''}<br>` : ''}
         <strong>تاريخ الطباعة:</strong> ${new Date().toLocaleDateString()}
       </div>
 
@@ -107,6 +124,14 @@ function printStatement(
         <tbody>
           ${tableRows}
         </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4">الإجمالي</td>
+            <td>${totalDebit.toFixed(2)}</td>
+            <td>${totalCredit.toFixed(2)}</td>
+            <td>${finalBalance.toFixed(2)}</td>
+          </tr>
+        </tfoot>
       </table>
 
       <div class="footer">
@@ -344,23 +369,11 @@ export default function GetStatmentData() {
                 <Button
                   colorScheme="green"
                   size="sm"
-                  onClick={() => {
-                    // البحث عن اسم البنك للحساب المحدد (اختياري للطباعة)
-                    const selectedAccObj = officeAccounts.find(
-                      (acc: any) => acc.accountNumber === selectedAccount
-                    );
-                    const bankName = selectedAccObj?.bankName || '';
-                    printStatement(
-                      displayRows,
-                      officeName,
-                      fromDate,
-                      toDate,
-                      selectedAccount,
-                      bankName
-                    );
-                  }}
+                  onClick={() =>
+                    printStatement(rows, officeName, fromDate, toDate)
+                  }
                 >
-                  🖨️ طباعة الصفحة الحالية
+                  🖨️ طباعة كشف الحساب بالكامل
                 </Button>
               </Flex>
 
