@@ -75,12 +75,12 @@ function printStatement(
       pageDebit += Number(r.DebitValue) || 0;
       pageCredit += Number(r.CreditValue) || 0;
     });
-    const pageNet = pageRows[pageRows.length - 1]?.RunningTotal || 0; // balance after this page
+    const pageNet = pageRows[pageRows.length - 1]?.RunningTotal || 0;
 
     // Cumulative after page (for page total row)
     const cumulativeDebit = prevDebit + pageDebit;
     const cumulativeCredit = prevCredit + pageCredit;
-    const cumulativeNet = cumulativeDebit - cumulativeCredit; // equals pageNet
+    const cumulativeNet = cumulativeDebit - cumulativeCredit;
 
     // Opening balance row (merged)
     const openingText = i === 0 ? "رصيد أول المدة" : "رصيد ما قبله";
@@ -143,19 +143,32 @@ function printStatement(
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
         th, td { border: 1px solid #444; padding: 6px; text-align: center; }
         th { background-color: #f2f2f2; }
+        tr { height: 40px; } /* ارتفاع موحد لجميع الصفوف */
         .opening-row { background-color: #e8f4f8; }
         .page-total { background-color: #fff3cd; font-weight: bold; }
         .grand-total { background-color: #d4edda; font-weight: bold; }
+        /* زيادة ارتفاع صفوف الرصيد الافتتاحي وإجمالي الصفحة */
+        .opening-row td, .page-total td {
+          height: 50px;          /* ارتفاع أكبر (يمكن تعديله) */
+          vertical-align: middle;
+        }
         .info { text-align: center; margin-top: 10px; color: #555; }
         .footer { text-align: center; margin-top: 20px; font-size: 13px; color: #777; }
+        @media print {
+          .header-section {
+            page-break-after: always; /* الرأس في صفحة منفصلة */
+          }
+        }
       </style>
     </head>
     <body>
-      <h2>📄 كشف حساب العمليات المالية</h2>
-      <h3>${officeName || "اسم المكتب غير متاح"}</h3>
-      <div class="info">
-        <strong>الفترة:</strong> من ${fromDate} إلى ${toDate}<br>
-        <strong>تاريخ الطباعة:</strong> ${new Date().toLocaleDateString()}
+      <div class="header-section">
+        <h2>📄 كشف حساب العمليات المالية</h2>
+        <h3>${officeName || "اسم المكتب غير متاح"}</h3>
+        <div class="info">
+          <strong>الفترة:</strong> من ${fromDate} إلى ${toDate}<br>
+          <strong>تاريخ الطباعة:</strong> ${new Date().toLocaleDateString()}
+        </div>
       </div>
 
       <table>

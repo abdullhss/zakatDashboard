@@ -57,8 +57,7 @@ function getCurrentUserId() {
   return 1;
 }
 
-// دالة الطباعة المطورة - تطبع كل الصفحات مع إضافة صف الرصيد الافتتاحي وصف الإجمالي بعد كل 27 صف
-function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName, pageSize = 27) {
+function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName, pageSize = 8) {
   if (!rows.length) {
     alert("لا توجد بيانات للطباعة.");
     return;
@@ -89,12 +88,12 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
       pageDebit += Number(r.DebitValue) || 0;
       pageCredit += Number(r.CreditValue) || 0;
     });
-    const pageNet = pageRows[pageRows.length - 1]?.RunningTotal || 0; // الرصيد بعد الصفحة
+    const pageNet = pageRows[pageRows.length - 1]?.RunningTotal || 0;
 
-    // المجاميع التراكمية بعد الصفحة (لصف إجمالي الصفحة)
+    // المجاميع التراكمية بعد الصفحة
     const cumulativeDebit = prevDebit + pageDebit;
     const cumulativeCredit = prevCredit + pageCredit;
-    const cumulativeNet = cumulativeDebit - cumulativeCredit; // يساوي pageNet
+    const cumulativeNet = cumulativeDebit - cumulativeCredit;
 
     // صف الرصيد الافتتاحي للصفحة (مدمج)
     const openingText = i === 0 ? 'رصيد أول المدة' : 'رصيد ما قبله';
@@ -140,7 +139,7 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
     `;
   }
 
-  // صف الإجمالي العام (اختياري)
+  // صف الإجمالي العام
   tableRows += `
     <tr class="grand-total">
       <td colspan="9">الإجمالي العام</td>
@@ -156,27 +155,39 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
       <meta charset="UTF-8" />
       <title>كشف حساب المكتب</title>
       <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 30px; }
-        h2 { text-align: center; margin-bottom: 5px; }
-        h3 { text-align: center; margin-top: 0; color: #444; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-        th, td { border: 1px solid #444; padding: 6px; text-align: center; }
-        th { background-color: #f2f2f2; }
-        .opening-row { background-color: #e8f4f8; }
-        .page-total { background-color: #fff3cd; font-weight: bold; }
-        .grand-total { background-color: #d4edda; font-weight: bold; }
-        .info { text-align: center; margin-top: 10px; color: #555; }
-        .footer { text-align: center; margin-top: 20px; font-size: 13px; color: #777; }
-      </style>
+      body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 30px; }
+      h2 { text-align: center; margin-bottom: 5px; }
+      h3 { text-align: center; margin-top: 0; color: #444; }
+      table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+      th, td { border: 1px solid #444; padding: 6px; text-align: center; }
+      th { background-color: #f2f2f2; }
+      tr { height: 40px; } /* ارتفاع موحد لجميع الصفوف */
+      .opening-row { background-color: #e8f4f8; }
+      .page-total { background-color: #fff3cd; font-weight: bold; }
+      .grand-total { background-color: #d4edda; font-weight: bold; }
+      /* زيادة ارتفاع صفوف الرصيد الافتتاحي وإجمالي الصفحة */
+      .opening-row td, .page-total td {
+        height: 50px;          /* ارتفاع أكبر */
+      }
+      .info { text-align: center; margin-top: 10px; color: #555; }
+      .footer { text-align: center; margin-top: 20px; font-size: 13px; color: #777; }
+      @media print {
+        .header-section {
+          page-break-after: always;
+        }
+      }
+    </style>
     </head>
     <body>
-      <h2>📄 كشف حساب العمليات المالية</h2>
-      <h3>${officeName || "اسم المكتب غير متاح"}</h3>
-      <div class="info">
-        <strong>الفترة:</strong> من ${fromDate} إلى ${toDate}<br>
-        <strong>رقم الحساب:</strong> ${accountNum}<br>
-        <strong>البنك:</strong> ${bankName}<br>
-        <strong>تاريخ الطباعة:</strong> ${new Date().toLocaleDateString()}
+      <div class="header-section">
+        <h2>📄 كشف حساب العمليات المالية</h2>
+        <h3>${officeName || "اسم المكتب غير متاح"}</h3>
+        <div class="info">
+          <strong>الفترة:</strong> من ${fromDate} إلى ${toDate}<br>
+          <strong>رقم الحساب:</strong> ${accountNum}<br>
+          <strong>البنك:</strong> ${bankName}<br>
+          <strong>تاريخ الطباعة:</strong> ${new Date().toLocaleDateString()}
+        </div>
       </div>
 
       <table>
@@ -237,7 +248,7 @@ export default function MainStatement() {
 
   // الصفحة الخاصة بالجدول المعروض (وليس pagination API)
   const [dataPage, setDataPage] = useState(1);
-  const dataPageSize = 27; // عدد الصفوف في الصفحة الواحدة
+  const dataPageSize = 8; // عدد الصفوف في الصفحة الواحدة
 
   async function getInternationalAccounts() {
     const response = await executeProcedure(
