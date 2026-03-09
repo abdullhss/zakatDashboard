@@ -28,8 +28,8 @@ import { useGetOffices } from "../Offices/hooks/useGetOffices";
 import { executeProcedure } from "../../../api/apiClient";
 
 // Helper to format numbers with thousand separators and two decimals
-function formatMoney(amount: number): string {
-  return amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+function formatMoney(amount) {
+  return Number(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 // Helper to format date as MM-DD-YYYY (for API)
@@ -67,6 +67,11 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
     alert("لا توجد بيانات للطباعة.");
     return;
   }
+
+  // Helper for formatting inside print
+  const formatMoney = (amount) => {
+    return Number(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
 
   // إجماليات عامة
   const totalDebit = rows.reduce((sum, r) => sum + (Number(r.DebitValue) || 0), 0);
@@ -442,7 +447,7 @@ export default function MainStatement() {
           <TableDataCell colSpan={colSpan} fontWeight="700" textAlign="center">
             {row.systemReference}
           </TableDataCell>
-          {/* الخلايا الرقمية الثلاث - توسيط */}
+          {/* الخلايا الرقمية الثلاث - توسيط ومع تنسيق الأرقام */}
           <TableDataCell isNumeric textAlign="center">{formatMoney(row.debit)}</TableDataCell>
           <TableDataCell isNumeric textAlign="center">{formatMoney(row.credit)}</TableDataCell>
           <TableDataCell isNumeric textAlign="center">{formatMoney(row.net)}</TableDataCell>
