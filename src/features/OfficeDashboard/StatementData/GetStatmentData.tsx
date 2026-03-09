@@ -20,6 +20,11 @@ import { getSession } from "../../../session";
 import DataTable, { TableDataCell } from "../../../Components/Table/DataTable";
 import Pagination from "../../../Components/Table/Pagination";
 
+// Helper to format numbers as currency with thousand separators and two decimals
+function formatMoney(amount: number): string {
+  return amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 // Helper to format date as MM-DD-YYYY (for API)
 function formatDateToMMDDYYYY(date: string | Date): string {
   const d = new Date(date);
@@ -87,9 +92,9 @@ function printStatement(
     tableRows += `
       <tr class="opening-row">
         <td colspan="4">${openingText}</td>
-        <td>${prevDebit.toFixed(2)}</td>
-        <td>${prevCredit.toFixed(2)}</td>
-        <td>${prevNet.toFixed(2)}</td>
+        <td>${formatMoney(prevDebit)}</td>
+        <td>${formatMoney(prevCredit)}</td>
+        <td>${formatMoney(prevNet)}</td>
       </tr>
     `;
 
@@ -103,9 +108,9 @@ function printStatement(
           <td>${row.SystemReference ?? "—"}</td>
           <td>${row.PaymentMethodName ?? "—"}</td>
           <td>${formatDateForDisplay(row.PaymentDate)}</td>
-          <td>${debit.toFixed(2)}</td>
-          <td>${credit.toFixed(2)}</td>
-          <td>${(Number(row.RunningTotal) || 0).toFixed(2)}</td>
+          <td>${formatMoney(debit)}</td>
+          <td>${formatMoney(credit)}</td>
+          <td>${formatMoney(Number(row.RunningTotal) || 0)}</td>
         </tr>
       `;
     });
@@ -114,9 +119,9 @@ function printStatement(
     tableRows += `
       <tr class="page-total">
         <td colspan="4">إجمالي الصفحة</td>
-        <td>${cumulativeDebit.toFixed(2)}</td>
-        <td>${cumulativeCredit.toFixed(2)}</td>
-        <td>${cumulativeNet.toFixed(2)}</td>
+        <td>${formatMoney(cumulativeDebit)}</td>
+        <td>${formatMoney(cumulativeCredit)}</td>
+        <td>${formatMoney(cumulativeNet)}</td>
       </tr>
     `;
   }
@@ -125,9 +130,9 @@ function printStatement(
   tableRows += `
     <tr class="grand-total">
       <td colspan="4">الإجمالي العام</td>
-      <td>${totalDebit.toFixed(2)}</td>
-      <td>${totalCredit.toFixed(2)}</td>
-      <td>${finalBalance.toFixed(2)}</td>
+      <td>${formatMoney(totalDebit)}</td>
+      <td>${formatMoney(totalCredit)}</td>
+      <td>${formatMoney(finalBalance)}</td>
     </tr>
   `;
 
@@ -354,9 +359,9 @@ export default function GetStatmentData() {
           <TableDataCell colSpan={colSpan} fontWeight="700" textAlign="center">
             {row.systemReference}
           </TableDataCell>
-          <TableDataCell isNumeric textAlign="center">{row.debit.toFixed(2)}</TableDataCell>
-          <TableDataCell isNumeric textAlign="center">{row.credit.toFixed(2)}</TableDataCell>
-          <TableDataCell isNumeric textAlign="center">{row.net.toFixed(2)}</TableDataCell>
+          <TableDataCell isNumeric textAlign="center">{formatMoney(row.debit)}</TableDataCell>
+          <TableDataCell isNumeric textAlign="center">{formatMoney(row.credit)}</TableDataCell>
+          <TableDataCell isNumeric textAlign="center">{formatMoney(row.net)}</TableDataCell>
         </Tr>
       );
     }
@@ -458,7 +463,7 @@ export default function GetStatmentData() {
                     render: (row: any) => {
                       let value = row[col.accessor];
                       if (col.isNumeric && typeof value === "number") {
-                        value = value.toFixed(2);
+                        value = formatMoney(value);
                       }
                       return value;
                     },
