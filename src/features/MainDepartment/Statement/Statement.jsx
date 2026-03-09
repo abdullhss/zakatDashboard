@@ -155,6 +155,9 @@ function printStatement(rows, officeName, fromDate, toDate, accountNum, bankName
       <meta charset="UTF-8" />
       <title>كشف حساب المكتب</title>
       <style>
+      @page {
+        size: A4 landscape;
+      }
       body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 30px; }
       h2 { text-align: center; margin-bottom: 5px; }
       h3 { text-align: center; margin-top: 0; color: #444; }
