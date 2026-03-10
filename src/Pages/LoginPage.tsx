@@ -15,6 +15,8 @@ import {
 } from "../features/Authentication/Styles/LoginpageStyles";
 import LoginSideBar from "../features/Authentication/LoginSideBar";
 import type { LoginResult } from "../features/Authentication/Services/authService";
+import { v4 as uuidv4 } from "uuid";
+import { doTransaction, executeProcedure } from "../api/apiClient";
 
 const logoSrc = "/assets/Logo.png";
 const ayahSrc = "/assets/Quran.png";
@@ -197,22 +199,51 @@ export default function LoginPage() {
             role,
           })
         );
+        
+        if(localStorage.getItem("DevicesLicense") === null){
+          const newUUID = uuidv4();
+          console.log(newUUID);
+          localStorage.setItem("DevicesLicense", newUUID);
+          const response = await doTransaction({
+            TableName:"NrL4IXCbkoMalPVS/9TGbw==" ,
+            ColumnsValues : `0#${Office_Id}#${user.UserID}#${newUUID}#default#False#default#0`, 
+            WantedAction : 0 ,
+          })
+          console.log("DevicesLicense response" ,response);
+        }
+        
 
-        toast({
-          title: `مرحبًا بعودتك، ${user.UserName || "مستخدم"}!`,
-          status: "success",
-          duration: 1200,
-          isClosable: true,
-        });
+        const getLicenseStatusResponse = await executeProcedure("boSBwP/6dl8VnxuyDiqhdn2nzzZUVA3FI2VOPDXE2mQ=", localStorage.getItem("DevicesLicense") ?? "");
+        const LicenseStatus = getLicenseStatusResponse?.decrypted?.data?.Result[0].DevicesData ? JSON.parse(getLicenseStatusResponse.decrypted?.data.Result[0].DevicesData)[0].Allowed : false ;
 
         const defaultTarget = role === "M" ? "/maindashboard" : "/maindashboard";
         const from = (location.state as any)?.from?.pathname as string | undefined;
         
         // Add a small delay for smooth transition
-        setTimeout(() => {
-          navigate(from || defaultTarget, { replace: true });
-        }, 500);
-        
+        if(LicenseStatus){
+          toast({
+            title: `مرحبًا بعودتك، ${user.UserName || "مستخدم"}!`,
+            status: "success",
+            duration: 1200,
+            isClosable: true,
+          });
+          setTimeout(() => {
+            navigate(from || defaultTarget, { replace: true });
+          }, 500);
+          setIsSubmitting(false);
+        }
+        else{
+          toast({
+            title: "ترخيص الجهاز غير صالح",
+            description: "لا يمكن الغاء قفل النظام لان هذا الجهاز غير مرخص",
+            status: "error",
+          })
+          localStorage.removeItem("auth");
+          localStorage.removeItem("role");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("username");
+        }
+        setIsSubmitting(false);
       } catch (err: any) {
         toast({
           title: "فشل تسجيل الدخول",

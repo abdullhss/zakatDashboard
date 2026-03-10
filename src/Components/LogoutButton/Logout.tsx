@@ -1,4 +1,3 @@
-// src/components/LogoutButton.tsx
 import { Button } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
@@ -6,7 +5,7 @@ export default function LogoutButton() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // 🧹 امسح كل بيانات الجلسة
+
     localStorage.removeItem("auth");
     localStorage.removeItem("role");
     localStorage.removeItem("userId");

@@ -114,6 +114,8 @@ export default function MainNavBar() {
         {renderLink("sacirificeTypes", "أنواع الأضاحي", GiSheep)}
         {renderLink("FitrZakat", "زكاة الفطر", GiBowlOfRice)}
         {renderLink("FitrZakatTypes", "أصناف زكاة الفطر", GiBowlOfRice)}
+        {renderLink("Licences", "الترخيص", BsFillClipboardCheckFill)}
+
       </SidebarDropdown>
       
 
