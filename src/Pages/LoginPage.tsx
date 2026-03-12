@@ -245,6 +245,10 @@ export default function LoginPage() {
         }
         setIsSubmitting(false);
       } catch (err: any) {
+          localStorage.removeItem("auth");
+          localStorage.removeItem("role");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("username");
         toast({
           title: "فشل تسجيل الدخول",
           description: err?.message || "فشل غير معروف.",
