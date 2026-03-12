@@ -49,6 +49,7 @@ const OfficeSchema = z.object({
   officeLatitude: z.string().refine((v) => v === "" || !Number.isNaN(Number(v)), "Latitude يجب أن يكون رقمًا").default(""),
   officeLongitude: z.string().refine((v) => v === "" || !Number.isNaN(Number(v)), "Longitude يجب أن يكون رقمًا").default(""),
   isActive: z.boolean().default(true),
+  zakatFitr: z.boolean().default(false),
   // دايمًا هنخزن الـID
   officePhotoName: z.string().optional().default(""),
 });
@@ -58,7 +59,7 @@ export type OfficeDetailsHandle = { submit: () => Promise<OfficeDetailsValues | 
 
 // 👇 أضفنا الـ prop اللي هتبلغ الأب بأي ID للصورة
 type Props = {
-  defaultValues?: Partial<OfficeDetailsValues> & { cityId?: string | number; officePhotoDisplayName?: string };
+  defaultValues?: Partial<OfficeDetailsValues> & { cityId?: string | number; officePhotoDisplayName?: string; zakatFitr?: boolean };
   onPhotoIdChange?: (id: string) => void;
   onExtraPhotoIdChange ?: any 
 };
@@ -88,7 +89,7 @@ export default forwardRef<OfficeDetailsHandle, Props>(function OfficeDetailsSect
     resolver: zodResolver(OfficeSchema),
     defaultValues: {
       officeName: "", phoneNum: "", cityId: "", address: "",
-      officeLatitude: "", officeLongitude: "", isActive: true, officePhotoName: "",
+      officeLatitude: "", officeLongitude: "", isActive: true, zakatFitr: false, officePhotoName: "",
       ...defaultValues,
     },
     mode: "onBlur",
@@ -479,6 +480,13 @@ console.log(headerPreviewUrl);
                   }
                 }}
               />
+            </FormControl>
+
+            <FormControl mt={6}>
+              <HStack spacing={4} h="40px" alignItems="center">
+                <Switch {...register("zakatFitr")} isChecked={watch("zakatFitr")} />
+                <Text>يقبل زكاة الفطر</Text>
+              </HStack>
             </FormControl>
 
           </GridItem>

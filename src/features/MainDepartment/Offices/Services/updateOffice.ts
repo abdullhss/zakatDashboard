@@ -17,6 +17,7 @@ export type UpdateOfficePayload = {
   phone: string;
   address: string;
   isActive: boolean | 0 | 1;
+  zakatFitr?: boolean;
   latitude?: string | number | null;
   longitude?: string | number | null;
 
@@ -38,7 +39,7 @@ const normalizePhotoId = (v: unknown) => {
 
 export async function updateOffice(payload: UpdateOfficePayload): Promise<NormalizedSummary> {
   const {
-    id, officeName, cityId, phone, address, isActive,
+    id, officeName, cityId, phone, address, isActive, zakatFitr,
     latitude, longitude,
     photoId, HeaderPhotoName,
     pointId = 0, dataToken,
@@ -65,7 +66,7 @@ export async function updateOffice(payload: UpdateOfficePayload): Promise<Normal
   const officePhoto = normalizePhotoId(photoId);
   const headerPhoto = normalizePhotoId(HeaderPhotoName);
 
-  // ----------- تحديد الأعمدة حسب الصور اللي اتبعتت -----------
+  // ----------- تحديد الأعمدة حسب الصور و ZakatFitr -----------
   let ColumnsNames = COLS_NAMES_BASE;
   let ColumnsValues = [...baseValues];
 
@@ -78,6 +79,9 @@ export async function updateOffice(payload: UpdateOfficePayload): Promise<Normal
     ColumnsNames += "#HeaderPhotoName";
     ColumnsValues.push(scrub(headerPhoto));
   }
+
+  ColumnsNames += "#ZakatFitr";
+  ColumnsValues.push(typeof zakatFitr === "boolean" && zakatFitr ? "True" : "False");
 
   ColumnsValues = ColumnsValues.join("#");
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Box, Text, Switch, HStack, useDisclosure, useToast,
+  Box, Text, HStack, useDisclosure, useToast,
   AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader,
   AlertDialogContent, AlertDialogOverlay, IconButton, Menu,
   MenuButton, MenuList, MenuItem, Portal, Flex, Spinner, Alert, AlertIcon, Button,
@@ -25,6 +25,7 @@ type OfficeRow = {
   phone: string;
   city: string;
   isActive: boolean;
+  zakatFitr: boolean;
   photoName?: string | number;
 };
 
@@ -152,6 +153,7 @@ export default function Office() {
   // ✅ استدعاء كل المكاتب مرة واحدة (من غير pagination)
   const { data, isLoading, isError, error, isFetching, refetch } =
     useGetOffices(offset , limit, selectedCity);
+    console.log(data);
     
     const totalRows = Number(data?.decrypted.data.Result[0].OfficesCount) || 1;
     const offciesData = data?.decrypted.data.Result[0].OfficesData ? JSON.parse(data?.decrypted.data.Result[0].OfficesData) : [];
@@ -164,6 +166,7 @@ export default function Office() {
       phone: String(r.PhoneNum ?? r.Phone ?? r.phone ?? ""),
       city: String(r.CityName ?? r.City ?? r.city ?? "—"),
       isActive: Boolean(r.IsActive ?? r.Active ?? r.isActive ?? false),
+      zakatFitr: Boolean(r.ZakatFitr ?? r.zakatFitr ?? false),
       photoName: String(r.OfficePhotoName ?? r.OfficePhotoName_Id ?? r.photoName ?? ""),
     }));
   }, [data?.rows]);
@@ -195,6 +198,18 @@ export default function Office() {
           return (
             <HStack justify="center" spacing={2}>
               <Text color="gray.600">{r.isActive ? "مفعل" : "غير مفعل"}</Text>
+            </HStack>
+          );
+        },
+      },
+      {
+        key: "zakatFitr",
+        header: <Box w="full" textAlign="center">زكاة الفطر</Box>,
+        render: (row: AnyRec) => {
+          const r = row as OfficeRow;
+          return (
+            <HStack justify="center" spacing={2}>
+              <Text color="gray.600">{r.zakatFitr ? "يقبل" : "لا تقبل"}</Text>
             </HStack>
           );
         },

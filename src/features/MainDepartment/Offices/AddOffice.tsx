@@ -62,6 +62,7 @@ export default function AddOffice() {
         city?: string | number;
         cityId?: string | number;
         isActive?: boolean;
+        zakatFitr?: boolean;
         address?: string;
         latitude?: string | number;
         longitude?: string | number;
@@ -90,6 +91,7 @@ export default function AddOffice() {
       cityId: String(row.City_Id ?? ""),
       address: row.Address ?? "",
       isActive: Boolean(row.IsActive),
+      zakatFitr: Boolean(row.ZakatFitr ?? row.zakatFitr ?? false),
       officeLatitude: row.OfficeLatitude != null ? String(row.OfficeLatitude) : "",
       officeLongitude: row.OfficeLongitude != null ? String(row.OfficeLongitude) : "",
       officePhotoName: String(photoIdFromRow || ""), // نخزن ID الصورة
@@ -249,7 +251,7 @@ export default function AddOffice() {
     const MultiTableName = [OFFICE_TABLE, ...Array(bankAccounts.length).fill(BANK_TABLE)].join("^");
 
     const officeCols =
-      "Id#OfficeName#OfficeLatitude#OfficeLongitude#City_Id#PhoneNum#Address#IsActive#OfficePhotoName#HeaderPhotoName";
+      "Id#OfficeName#OfficeLatitude#OfficeLongitude#City_Id#PhoneNum#Address#IsActive#OfficePhotoName#HeaderPhotoName#ZakatFitr";
     const bankCols = BANK_COLS;
 
     const MultiColumnsNames = officeCols + "^" + Array(bankAccounts.length).fill(bankCols).join("^");
@@ -265,7 +267,8 @@ export default function AddOffice() {
       scrub((office as any).address) || "",
       office.isActive ? "1" : "0",
       scrub((office as any).officePhotoName) || "", // ID بعد الرفع
-      extraPhotoId!=""?extraPhotoId:""
+      extraPhotoId!=""?extraPhotoId:"",
+      (office as any).zakatFitr ? "1" : "0",
     ].join("#");
     console.log( officePart);
 
@@ -325,6 +328,7 @@ export default function AddOffice() {
       phone: office.phoneNum,
       address: office.address,
       isActive: office.isActive,
+      zakatFitr: (office as any).zakatFitr ?? false,
       latitude: office.officeLatitude ?? "",
       longitude: office.officeLongitude ?? "",
       photoId: photoIdToSend,   // دايمًا ID
