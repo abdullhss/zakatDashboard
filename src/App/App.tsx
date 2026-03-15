@@ -107,7 +107,10 @@ export default function App() {
     const lastVisit = localStorage.getItem("lastVisit");
 
     if (!lastVisit || now - lastVisit > 60 * 60 * 1000) {
-      localStorage.clear();
+      localStorage.removeItem("auth");
+      localStorage.removeItem("role");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("username");
     }
 
     // حدّث وقت آخر زيارة

@@ -45,7 +45,10 @@ export default function SideBarMainDepartment() {
   const toast = useToast();
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem("auth");
+    localStorage.removeItem("role");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("username");
     navigate("/login", { replace: true });
     toast({
       title: "تم تسجيل الخروج",
