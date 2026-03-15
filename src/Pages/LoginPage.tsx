@@ -262,6 +262,7 @@ export default function LoginPage() {
           setTimeout(() => {
             navigate(from || defaultTarget, { replace: true });
           }, 500);
+          setIsSubmitting(false);
         }
         setIsSubmitting(false);
       } catch (err: any) {
