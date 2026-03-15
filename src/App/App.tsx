@@ -127,7 +127,6 @@ export default function App() {
         const result = response.decrypted?.data?.Result?.[0];
         if (!result) return;
 
-        console.log(result.ImagesPath);
         setImagesPath(result.ImagesPath);
     };
 

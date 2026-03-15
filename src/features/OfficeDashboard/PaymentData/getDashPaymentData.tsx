@@ -23,9 +23,9 @@ const PAGE_SIZE = 5;
 
 
 export default function GetDashPaymentData() {
-    const {imagesPath} = useImagesPathContext() ; 
-    console.log(imagesPath);
-    const BASE_ATTACHMENT_URL = `${imagesPath}/`; 
+    const { imagesPath } = useImagesPathContext();
+    // imagesPath is set asynchronously in App.tsx; avoid building links until it's ready (prevents "undefined/..." after refresh)
+    const BASE_ATTACHMENT_URL = imagesPath ? `${imagesPath}/` : ''; 
     const PAYMENT_COLUMNS_BASE: Column[] = [
         { key: "Id", header: "رقم المعاملة", render: (row: AnyRec) => row.Id ?? '—', },
         { key: "review", header: "مراجعة", render: (row: AnyRec) => <Button>مراجعة</Button>, },
@@ -38,9 +38,10 @@ export default function GetDashPaymentData() {
         { key: "ActionName", header: "نوع الخدمة", render: (row: AnyRec) => row.ActionName ?? '—' }, 
         { key: "ProjectName", header: "اسم المشروع", render: (row: AnyRec) => row.ProjectName ?? '—' }, 
         { key: "SubventionTypeName", header: "نوع الإعانة", render: (row: AnyRec) => row.SubventionTypeName ?? '—' }, 
-        { key: "AttachmentPhotoName", header: "الوصل", render: (row: AnyRec) => {
-        console.log(row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}${row.AttachmentPhotoExt}`} isExternal color="blue.500">الايصال</Link> : '—')
-        return row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}${row.AttachmentPhotoExt}`} isExternal color="blue.500">الايصال</Link> : '—'
+    { key: "AttachmentPhotoName", header: "الوصل", render: (row: AnyRec) => {
+        if (!row.AttachmentPhotoName) return '—';
+        if (!BASE_ATTACHMENT_URL) return <Text color="gray.500">—</Text>; // imagesPath not loaded yet (e.g. right after refresh)
+        return <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}${row.AttachmentPhotoExt}`} isExternal color="blue.500">الايصال</Link>;
     } },
     ];
     const [page, setPage] = useState(1);
@@ -245,7 +246,7 @@ selectedAction,
                                 <Text><strong>حالة الموافقة:</strong> {isApproved ? 'موافقة' : 'مرفوض'}</Text> {/* استخدام الحالة المُخزَّنة */}
 
                                 {/* رابط الوصل */}
-                                {selectedPaymentDetails.AttachmentPhotoName && (
+                                {selectedPaymentDetails.AttachmentPhotoName && BASE_ATTACHMENT_URL && (
                                     <Text colSpan={2}>
                                         <strong>وصل الدفع:</strong>{" "}
                                         <Link href={`${BASE_ATTACHMENT_URL}${selectedPaymentDetails.AttachmentPhotoName}${selectedPaymentDetails.AttachmentPhotoExt}`} isExternal color="blue.500">
