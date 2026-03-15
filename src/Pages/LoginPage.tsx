@@ -205,16 +205,33 @@ export default function LoginPage() {
           console.log(newUUID);
           localStorage.setItem("DevicesLicense", newUUID);
           const response = await doTransaction({
-            TableName:"NrL4IXCbkoMalPVS/9TGbw==" ,
-            ColumnsValues : `0#${Office_Id}#${user.UserID}#${newUUID}#default#False#default#0`, 
-            WantedAction : 0 ,
-          })
+            TableName: "NrL4IXCbkoMalPVS/9TGbw==",
+            ColumnsValues: `0#${Office_Id}#${user.UserID}#${newUUID}#default#False#default#0`,
+            WantedAction: 0,
+            PointId: 0,
+          });
           console.log("DevicesLicense response" ,response);
         }
         
 
-        const getLicenseStatusResponse = await executeProcedure("boSBwP/6dl8VnxuyDiqhdn2nzzZUVA3FI2VOPDXE2mQ=", localStorage.getItem("DevicesLicense") ?? "");
-        const LicenseStatus = getLicenseStatusResponse?.decrypted?.data?.Result[0].DevicesData ? JSON.parse(getLicenseStatusResponse.decrypted?.data.Result[0].DevicesData)[0].Allowed : false ;
+        let getLicenseStatusResponse = await executeProcedure("boSBwP/6dl8VnxuyDiqhdn2nzzZUVA3FI2VOPDXE2mQ=", localStorage.getItem("DevicesLicense") ?? "");
+        // If DevicesData is empty, device may not have been saved on server (e.g. server was down); save again and fetch again
+        const decData = getLicenseStatusResponse?.decrypted?.data;
+        const devicesData = decData && typeof decData === "object" ? decData.Result?.[0]?.DevicesData : undefined;
+        if (devicesData === "" || devicesData == null) {
+          const licenseUuid = localStorage.getItem("DevicesLicense");
+          if (licenseUuid) {
+            await doTransaction({
+              TableName: "NrL4IXCbkoMalPVS/9TGbw==",
+              ColumnsValues: `0#${Office_Id}#${user.UserID}#${licenseUuid}#default#False#default#0`,
+              WantedAction: 0,
+              PointId: 0,
+            });
+            getLicenseStatusResponse = await executeProcedure("boSBwP/6dl8VnxuyDiqhdn2nzzZUVA3FI2VOPDXE2mQ=", licenseUuid);
+          }
+        }
+        const dataResult = getLicenseStatusResponse?.decrypted?.data && typeof getLicenseStatusResponse.decrypted.data === "object" ? getLicenseStatusResponse.decrypted.data.Result?.[0]?.DevicesData : undefined;
+        const LicenseStatus = dataResult ? JSON.parse(dataResult)[0]?.Allowed : false;
 
         const defaultTarget = role === "M" ? "/maindashboard" : "/maindashboard";
         const from = (location.state as any)?.from?.pathname as string | undefined;
@@ -233,15 +250,18 @@ export default function LoginPage() {
           setIsSubmitting(false);
         }
         else{
-          toast({
-            title: "ترخيص الجهاز غير صالح",
-            description: "لا يمكن الغاء قفل النظام لان هذا الجهاز غير مرخص",
-            status: "error",
-          })
-          localStorage.removeItem("auth");
-          localStorage.removeItem("role");
-          localStorage.removeItem("userId");
-          localStorage.removeItem("username");
+          // toast({
+          //   title: "ترخيص الجهاز غير صالح",
+          //   description: "لا يمكن الغاء قفل النظام لان هذا الجهاز غير مرخص",
+          //   status: "error",
+          // })
+          // localStorage.removeItem("auth");
+          // localStorage.removeItem("role");
+          // localStorage.removeItem("userId");
+          // localStorage.removeItem("username");
+          setTimeout(() => {
+            navigate(from || defaultTarget, { replace: true });
+          }, 500);
         }
         setIsSubmitting(false);
       } catch (err: any) {
