@@ -38,7 +38,10 @@ export default function GetDashPaymentData() {
         { key: "ActionName", header: "نوع الخدمة", render: (row: AnyRec) => row.ActionName ?? '—' }, 
         { key: "ProjectName", header: "اسم المشروع", render: (row: AnyRec) => row.ProjectName ?? '—' }, 
         { key: "SubventionTypeName", header: "نوع الإعانة", render: (row: AnyRec) => row.SubventionTypeName ?? '—' }, 
-        { key: "AttachmentPhotoName", header: "الوصل", render: (row: AnyRec) => row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}.jpg`} isExternal color="blue.500">الايصال</Link> : '—', },
+        { key: "AttachmentPhotoName", header: "الوصل", render: (row: AnyRec) => {
+        console.log(row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}${row.AttachmentPhotoExt}`} isExternal color="blue.500">الايصال</Link> : '—')
+        return row.AttachmentPhotoName ? <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}${row.AttachmentPhotoExt}`} isExternal color="blue.500">الايصال</Link> : '—'
+    } },
     ];
     const [page, setPage] = useState(1);
     const limit = PAGE_SIZE;
@@ -245,7 +248,7 @@ selectedAction,
                                 {selectedPaymentDetails.AttachmentPhotoName && (
                                     <Text colSpan={2}>
                                         <strong>وصل الدفع:</strong>{" "}
-                                        <Link href={`${BASE_ATTACHMENT_URL}${selectedPaymentDetails.AttachmentPhotoName}.jpg`} isExternal color="blue.500">
+                                        <Link href={`${BASE_ATTACHMENT_URL}${selectedPaymentDetails.AttachmentPhotoName}${selectedPaymentDetails.AttachmentPhotoExt}`} isExternal color="blue.500">
                                             عرض الوصل المرفق
                                         </Link>
                                     </Text>
