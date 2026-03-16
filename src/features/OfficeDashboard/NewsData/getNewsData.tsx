@@ -196,7 +196,9 @@ export default function GetNewsData() {
     return normalizeServerPayload(data, offset, limit);
   }, [data, offset, limit]);
 
-  const totalRows = Number(data?.decrypted.data.Result[0].NewsCount) || 1 ;
+  const totalRows = Number(data?.decrypted?.data?.Result[0]?.NewsCount) || 1 ;
+  console.log(totalRows);
+  
   const navigate = useNavigate();
 
   const goToType = useCallback(

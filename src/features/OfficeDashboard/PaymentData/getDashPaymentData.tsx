@@ -41,7 +41,7 @@ export default function GetDashPaymentData() {
     { key: "AttachmentPhotoName", header: "الوصل", render: (row: AnyRec) => {
         if (!row.AttachmentPhotoName) return '—';
         if (!BASE_ATTACHMENT_URL) return <Text color="gray.500">—</Text>; // imagesPath not loaded yet (e.g. right after refresh)
-        return <Link href={`${BASE_ATTACHMENT_URL}${row.AttachmentPhotoName}${row.AttachmentPhotoExt}`} isExternal color="blue.500">الايصال</Link>;
+        return <Link href={`${BASE_ATTACHMENT_URL}${row.StatementAttachName}${row.StatementAttachExt}`} isExternal color="blue.500">الايصال</Link>;
     } },
     ];
     const [page, setPage] = useState(1);
