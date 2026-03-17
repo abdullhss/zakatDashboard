@@ -100,6 +100,7 @@ import OutFitrTable from "../features/OfficeDashboard/FitrZakat/OutFitrTable.jsx
 import OutDetails from "../features/OfficeDashboard/FitrZakat/OutDetails.jsx";
 import ZakatFitrSanfReport from "../features/OfficeDashboard/FitrZakat/ZakatFitrSanfReport.jsx";
 import Licences from "../features/MainDepartment/Licences/Licences.jsx";
+import UnApprovedPaymentsReport from "../features/MainDepartment/UnApprovedPaymentsReport/UnApprovedPaymentsReport.jsx";
 export default function App() {
   const { setImagesPath } = useImagesPathContext();
   useEffect(() => {
@@ -204,6 +205,7 @@ export default function App() {
             <Route path="Projects" element={<Projects />} />
             <Route path="CampaignReport" element={<CampaignReport />} />
             <Route path="SubventionTypeReport" element={<SubventionTypeReport />} />
+            <Route path="UnApprovedPaymentsReport" element={<UnApprovedPaymentsReport />} />
 
             <Route path="licences" element={<Licences />} />
           </Route>

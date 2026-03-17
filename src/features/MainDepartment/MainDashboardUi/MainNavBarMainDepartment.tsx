@@ -130,6 +130,7 @@ export default function MainNavBar() {
       {renderLink("offices", "المكاتب", HiOutlineBuildingOffice)}
       {renderLink("campaign", "الحملات", RiServiceLine)}
       {renderLink("UrgentProjects", "المشاريع العاجلة", RiHandHeartLine)}
+      {renderLink("UnApprovedPaymentsReport", "مدفوعات المكاتب", MdPayments)}
 
 
 

@@ -23,9 +23,12 @@ type NewsFormState = {
   newsContents: string;
   isActive: boolean;
   newsCreateDate: string;
-  // للعرض أثناء التعديل
-  currentPhotoId?: string;
-  currentAttachId?: string;
+  // للعرض أثناء التعديل (من API)
+  currentPhotoName?: string;   // NewsMainPhotoName → لبناء رابط الصورة
+  currentPhotoId?: string;    // NewsMainPhotoName_Id → يُرسل عند التعديل
+  currentAttachName?: string; // AttachmentFile → لبناء رابط المرفق
+  currentAttachExt?: string;  // AttachmentFileExt
+  currentAttachId?: string;   // AttachmentFile_Id → يُرسل عند التعديل
 };
 
 export default function AddNewsForm() {
@@ -62,7 +65,10 @@ export default function AddNewsForm() {
     newsContents: "",
     isActive: true,
     newsCreateDate: new Date().toISOString().slice(0, 10),
+    currentPhotoName: "",
     currentPhotoId: "",
+    currentAttachName: "",
+    currentAttachExt: "",
     currentAttachId: "",
   });
 
@@ -88,8 +94,7 @@ export default function AddNewsForm() {
 
   useEffect(() => {
     if (!incoming) return;
-    console.log(incoming);
-    
+
     setForm((s) => ({
       ...s,
       id: incoming.Id ?? incoming.NewsId ?? incoming.id,
@@ -105,8 +110,11 @@ export default function AddNewsForm() {
         (incoming.NewsCreateDate || "").toString().slice(0, 10) ||
         new Date().toISOString().slice(0, 10),
 
-      // مهم: نخزن الـ IDs للعرض
-      currentPhotoId: String(incoming.NewsMainPhotoName ) || "",
+      // عرض: من AttachmentFile + AttachmentFileExt و NewsMainPhotoName
+      currentPhotoName: String(incoming.NewsMainPhotoName ?? "") || "",
+      currentPhotoId: String(incoming.NewsMainPhotoName_Id ?? "") || "",
+      currentAttachName: String(incoming.AttachmentFile ?? "") || "",
+      currentAttachExt: String(incoming.AttachmentFileExt ?? "") || "",
       currentAttachId: String(incoming.AttachmentFile_Id ?? "") || "",
     }));
   }, [incoming]);
@@ -129,7 +137,9 @@ export default function AddNewsForm() {
     }
 
     // ✅ فاليديشن إلزام الصورة:
-    const hasPhoto = isEdit ? (Boolean(mainPhotoFile) || Boolean(form.currentPhotoId)) : Boolean(mainPhotoFile);
+    const hasPhoto = isEdit
+      ? Boolean(mainPhotoFile) || Boolean(form.currentPhotoId) || Boolean(form.currentPhotoName)
+      : Boolean(mainPhotoFile);
     if (!hasPhoto) {
       toast({
         title: "الصورة مطلوبة",
@@ -150,11 +160,10 @@ export default function AddNewsForm() {
       "";
 
     try {
-      // IDs النهائية المرسلة
-      let photoId = form.currentPhotoId || "";  // هنا نتأكد من حفظ الـ ID القديم إن كان موجودًا
+      // IDs النهائية المرسلة (عند التعديل: NewsMainPhotoName_Id و AttachmentFile_Id)
+      let photoId = form.currentPhotoId || "";
       let attachId = form.currentAttachId || "";
-      console.log(form);
-      
+
       // 1) ارفع الصورة لو تم اختيارها
       if (mainPhotoFile) {
         const up = await hf.UploadFileWebSite({
@@ -186,10 +195,6 @@ export default function AddNewsForm() {
         setLastAttachId(attachId);
       }
 
-        console.log(photoId);
-        console.log(attachId);
-        console.log(currentPhotoUrl);
-        console.log(currentAttachUrl);
       if (!isEdit) {
         // ===== إضافة =====
         
@@ -261,9 +266,14 @@ export default function AddNewsForm() {
     );
   }
 
-  // عرض الصورة/المرفق الحالية لو موجودة
-  const currentPhotoUrl = form.currentPhotoId ? buildPhotoUrlByName(form.currentPhotoId) : "";
-  const currentAttachUrl = form.currentAttachId ? buildAttachmentUrlByName(form.currentAttachId) : "";
+  // عرض الصورة/المرفق من AttachmentFile+Ext و NewsMainPhotoName
+  const currentPhotoUrl = (form.currentPhotoName || form.currentPhotoId)
+    ? buildPhotoUrlByName(form.currentPhotoName || form.currentPhotoId, ".jpg")
+    : "";
+  const currentAttachUrl =
+    form.currentAttachName
+      ? buildAttachmentUrlByName(form.currentAttachName, form.currentAttachExt)
+      : "";
 
   return (
     <Box p={6}>
@@ -346,7 +356,7 @@ export default function AddNewsForm() {
                 <Box>
                   {mainPhotoFile ? (
                     <Image src={URL.createObjectURL(mainPhotoFile)} alt="news" objectFit="cover" w="100%" h="100%" />
-                  ) : form.currentPhotoId ? (
+                  ) : form.currentPhotoName || form.currentPhotoId ? (
                     <Image src={currentPhotoUrl} alt="news" objectFit="cover" w="100%" h="100%" />
                   ) : (
                     <VStack w="100%" h="100%" align="center" justify="center" spacing={2}>
