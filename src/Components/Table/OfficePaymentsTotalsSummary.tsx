@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Flex, Text } from "@chakra-ui/react";
+import { useLocation } from "react-router-dom";
 
 export type OfficePaymentTotals = {
   TotalDebitValue?: string | number;
@@ -11,8 +12,12 @@ export type OfficePaymentTotals = {
 export function OfficePaymentsTotalsSummary({
   TotalDebitValue = "0",
   TotalCreditValue = "0",
-  TotalNetValue = "0",
 }: OfficePaymentTotals) {
+  const usePathname = useLocation();
+  const pathname = usePathname.pathname;
+  console.log(pathname);
+  
+  const TotalNetValue = Number(TotalDebitValue) - Number(TotalCreditValue);
   return (
     <Box
       mt={2}
@@ -31,18 +36,28 @@ export function OfficePaymentsTotalsSummary({
         align="center"
         fontSize="md"
       >
+        {
+          "/officedashboard/Receipts" != pathname && (
         <Text>
           إجمالي المقبوضات:{" "}
           <Text as="span" fontWeight="700">
             {TotalDebitValue}
           </Text>
         </Text>
-        <Text>
-          إجمالي المدفوعات:{" "}
-          <Text as="span" fontWeight="700">
-            {TotalCreditValue}
-          </Text>
-        </Text>
+          )
+        }
+
+        {
+          "/officedashboard/Payments" != pathname && (
+            <Text>
+              إجمالي المدفوعات:{" "}
+              <Text as="span" fontWeight="700">
+                {TotalCreditValue}
+              </Text>
+            </Text>
+          )
+        }
+        
         <Text fontWeight="600">
           الصافي:{" "}
           <Text as="span" fontWeight="700">
