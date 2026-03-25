@@ -61,6 +61,7 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
   updatedTitle,
   setUpdatedTitle,
   footerRow,
+  summaryBelowPagination,
   renderRow, // الخاصية الجديدة
 }) => {
   const hasActions = !!(renderActions || onEditRow || onDeleteRow);
@@ -275,6 +276,7 @@ export const DataTable: React.FC<DataTableProps & ExtraProps> = ({
           />
         )}
       </Flex>
+      {summaryBelowPagination}
     </TableCardContainer>
   );
 };

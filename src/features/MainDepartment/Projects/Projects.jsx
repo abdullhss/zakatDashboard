@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 
 import { DataTable } from "../../../Components/Table/DataTable";
+import { OfficePaymentsTotalsSummary } from "../../../Components/Table/OfficePaymentsTotalsSummary";
 
 import { executeProcedure, PROCEDURE_NAMES } from "../../../api/apiClient";
 import { useGetOffices } from "../Offices/hooks/useGetOffices";
@@ -33,7 +34,11 @@ const Projects = () => {
   const [PaymentsData, setPaymentsData] = useState([]);
   const [PaymentsCount, setPaymentsCount] = useState(0);
   const [page, setPage] = useState(1);
-  const [totals , setTotals] = useState({});
+  const [totals, setTotals] = useState({
+    TotalDebitValue: "0",
+    TotalCreditValue: "0",
+    TotalNetValue: "0",
+  });
   /** -------------------- GET OFFICES ------------------- */
   const { data: officesData, isLoading: officesLoading } = useGetOffices(
     1,
@@ -73,11 +78,12 @@ const Projects = () => {
       setPaymentsData(
         response.decrypted.data?.Result[0].OfficePaymentsData ? JSON.parse(response.decrypted.data?.Result[0].OfficePaymentsData) : []
       );
+      const row = response.decrypted.data?.Result[0];
       setTotals({
-        TotalCreditValue : response.decrypted.data?.Result[0].TotalCreditValue , 
-        TotalDebitValue : response.decrypted.data?.Result[0].TotalDebitValue , 
-        TotalNetValue : response.decrypted.data?.Result[0].TotalNetValue , 
-      })
+        TotalDebitValue: row?.TotalDebitValue ?? "0",
+        TotalCreditValue: row?.TotalCreditValue ?? "0",
+        TotalNetValue: row?.TotalNetValue ?? "0",
+      });
   };
 
   /** Fetch when page changes */
@@ -267,25 +273,12 @@ useEffect(() => {
                   onPageChange={setPage}
                   totalRows={PaymentsCount}
                   startIndex={(page - 1) * PAGE_LIMIT + 1}
-                  footerRow={
-                    <Box
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      px={4}
-                    >
-                      <Text color="green.600">
-                        إجمالي المقبوضات: {totals.TotalDebitValue}
-                      </Text>
-
-                      <Text color="red.600">
-                        إجمالي المصروفات: {totals.TotalNetValue}
-                      </Text>
-
-                      <Text fontWeight="bold">
-                        الصافي: {totals.TotalCreditValue}
-                      </Text>
-                    </Box>
+                  summaryBelowPagination={
+                    <OfficePaymentsTotalsSummary
+                      TotalDebitValue={totals.TotalDebitValue}
+                      TotalCreditValue={totals.TotalCreditValue}
+                      TotalNetValue={totals.TotalNetValue}
+                    />
                   }
                 />
               </div>

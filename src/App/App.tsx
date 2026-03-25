@@ -251,13 +251,14 @@ export default function App() {
     <Route path="FedyaReport" element={<FedyaReport />} />
     <Route path="LoverDonationReport" element={<LoverDonationReport />} />
     <Route path="ZakatReport" element={<ZakatReport />} />
-    <Route path="PriceDetection" element={<PriceDetection />} />
-    <Route path="AddItemsFitrZakat" element={<AddItemsFitrZakat />} />
-    <Route path="OutFitrZakat" element={<OutFitrZakat />} />
-    <Route path="OutFitrTable" element={<OutFitrTable />} />
-    <Route path="fitrOutput/details/:id" element={<OutDetails />} />
     <Route path="SadakaReport" element={<SadakaReport />} />
     <Route path="NazrReport" element={<NazrReport />} />
+    
+    <Route path="fitrOutput/details/:id" element={<OutDetails />} />
+    <Route path="OutFitrZakat" element={<OutFitrZakat />} />
+    <Route path="OutFitrTable" element={<OutFitrTable />} />
+    <Route path="AddItemsFitrZakat" element={<AddItemsFitrZakat />} />
+    <Route path="PriceDetection" element={<PriceDetection />} />
     <Route path="searcher" element={<Searcher />} />
     <Route path="addSearcher" element={<AddSearcher/>} />
     <Route path="editSearcher" element={<EditSearcher/>} />

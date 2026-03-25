@@ -12,6 +12,7 @@ import {
 import { executeProcedure, PROCEDURE_NAMES } from "../../../api/apiClient";
 import { useGetOffices } from "../Offices/hooks/useGetOffices";
 import { DataTable } from "../../../Components/Table/DataTable";
+import { OfficePaymentsTotalsSummary } from "../../../Components/Table/OfficePaymentsTotalsSummary";
 
 
 const PAGE_LIMIT = 10 
@@ -32,6 +33,11 @@ const SacirificeReport = () => {
   const [page, setPage] = useState(1)
   const [ selectedActionType , setSelectedActionType] = useState(0); 
   const [loading, setLoading] = useState(false);
+  const [totals, setTotals] = useState({
+    TotalDebitValue: "0",
+    TotalCreditValue: "0",
+    TotalNetValue: "0",
+  });
 
   /** -------------------- GET OFFICES ------------------- */
   const {
@@ -91,12 +97,18 @@ const PAYMENTS_COLUMNS = [
         params
         );
 
-        setPaymentsCount(Number(response.decrypted.data?.Result[0].OfficePaymentsCount));
+        const row = response.decrypted.data?.Result[0];
+        setPaymentsCount(Number(row?.OfficePaymentsCount));
         setPaymentsData(
-        response.decrypted.data?.Result[0].OfficePaymentsData
-            ? JSON.parse(response.decrypted.data?.Result[0].OfficePaymentsData)
+        row?.OfficePaymentsData
+            ? JSON.parse(row.OfficePaymentsData)
             : []
         );
+        setTotals({
+          TotalDebitValue: row?.TotalDebitValue ?? "0",
+          TotalCreditValue: row?.TotalCreditValue ?? "0",
+          TotalNetValue: row?.TotalNetValue ?? "0",
+        });
     } finally {
         setLoading(false); // ينتهي اللودر
     }
@@ -229,6 +241,13 @@ const PAYMENTS_COLUMNS = [
             onPageChange={setPage}
             totalRows={PaymentsCount}
             startIndex={(page - 1) * PAGE_LIMIT + 1}
+            summaryBelowPagination={
+              <OfficePaymentsTotalsSummary
+                TotalDebitValue={totals.TotalDebitValue}
+                TotalCreditValue={totals.TotalCreditValue}
+                TotalNetValue={totals.TotalNetValue}
+              />
+            }
           />
         </div>
 

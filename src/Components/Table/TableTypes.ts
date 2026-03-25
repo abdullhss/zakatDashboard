@@ -33,6 +33,8 @@ export interface DataTableProps {
   updatedTitle ?: string ,
   setUpdatedTitle?:any , 
   footerRow?: React.ReactNode;
+  /** Rendered below the pagination row (outside the table) */
+  summaryBelowPagination?: React.ReactNode;
 }
 
 
