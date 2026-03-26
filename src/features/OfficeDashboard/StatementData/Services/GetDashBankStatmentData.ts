@@ -21,7 +21,7 @@ export async function getDashBankStatmentData(
     const sqlStartNum = startNum + 1; // SQL pagination يبدأ من 1
     
     const procedureValues = 
-        `${params.officeId}#${params.accountNum}#${params.fromDate}#${params.toDate}#${sqlStartNum}#${count}`; 
+        `${params.officeId}#${params.accountNum}#${params.fromDate}#${params.toDate}#${sqlStartNum}#${count}#$????`; 
     
     const ProcedureName = PROCEDURE_NAMES.GET_STATEMENT_DATA; 
 

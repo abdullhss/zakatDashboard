@@ -1,0 +1,11 @@
+{
+    "productionURL" : "https://api.wasl.zakatfund.gov.ly/emsserver.dll/ERPDatabaseWorkFunctions",
+    "devURL" : "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions" ,
+
+    "paymentGatewayURL_dev" : "https://moaamalat.almedadsoft.com",
+    "paymentGatewayURL_production" : "https://moamalat.zakatfund.gov.ly",
+
+
+    "url" : "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions", 
+    "paymentGatewayURL" : "https://moaamalat.almedadsoft.com"
+}

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { AES256Encryption } from "./utils/encryption";
 // import { getBase64 } from "./UploadImage.jsx";
-
+import { getConfig } from "./features/MainDepartment/Offices/helpers/utils.js";
 export const getBase64 = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -10,17 +10,22 @@ export const getBase64 = (file) => {
     reader.onerror = (error) => reject(error);
   });
 };
-const CONFIG = {
-  API_TOKEN: "TTRgG@i$$ol@m$Wegh77",
-  DATA_TOKEN: "Zakat",
-  BASE_URL: "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions/"  //Al Medad,
-  //  BASE_URL: "https://client-frw.almedadsoft.com/emsserver.dll/ERPDatabaseWorkFunctions/"   //Zakat,
-  
+
+const getRuntimeConfig = () => {
+  const urls = getConfig();
+  if (!urls?.url) {
+    throw new Error("Config not loaded: missing url");
+  }
+  return {
+    API_TOKEN: "TTRgG@i$$ol@m$Wegh77",
+    DATA_TOKEN: "Zakat",
+    BASE_URL: `${urls.url}/`,
+  };
 };
 
 export class HandelFile {
   async UploadFileWebSite({ action, file, fileId = "", SessionID, onProgress, controller }) {
-    console.log('test');
+    const CONFIG = getRuntimeConfig();
     
     if (!file && action !== "Delete") return console.error("No file provided");
 

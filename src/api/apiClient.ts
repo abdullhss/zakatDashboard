@@ -1,6 +1,7 @@
 // src/api/apiClient.ts
 import axios, { type AxiosResponse } from "axios";
 import { AES256Encryption } from "../utils/encryption";
+import { getConfig } from "../features/MainDepartment/Offices/helpers/utils";
 
 export type AnyRec = Record<string, any>;
 
@@ -20,8 +21,16 @@ const API_CONFIG = {
 };
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
+});
+
+api.interceptors.request.use((requestConfig) => {
+  const urls = getConfig();
+  if (!urls?.url) {
+    throw new Error("Config not loaded: missing url");
+  }
+  requestConfig.baseURL = urls.url;
+  return requestConfig;
 });
 
 export const PROCEDURE_NAMES: Record<string, string> = {
