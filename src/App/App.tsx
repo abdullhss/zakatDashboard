@@ -101,6 +101,12 @@ import OutDetails from "../features/OfficeDashboard/FitrZakat/OutDetails.jsx";
 import ZakatFitrSanfReport from "../features/OfficeDashboard/FitrZakat/ZakatFitrSanfReport.jsx";
 import Licences from "../features/MainDepartment/Licences/Licences.jsx";
 import UnApprovedPaymentsReport from "../features/MainDepartment/UnApprovedPaymentsReport/UnApprovedPaymentsReport.jsx";
+import EvaluationCountData from "../features/MainDepartment/Survey/EvaluationCountData.jsx";
+import EvaluationProblemsData from "../features/MainDepartment/Survey/EvaluationProblemsData.jsx";
+import EvaluationSuggestionsData from "../features/MainDepartment/Survey/EvaluationSuggestionsData.jsx";
+import EvaluationReachToWebData from "../features/MainDepartment/Survey/EvaluationReachToWebData.jsx";
+import EvaluationAttendanceData from "../features/MainDepartment/Survey/EvaluationAttendanceData.jsx";
+
 export default function App() {
   const { setImagesPath } = useImagesPathContext();
   useEffect(() => {
@@ -206,7 +212,11 @@ export default function App() {
             <Route path="CampaignReport" element={<CampaignReport />} />
             <Route path="SubventionTypeReport" element={<SubventionTypeReport />} />
             <Route path="UnApprovedPaymentsReport" element={<UnApprovedPaymentsReport />} />
-
+            <Route path="EvaluationCountData" element={<EvaluationCountData />} />
+            <Route path="EvaluationProblemsData" element={<EvaluationProblemsData />} />
+            <Route path="EvaluationSuggestionsData" element={<EvaluationSuggestionsData />} />
+            <Route path="EvaluationReachToWebData" element={<EvaluationReachToWebData />} />
+            <Route path="EvaluationAttendanceData" element={<EvaluationAttendanceData />} />
             <Route path="licences" element={<Licences />} />
           </Route>
         </Route>

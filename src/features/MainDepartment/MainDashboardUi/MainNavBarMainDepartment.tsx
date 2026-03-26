@@ -174,6 +174,14 @@ export default function MainNavBar() {
         {renderLink("OldUsersQuestions", " أسئلة المستخدمين المجابة", MdOutlineAssignmentTurnedIn)}
       </SidebarDropdown>
 
+      <SidebarDropdown title="الاستبيان" icon={MdOutlineAssignmentTurnedIn}>
+        {renderLink("EvaluationCountData", "التقييم الفني للمنصة", MdOutlineAssignmentTurnedIn)}
+        {renderLink("EvaluationProblemsData", "المشكلات", MdOutlineAssignmentTurnedIn)}
+        {renderLink("EvaluationSuggestionsData", "الخدمات المضافة", MdOutlineAssignmentTurnedIn)}
+        {renderLink("EvaluationReachToWebData", "تعزيز الوصول", MdOutlineAssignmentTurnedIn)}
+        {renderLink("EvaluationAttendanceData", "الحضور", MdOutlineAssignmentTurnedIn)}
+      </SidebarDropdown>
+
     </NavList>
   );
 }
