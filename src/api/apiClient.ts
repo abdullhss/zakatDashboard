@@ -9,12 +9,19 @@ export type AnyRec = Record<string, any>;
  * 1) الإعدادات
  * =================================== */
 
-const urls = getConfig();
 const API_CONFIG = {
   API_TOKEN: "TTRgG@i$$ol@m$Wegh77",
   PUBLIC_KEY: "SL@C$@rd2023$$AlMedad$Soft$2022$",
-  DATA_TOKEN: urls.token,
 };
+
+function getDataToken(): string {
+  const c = getConfig();
+  const token = c?.token;
+  if (token == null || token === "") {
+    throw new Error("Config not loaded: missing token");
+  }
+  return String(token);
+}
 
 const api = axios.create({
   headers: { "Content-Type": "application/json" },
@@ -325,7 +332,7 @@ export function analyzeExecution(result: ExecutionResult): NormalizedSummary {
 export async function executeProcedure(
   ProcedureName: string,
   procedureValues: string,
-  dataToken: string = API_CONFIG.DATA_TOKEN,
+  dataToken: string = getDataToken(),
   offset?: number,
   fetch?: number
 ): Promise<ExecutionResult> {
@@ -402,7 +409,7 @@ export async function doTransaction(
   input: Omit<TransactionInput, "DataToken"> & { dataToken?: string }
 ): Promise<ExecutionResult> {
   try {
-    const dataToken = input.dataToken || API_CONFIG.DATA_TOKEN;
+    const dataToken = input.dataToken || getDataToken();
 
     const toEncrypt: TransactionInput = {
       TableName: input.TableName,
@@ -485,7 +492,7 @@ type MultiTxInput = {
 
 export async function doMultiTransaction(input: MultiTxInput): Promise<ExecutionResult> {
   try {
-    const dataToken = input.dataToken || API_CONFIG.DATA_TOKEN;
+    const dataToken = input.dataToken || getDataToken();
 
     const toEncrypt: Record<string, any> = {
       MultiTableName: input.MultiTableName,

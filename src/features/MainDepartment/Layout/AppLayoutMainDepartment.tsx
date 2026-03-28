@@ -82,7 +82,7 @@ export default function DashboardLayout() {
         : SideBarMainDepartment;
 
     return (
-        <StyledAppLayout>
+        <StyledAppLayout data-print-dashboard-layout="">
         <HeaderWrap />
         {/* 5. تمرير قائمة الأكواد المسموح بها إلى الـ Sidebar */}
         <Sidebar allowedFeatures={allowedFeatureCodes} /> 

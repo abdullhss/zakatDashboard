@@ -3,6 +3,44 @@ body {
   font-variant-numeric: lining-nums;
   font-feature-settings: "lnum";
 }
+
+/* جداول الاستبيان (شاشة + طباعة): عرض كامل */
+#printable-table.printable-with-logo {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#printable-table.printable-with-logo .print-survey-frame {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#printable-table.printable-with-logo .print-survey-main-cell,
+#printable-table.printable-with-logo .print-table-main,
+#printable-table.printable-with-logo .printable-table-screen-only,
+#printable-table.printable-with-logo .printable-table-print-only,
+#printable-table.printable-with-logo .print-survey-print-chunk {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* حاوية DataTable (Chakra Box) */
+#printable-table.printable-with-logo .print-table-main > *,
+#printable-table.printable-with-logo .print-survey-print-chunk > * {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+  box-sizing: border-box;
+}
+
+#printable-table.printable-with-logo table {
+  width: 100% !important;
+  min-width: 0;
+  box-sizing: border-box;
+}
 @media print {
   /* اخفي الصفحة كلها */
   body * {
@@ -20,5 +58,139 @@ body {
     left: 0;
     top: 0;
     width: 100%;
+  }
+
+  /* استبيان: thead يتكرر على كل صفحة + تدفق عادي */
+  #printable-table.printable-with-logo {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .print-survey-frame {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .print-survey-logo-thead td {
+    padding: 8px 12px 10px;
+    text-align: center;
+    vertical-align: middle;
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .print-survey-print-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .print-table-logo-img {
+    max-height: 48px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .print-table-doc-title {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    direction: rtl;
+    line-height: 1.35;
+  }
+
+  .print-survey-main-cell {
+    vertical-align: top;
+    padding: 0;
+  }
+
+  .printable-with-logo .print-table-main {
+    padding-top: 0;
+  }
+
+  .print-survey-logo-thead {
+    display: table-header-group !important;
+  }
+
+  #printable-table.printable-with-logo tbody {
+    display: table-row-group;
+  }
+
+  /* عرض كامل — تفاصيل إضافية تُحقن من PrintableTableWithLogo قبل الطباعة */
+  #printable-table.printable-with-logo .print-survey-frame {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  #printable-table.printable-with-logo .print-table-main table,
+  #printable-table.printable-with-logo .print-survey-print-chunk table {
+    width: 100% !important;
+    max-width: none !important;
+    table-layout: fixed !important;
+  }
+
+  #printable-table.printable-with-logo .print-survey-logo-thead td,
+  #printable-table.printable-with-logo .print-survey-main-cell {
+    width: 100% !important;
+  }
+}
+
+/* على الشاشة */
+@media screen {
+  .print-survey-logo-thead {
+    display: none;
+  }
+
+  .printable-table-print-only {
+    display: none !important;
+  }
+}
+
+@media print {
+  .printable-table-screen-only {
+    display: none !important;
+  }
+
+  .printable-table-print-only {
+    display: block !important;
+  }
+
+  /* كل جزء مطابق لصفحة التصفح = جدول منفصل يبدأ في صفحة جديدة */
+  .print-survey-print-chunk--break {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  /*
+   * طباعة الاستبيان: الشبكة 314px + main كانت تضيّق الجدول عن عرض الورقة.
+   * يُفعَّل مع class على html من PrintableTableWithLogo.
+   */
+  html.print-survey-full-bleed #root {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  html.print-survey-full-bleed [data-print-dashboard-layout] {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  html.print-survey-full-bleed [data-print-dashboard-layout] > *:nth-child(1),
+  html.print-survey-full-bleed [data-print-dashboard-layout] > *:nth-child(2) {
+    display: none !important;
+  }
+
+  html.print-survey-full-bleed [data-print-dashboard-layout] > *:nth-child(3) {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
   }
 }

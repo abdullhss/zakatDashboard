@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { executeProcedure } from '../../../api/apiClient'
 import DataTable from '../../../Components/Table/DataTable'
+import { PrintableTableWithLogo } from '../../../Components/PrintableTableWithLogo'
 
 const EvaluationCountData = () => {
     const [tableData, setTableData] = useState([])
@@ -37,14 +38,18 @@ const EvaluationCountData = () => {
       ...optionColumns
     ]
 
+  const docTitle = 'التقييم الفني للمنصة'
+
   return (
     <>
-      <DataTable
-        title="التقييم الفني للمنصة"
-        data={rows}
-        columns={columns}
-        totalRows={rows.length}
-      />
+      <PrintableTableWithLogo hasData={rows.length > 0} documentTitle={docTitle}>
+        <DataTable
+          title={docTitle}
+          data={rows}
+          columns={columns}
+          totalRows={rows.length}
+        />
+      </PrintableTableWithLogo>
       {rows.length === 0 && (
         <div style={{ textAlign: 'center', marginTop: '8px' }}>لا يوجد بيانات حالياً</div>
       )}

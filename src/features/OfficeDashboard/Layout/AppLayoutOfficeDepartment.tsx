@@ -35,7 +35,7 @@ const SidebarWrap = chakra(SideBarOfficeDepartment, {
 
 export default function OfficeDashboardLayout() {
   return (
-    <StyledAppLayout>
+    <StyledAppLayout data-print-dashboard-layout="">
       <HeaderWrap />
       <SidebarWrap />
       <Main>
