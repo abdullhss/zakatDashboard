@@ -53,9 +53,11 @@ function injectSurveyPrintPageMargins() {
       width: 100% !important;
       max-width: none !important;
       margin-inline: 0 !important;
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-      padding-inline: 0 !important;
+      padding: 10px 6mm 12px 6mm !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      border: 1px solid #bbb !important;
+      background: #fff !important;
     }
     #printable-table.printable-with-logo .print-table-main > [class*="css-"] > div {
       width: 100% !important;

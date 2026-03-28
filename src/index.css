@@ -138,6 +138,108 @@ body {
   #printable-table.printable-with-logo .print-survey-main-cell {
     width: 100% !important;
   }
+
+  /* ——— واجهة طباعة جدول البيانات (داخل print-table-main فقط) ——— */
+  #printable-table.printable-with-logo .print-survey-logo-thead td {
+    padding: 10px 14px 12px !important;
+    border-bottom: 2px solid #1b5853 !important;
+    background: #fff !important;
+  }
+
+  #printable-table.printable-with-logo .print-table-doc-title {
+    font-size: 11pt !important;
+    max-width: 95% !important;
+    margin-inline: auto !important;
+  }
+
+  #printable-table.printable-with-logo .print-table-main table,
+  #printable-table.printable-with-logo .print-survey-print-chunk table {
+    border: 1.5px solid #222 !important;
+    border-collapse: collapse !important;
+    font-family: inherit !important;
+  }
+
+  /* عنوان الجدول فوق الجدول */
+  #printable-table.printable-with-logo .print-table-main h2,
+  #printable-table.printable-with-logo .print-survey-print-chunk h2 {
+    font-size: 12pt !important;
+    font-weight: 700 !important;
+    color: #111 !important;
+    margin: 0 0 10px 0 !important;
+    padding: 0 4px 8px 0 !important;
+    border-bottom: 2px solid #1b5853 !important;
+    text-align: right !important;
+    direction: rtl !important;
+    line-height: 1.35 !important;
+  }
+
+  /* صف رأس الأعمدة */
+  #printable-table.printable-with-logo .print-table-main table thead th,
+  #printable-table.printable-with-logo .print-survey-print-chunk table thead th {
+    background: #cfd8dc !important;
+    color: #111 !important;
+    font-weight: 700 !important;
+    font-size: 10.5pt !important;
+    border: 1px solid #333 !important;
+    padding: 9px 10px !important;
+    text-align: right !important;
+    direction: rtl !important;
+    vertical-align: middle !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* عمود الترقيم # — ضيق ووسط */
+  #printable-table.printable-with-logo .print-table-main table thead th:first-child,
+  #printable-table.printable-with-logo .print-table-main table tbody td:first-child,
+  #printable-table.printable-with-logo .print-survey-print-chunk table thead th:first-child,
+  #printable-table.printable-with-logo .print-survey-print-chunk table tbody td:first-child {
+    width: 10mm !important;
+    min-width: 10mm !important;
+    max-width: 14mm !important;
+    text-align: center !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  /* خلايا البيانات */
+  #printable-table.printable-with-logo .print-table-main table tbody td,
+  #printable-table.printable-with-logo .print-survey-print-chunk table tbody td {
+    border: 1px solid #555 !important;
+    padding: 8px 10px !important;
+    font-size: 10pt !important;
+    font-weight: 500 !important;
+    color: #111 !important;
+    text-align: right !important;
+    direction: rtl !important;
+    vertical-align: middle !important;
+    word-break: break-word !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* صفوف متناوبة للقراءة */
+  #printable-table.printable-with-logo .print-table-main table tbody tr:nth-child(even) td,
+  #printable-table.printable-with-logo .print-survey-print-chunk table tbody tr:nth-child(even) td {
+    background: #f0f3f5 !important;
+  }
+
+  /* جدول بعمود واحد للبيانات (بعد #): يأخذ باقي العرض */
+  #printable-table.printable-with-logo .print-table-main table thead th:nth-child(2):last-child,
+  #printable-table.printable-with-logo .print-table-main table tbody td:nth-child(2):last-child,
+  #printable-table.printable-with-logo .print-survey-print-chunk table thead th:nth-child(2):last-child,
+  #printable-table.printable-with-logo .print-survey-print-chunk table tbody td:nth-child(2):last-child {
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  /* أعمدة متعددة بعد #: توزيع متساوٍ تقريباً مع fixed layout */
+  #printable-table.printable-with-logo .print-table-main table thead th:not(:first-child),
+  #printable-table.printable-with-logo .print-table-main table tbody td:not(:first-child),
+  #printable-table.printable-with-logo .print-survey-print-chunk table thead th:not(:first-child),
+  #printable-table.printable-with-logo .print-survey-print-chunk table tbody td:not(:first-child) {
+    width: auto !important;
+  }
 }
 
 /* على الشاشة */
