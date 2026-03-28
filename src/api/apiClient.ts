@@ -8,16 +8,12 @@ export type AnyRec = Record<string, any>;
 /* ===================================
  * 1) الإعدادات
  * =================================== */
-// http://185.207.251.48:8085/ERPDatabaseWorkFunctions/ERPDatabaseWorkFunctions/
-// https://api.wasl.zakatfund.gov.ly/emsserver.dll/ERPDatabaseWorkFunctions/
-const API_BASE_URL =
-  "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions/";
-  //https://client-frw.almedadsoft.com/emsserver.dll/ERPDatabaseWorkFunctions/
-  //https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions/
+
+const urls = getConfig();
 const API_CONFIG = {
   API_TOKEN: "TTRgG@i$$ol@m$Wegh77",
   PUBLIC_KEY: "SL@C$@rd2023$$AlMedad$Soft$2022$",
-  DATA_TOKEN: "Zakat",
+  DATA_TOKEN: urls.token,
 };
 
 const api = axios.create({

@@ -7,5 +7,6 @@
 
 
     "url" : "https://framework.md-license.com:8093/emsserver.dll/ERPDatabaseWorkFunctions", 
-    "paymentGatewayURL" : "https://moaamalat.almedadsoft.com"
+    "paymentGatewayURL" : "https://moaamalat.almedadsoft.com",
+    "token" : "Zakat"
 }

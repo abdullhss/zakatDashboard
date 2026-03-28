@@ -18,13 +18,14 @@ const getRuntimeConfig = () => {
   }
   return {
     API_TOKEN: "TTRgG@i$$ol@m$Wegh77",
-    DATA_TOKEN: "Zakat",
+    DATA_TOKEN: urls.token,
     BASE_URL: `${urls.url}/`,
   };
 };
 
 export class HandelFile {
   async UploadFileWebSite({ action, file, fileId = "", SessionID, onProgress, controller }) {
+    const urls = getConfig();
     const CONFIG = getRuntimeConfig();
     
     if (!file && action !== "Delete") return console.error("No file provided");
@@ -44,7 +45,7 @@ export class HandelFile {
         ActionType: action,
         FileId: fileId,
         ...convertedFile,
-        DataToken: "Zakat",
+        DataToken: urls.token,
         SessionID,
       },"SL@C$@rd2023$$AlMedad$Soft$2022$"),
       encode_plc1: file?((await getBase64(file))?.split(',')[1]):"",
