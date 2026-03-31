@@ -21,6 +21,12 @@ import { HandelFile } from '../../../HandleFile';
 
 const PAGE_SIZE = 5;
 
+const formatDateAsDayMonthYear = (value: string | number | Date) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString('en-GB');
+};
+
 // ===================================
 // تعريف الأعمدة (لضمان وجودها عند البدء)
 // ===================================
@@ -63,7 +69,14 @@ export default function GetDashPaymentData() {
                     if (isWaslUploading) return;
                     if(row.StatementAttachExt){
                         
-                        
+                        // const response = await doTransaction({
+                        //     TableName: "rCSWIwrXh3HGKRYh9gCA8g==",
+                        //     WantedAction: 1,
+                        //     ColumnsValues: `${row.Id}#0`,
+                        //     ColumnsNames: "Id#StatementAttach",
+                        //     PointId: 0,
+                        // }) ;
+
                         window.open(`${BASE_ATTACHMENT_URL}${row.StatementAttachName}${row.StatementAttachExt}`, '_blank')
                     }else{
                         generateAndUploadZakatWaslPdf(row);
@@ -185,18 +198,18 @@ export default function GetDashPaymentData() {
     }, [BASE_ATTACHMENT_URL, toast]);
 
     const generateAndUploadZakatWaslPdf = useCallback(async (row: AnyRec) => {
-        const paymentDate = row.PaymentDate ? new Date(row.PaymentDate).toLocaleDateString() : '—';
+        const paymentDate = row.PaymentDate ? formatDateAsDayMonthYear(row.PaymentDate) : '—';
         const donationAmountInWords = `${(toArabicWord as any)(Number(row.PaymentValue) || 0)} دينار ليبي فقط لا غير`;
         setWaslPayload({
             officeName: String(row.OfficeName || 'مجهول'),
             officeId: String(row.Id ?? row.Office_Id ?? ''),
             donationDate: String(paymentDate),
-            donationId: String(row.StatementAttachName || row.PaymentMethod_Id || row.Id || ''),
+            // donationId: String(row.StatementAttachName || row.PaymentMethod_Id || row.Id || ''),
             donationAmount: String(row.PaymentValue ?? '0'),
             donationAmountInWords: donationAmountInWords,
             donationPhone: String(row.MobileNum || 'مجهول'),
             donationName: String(row.UserName || 'مجهول'),
-            donationType: Number(row.Action_Id || 0),
+            donationType: Number(row.Action_Id.toString().trim()),
             donationNameForLover: String(row.PaymentDesc || ''),
             paymentDescription: String(row.PaymentDesc || ''),
         });

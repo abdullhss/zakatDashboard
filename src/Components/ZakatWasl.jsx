@@ -148,13 +148,13 @@ const ZakatWasl = ({
               }}
             >
               <ZakatWaslInput
-                style={{ width: '50%', whiteSpace: 'nowrap' }}
+                className="w-1/2 text-nowrap"
                 width="w-1/2"
                 inputName="المكتب"
                 inputValue={officeName}
               />
               <ZakatWaslInput
-                style={{ width: '50%', justifyContent: 'flex-end', whiteSpace: 'nowrap' }}
+                className="w-1/2 justify-end text-nowrap"
                 width="w-1/2"
                 inputName="رقم التسلسل:"
                 inputValue={officeId}
@@ -170,13 +170,13 @@ const ZakatWasl = ({
               }}
             >
               <ZakatWaslInput
-                style={{ width: '50%', whiteSpace: 'nowrap' }}
+                className="w-1/2 text-nowrap"
                 width="w-1/2"
                 inputName="التاريــــخ :"
                 inputValue={donationDate}
               />
               <ZakatWaslInput
-                style={{ width: '50%', justifyContent: 'flex-end', whiteSpace: 'nowrap' }}
+                className="w-1/2 justify-end text-nowrap"
                 width="w-1/2"
                 inputName="رقم العملية:"
                 inputValue={donationId}
@@ -185,7 +185,7 @@ const ZakatWasl = ({
           </div>
 
           <ZakatWaslInput
-            style={{ width: '100%' }}
+            className="w-full"
             inputName="اسم : المزكي/ المتبرع"
             inputValue={donationName}
           />
@@ -267,16 +267,36 @@ const ZakatWasl = ({
 
 export default ZakatWasl;
 
-const ZakatWaslInput = ({ inputName, inputValue, className, width = 'w-1/4' }) => {
+const ZakatWaslInput = ({ inputName, inputValue, className, width = 'w-1/4', style = {} }) => {
   const displayValue = inputValue != null && inputValue !== '' ? inputValue : '\u00A0';
+
+  // Helper to convert Tailwind width classes to inline width
+  const getWidthPercent = (w) => {
+    if (w === 'w-1/4') return '25%';
+    if (w === 'w-1/2') return '50%';
+    if (w === 'w-full') return '100%';
+    return '25%'; // default
+  };
+
+  // Parse className for width and text-nowrap
+  const classNames = className ? className.split(' ') : [];
+  const hasTextNowrap = classNames.includes('text-nowrap');
+  const widthClass = classNames.find(c => c.startsWith('w-'));
+  const outerWidth = widthClass ? getWidthPercent(widthClass) : '100%';
+
+  // Also handle justify-end
+  const justifyEnd = classNames.includes('justify-end');
+
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
-        width: '100%',
+        width: outerWidth,
         minHeight: '2.25rem',
-        ...(className ? { className } : {}),
+        whiteSpace: hasTextNowrap ? 'nowrap' : 'normal',
+        justifyContent: justifyEnd ? 'flex-end' : 'flex-start',
+        ...style,
       }}
     >
       <div
@@ -294,7 +314,7 @@ const ZakatWaslInput = ({ inputName, inputValue, className, width = 'w-1/4' }) =
           alignItems: 'center',
           justifyContent: 'flex-start',
           textAlign: 'right',
-          width: width === 'w-1/4' ? '25%' : width === 'w-1/2' ? '50%' : '100%',
+          width: getWidthPercent(width),
         }}
       >
         {inputName}
@@ -323,10 +343,8 @@ const ZakatWaslInput = ({ inputName, inputValue, className, width = 'w-1/4' }) =
 
 ZakatWasl.propTypes = {
   officeName: PropTypes.string.isRequired,
-  /** رقم التسلسل: newId (payment record id) */
   officeId: PropTypes.string.isRequired,
   donationDate: PropTypes.string.isRequired,
-  /** رقم العملية: SystemReference (electronic) or newId (non-electronic) */
   donationId: PropTypes.string.isRequired,
   donationAmount: PropTypes.string.isRequired,
   donationAmountInWords: PropTypes.string.isRequired,
@@ -342,4 +360,5 @@ ZakatWaslInput.propTypes = {
   inputValue: PropTypes.string,
   className: PropTypes.string,
   width: PropTypes.string,
+  style: PropTypes.object,
 };
