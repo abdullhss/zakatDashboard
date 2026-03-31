@@ -18,48 +18,48 @@ const ZakatWasl = ({
   donationNameForLover,
   paymentDescription,
 }) => {
-  let donationTypeText = '';
+  // let donationTypeText = '';
 
-  switch (donationType) {
-    case '1':
-      donationTypeText = 'زكاة';
-      break;
-    case '2':
-      donationTypeText = 'صدقة';
-      break;
-    case '3':
-      donationTypeText = 'كفارة';
-      break;
-    case '4':
-      donationTypeText = 'نذر';
-      break;
-    case '5':
-      donationTypeText = 'حملة';
-      break;
-    case '6':
-      donationTypeText = 'سلة الزكاة';
-      break;
-    case '7':
-      donationTypeText = 'سلة الصدقة';
-      break;
-    case '8':
-      donationTypeText = 'الأضاحي';
-      break;
-    case '9':
-      donationTypeText = 'فدية';
-      break;
-    case '10':
-      donationTypeText = 'التبرع لمن تحب';
-      break;
-    case '11':
-      donationTypeText = 'زكاة الفطر';
-      break;
-    case '12':
-      donationTypeText = 'ابراء الذمة';
-      break;
-    default:
-      donationTypeText = 'غير محدد';
-  }
+  // switch (donationType) {
+  //   case '1':
+  //     donationTypeText = 'زكاة';
+  //     break;
+  //   case '2':
+  //     donationTypeText = 'صدقة';
+  //     break;
+  //   case '3':
+  //     donationTypeText = 'كفارة';
+  //     break;
+  //   case '4':
+  //     donationTypeText = 'نذر';
+  //     break;
+  //   case '5':
+  //     donationTypeText = 'حملة';
+  //     break;
+  //   case '6':
+  //     donationTypeText = 'سلة الزكاة';
+  //     break;
+  //   case '7':
+  //     donationTypeText = 'سلة الصدقة';
+  //     break;
+  //   case '8':
+  //     donationTypeText = 'الأضاحي';
+  //     break;
+  //   case '9':
+  //     donationTypeText = 'فدية';
+  //     break;
+  //   case '10':
+  //     donationTypeText = 'التبرع لمن تحب';
+  //     break;
+  //   case '11':
+  //     donationTypeText = 'زكاة الفطر';
+  //     break;
+  //   case '12':
+  //     donationTypeText = 'ابراء الذمة';
+  //     break;
+  //   default:
+  //     donationTypeText = 'غير محدد';
+  // }
 
   return (
     <div
@@ -189,7 +189,7 @@ const ZakatWasl = ({
             inputName="اسم : المزكي/ المتبرع"
             inputValue={donationName}
           />
-          <ZakatWaslInput inputName="النوع" inputValue={donationTypeText} />
+          <ZakatWaslInput inputName="النوع" inputValue={donationType} />
           <ZakatWaslInput inputName="القيمة" inputValue={donationAmount} />
           <ZakatWaslInput
             inputName="القيمة بالحروف"

@@ -36,7 +36,9 @@ const formatDateAsDayMonthYear = (value: string | number | Date) => {
 export default function GetDashPaymentData() {
     const { imagesPath } = useImagesPathContext();
     // imagesPath is set asynchronously in App.tsx; avoid building links until it's ready (prevents "undefined/..." after refresh)
-    const BASE_ATTACHMENT_URL = imagesPath ? `${imagesPath}/` : ''; 
+    const BASE_ATTACHMENT_URL = imagesPath ? `${imagesPath}/` : '';
+    /** After first successful generate+upload for a payment, reuse the same URL (avoid regenerating PDF). */
+    const generatedWaslAttachmentRef = useRef<Map<string | number, { name: string; ext: string }>>(new Map());
     const PAYMENT_COLUMNS_BASE: Column[] = [
         { key: "Id", header: "رقم المعاملة", render: (row: AnyRec) => row.Id ?? '—', },
         { key: "review", header: "مراجعة", render: (row: AnyRec) => <Button>مراجعة</Button>, },
@@ -65,20 +67,22 @@ export default function GetDashPaymentData() {
 
         return (
             <span
-                onClick={ async () => {
+                onClick={async () => {
                     if (isWaslUploading) return;
-                    if(row.StatementAttachExt){
-                        
-                        // const response = await doTransaction({
+                    const paymentKey = row.Id ?? '__no_id__';
+                    const cachedWasl = generatedWaslAttachmentRef.current.get(paymentKey);
+                    if (row.StatementAttachExt) {
+                        // await doTransaction({
                         //     TableName: "rCSWIwrXh3HGKRYh9gCA8g==",
                         //     WantedAction: 1,
                         //     ColumnsValues: `${row.Id}#0`,
                         //     ColumnsNames: "Id#StatementAttach",
                         //     PointId: 0,
                         // }) ;
-
-                        window.open(`${BASE_ATTACHMENT_URL}${row.StatementAttachName}${row.StatementAttachExt}`, '_blank')
-                    }else{
+                        window.open(`${BASE_ATTACHMENT_URL}${row.StatementAttachName}${row.StatementAttachExt}`, '_blank');
+                    } else if (cachedWasl?.name && cachedWasl?.ext) {
+                        window.open(`${BASE_ATTACHMENT_URL}${cachedWasl.name}${cachedWasl.ext}`, '_blank');
+                    } else {
                         generateAndUploadZakatWaslPdf(row);
                     }
                 }}
@@ -175,6 +179,12 @@ export default function GetDashPaymentData() {
             }) ;
             const response2 = await executeProcedure("rejz6ir0QkiZ4zJBAFkpVRZK3ifpUlwSdAsa/bHrNWY=" , `${row.Id}#$????`)
             const newrow = JSON.parse(response2.decrypted.data.Result[0].PaymentsData)[0] ;
+            if (newrow?.StatementAttachName != null && newrow?.StatementAttachExt) {
+                generatedWaslAttachmentRef.current.set(row.Id ?? '__no_id__', {
+                    name: String(newrow.StatementAttachName),
+                    ext: String(newrow.StatementAttachExt),
+                });
+            }
             window.open(`${BASE_ATTACHMENT_URL}${newrow.StatementAttachName}${newrow.StatementAttachExt}`, '_blank')
 
         } catch (pdfError: any) {
@@ -209,7 +219,7 @@ export default function GetDashPaymentData() {
             donationAmountInWords: donationAmountInWords,
             donationPhone: String(row.MobileNum || 'مجهول'),
             donationName: String(row.UserName || 'مجهول'),
-            donationType: Number(row.Action_Id.toString().trim()),
+            donationType: row.ActionName || "غير محدد",
             donationNameForLover: String(row.PaymentDesc || ''),
             paymentDescription: String(row.PaymentDesc || ''),
         });
@@ -432,7 +442,7 @@ selectedAction,
                         donationAmountInWords={String(waslPayload.donationAmountInWords || '')}
                         donationPhone={String(waslPayload.donationPhone || 'مجهول')}
                         donationName={String(waslPayload.donationName || 'مجهول')}
-                        donationType={Number(waslPayload.donationType || 0)}
+                        donationType={String(waslPayload.donationType || '')}
                         donationNameForLover={String(waslPayload.donationNameForLover || '')}
                         paymentDescription={String(waslPayload.paymentDescription || '')}
                     />
