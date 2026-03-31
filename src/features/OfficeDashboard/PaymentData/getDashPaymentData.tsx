@@ -1,18 +1,23 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { 
     Box, Flex, Spinner, Alert, AlertIcon, Text, HStack, Select, Link, 
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, 
     ModalBody, Button, Grid, useToast 
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import { DataTable } from '../../../Components/Table/DataTable';
 import type { AnyRec, Column } from '../../../Components/Table/TableTypes';
 import { useGetDashPyamentData } from './hooks/useGetDashPyamentData'; 
 import { getSession } from '../../../session'; 
 import { useGetOffices } from '../../MainDepartment/Offices/hooks/useGetOffices'; 
 import { useAddPaymentApproval } from './hooks/useAddPayment'; // هوك الموافقة
-import { executeProcedure } from '../../../api/apiClient';
+import { doTransaction, executeProcedure } from '../../../api/apiClient';
 import { useImagesPathContext } from '../../../Context/ImagesPathContext';
+import ZakatWasl from '../../../Components/ZakatWasl';
+import { toArabicWord } from 'number-to-arabic-words/dist/index-node.js';
+import { HandelFile } from '../../../HandleFile';
 
 const PAGE_SIZE = 5;
 
@@ -41,7 +46,34 @@ export default function GetDashPaymentData() {
     { key: "AttachmentPhotoName", header: "الوصل", render: (row: AnyRec) => {
         if (!row.AttachmentPhotoName) return '—';
         if (!BASE_ATTACHMENT_URL) return <Text color="gray.500">—</Text>; // imagesPath not loaded yet (e.g. right after refresh)
-        return <Link href={`${BASE_ATTACHMENT_URL}${row.StatementAttachName}${row.StatementAttachExt}`} isExternal color="blue.500">الايصال</Link>;
+
+        const isCurrentRowUploading = isWaslUploading && uploadingReceiptId === (row.Id ?? null);
+        if (isCurrentRowUploading) {
+            return (
+                <HStack spacing={2}>
+                    <Spinner size="sm" />
+                    <Text color="blue.600">جاري رفع الوصل...</Text>
+                </HStack>
+            );
+        }
+
+        return (
+            <span
+                onClick={ async () => {
+                    if (isWaslUploading) return;
+                    if(row.StatementAttachExt){
+                        
+                        
+                        window.open(`${BASE_ATTACHMENT_URL}${row.StatementAttachName}${row.StatementAttachExt}`, '_blank')
+                    }else{
+                        generateAndUploadZakatWaslPdf(row);
+                    }
+                }}
+                style={{ cursor: isWaslUploading ? 'not-allowed' : 'pointer', color: 'blue' , textDecoration: 'underline', opacity: isWaslUploading ? 0.7 : 1 }}
+            >
+                الايصال
+            </span>
+        );
     } },
     ];
     const [page, setPage] = useState(1);
@@ -62,6 +94,10 @@ export default function GetDashPaymentData() {
     const [statusFilter, setStatusFilter] = useState<number>(0);
     const [actionData , setActionData] = useState([]) ;
     const [selectedAction , setSelectedAction] = useState(0) ;
+    const waslRef = useRef<HTMLDivElement | null>(null);
+    const [waslPayload, setWaslPayload] = useState<AnyRec | null>(null);
+    const [isWaslUploading, setIsWaslUploading] = useState(false);
+    const [uploadingReceiptId, setUploadingReceiptId] = useState<string | number | null>(null);
 
     const getAllActions = async ()=>{
         const response = await executeProcedure("3P8RkzNFvgeh6oSPaIf+jVoEFDOVJ+KG83cO0oTKzVY=" , "") ;
@@ -70,6 +106,104 @@ export default function GetDashPaymentData() {
     useEffect(()=>{
         getAllActions(); 
     },[])
+
+    const downloadWaslPDFAndUpload = useCallback(async (row: AnyRec) => {
+        if (!waslRef.current) return;
+        setIsWaslUploading(true);
+        setUploadingReceiptId(row.Id ?? null);
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        const waslElement = waslRef.current;
+        const originalStyle = waslElement.getAttribute('style');
+        waslElement.setAttribute(
+            'style',
+            'position: fixed; top: -9999px; left: -9999px; width: 1123px; background: white; padding: 24px; visibility: visible; opacity: 1;'
+        );
+
+        try {
+            const canvas = await html2canvas(waslElement, {
+                backgroundColor: '#ffffff',
+                scale: 1,
+                useCORS: true,
+            });
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+            const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+            const imgProps = pdf.getImageProperties(dataUrl);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const scale = Math.min(pdfWidth / imgProps.width, pdfHeight / imgProps.height);
+            const renderWidth = imgProps.width * scale;
+            const renderHeight = imgProps.height * scale;
+            const x = (pdfWidth - renderWidth) / 2;
+            const y = (pdfHeight - renderHeight) / 2;
+
+            pdf.addImage(dataUrl, 'JPEG', x, y, renderWidth, renderHeight);
+            const pdfBlob = pdf.output('blob');
+            const pdfFile = new File([pdfBlob], `zakat-wasl-${row.Id ?? Date.now()}.pdf`, { type: 'application/pdf' });
+
+            const uploadResult = await new HandelFile().UploadFileWebSite({
+                action: 'Add',
+                file: pdfFile,
+                fileId: '',
+                SessionID: '',
+                onProgress: () => {},
+            });
+            console.log(uploadResult);
+            
+
+            console.log('Uploaded file id:', uploadResult?.id);
+            await doTransaction({
+                TableName: "rCSWIwrXh3HGKRYh9gCA8g==",
+                WantedAction: 1,
+                ColumnsValues: `${row.Id}#${uploadResult?.id}`,
+                ColumnsNames: "Id#StatementAttach",
+                PointId: 0,
+            }) ;
+            const response2 = await executeProcedure("rejz6ir0QkiZ4zJBAFkpVRZK3ifpUlwSdAsa/bHrNWY=" , `${row.Id}#$????`)
+            const newrow = JSON.parse(response2.decrypted.data.Result[0].PaymentsData)[0] ;
+            window.open(`${BASE_ATTACHMENT_URL}${newrow.StatementAttachName}${newrow.StatementAttachExt}`, '_blank')
+
+        } catch (pdfError: any) {
+            toast({
+                title: 'فشل إنشاء/رفع الوصل',
+                description: pdfError?.message || 'حدث خطأ غير متوقع.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+            console.error(pdfError);
+        } finally {
+            if (originalStyle) {
+                waslElement.setAttribute('style', originalStyle);
+            } else {
+                waslElement.removeAttribute('style');
+            }
+            setIsWaslUploading(false);
+            setUploadingReceiptId(null);
+        }
+    }, [BASE_ATTACHMENT_URL, toast]);
+
+    const generateAndUploadZakatWaslPdf = useCallback(async (row: AnyRec) => {
+        const paymentDate = row.PaymentDate ? new Date(row.PaymentDate).toLocaleDateString() : '—';
+        const donationAmountInWords = `${(toArabicWord as any)(Number(row.PaymentValue) || 0)} دينار ليبي فقط لا غير`;
+        setWaslPayload({
+            officeName: String(row.OfficeName || 'مجهول'),
+            officeId: String(row.Id ?? row.Office_Id ?? ''),
+            donationDate: String(paymentDate),
+            donationId: String(row.StatementAttachName || row.PaymentMethod_Id || row.Id || ''),
+            donationAmount: String(row.PaymentValue ?? '0'),
+            donationAmountInWords: donationAmountInWords,
+            donationPhone: String(row.MobileNum || 'مجهول'),
+            donationName: String(row.UserName || 'مجهول'),
+            donationType: Number(row.Action_Id || 0),
+            donationNameForLover: String(row.PaymentDesc || ''),
+            paymentDescription: String(row.PaymentDesc || ''),
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 150));
+        await downloadWaslPDFAndUpload(row);
+    }, [downloadWaslPDFAndUpload]);
     
     const approveMutation = useAddPaymentApproval();
 
@@ -151,7 +285,7 @@ selectedAction,
             };
         }
         return col;
-    }), [handleRowClick]);
+    }), [handleRowClick, BASE_ATTACHMENT_URL, generateAndUploadZakatWaslPdf, isWaslUploading, uploadingReceiptId]);
     // ========================================================
 
 
@@ -263,6 +397,34 @@ selectedAction,
                     </ModalContent>
                 </Modal>
             )}
+
+            <div
+                ref={waslRef}
+                style={{
+                    position: 'fixed',
+                    top: '-9999px',
+                    left: '-9999px',
+                    width: '1123px',
+                    background: 'white',
+                    padding: '24px',
+                }}
+            >
+                {waslPayload && (
+                    <ZakatWasl
+                        officeName={String(waslPayload.officeName || 'مجهول')}
+                        officeId={String(waslPayload.officeId || '')}
+                        donationDate={String(waslPayload.donationDate || '')}
+                        donationId={String(waslPayload.donationId || '')}
+                        donationAmount={String(waslPayload.donationAmount || '0')}
+                        donationAmountInWords={String(waslPayload.donationAmountInWords || '')}
+                        donationPhone={String(waslPayload.donationPhone || 'مجهول')}
+                        donationName={String(waslPayload.donationName || 'مجهول')}
+                        donationType={Number(waslPayload.donationType || 0)}
+                        donationNameForLover={String(waslPayload.donationNameForLover || '')}
+                        paymentDescription={String(waslPayload.paymentDescription || '')}
+                    />
+                )}
+            </div>
         </Box>
     );
 }
