@@ -15,8 +15,9 @@ export interface UpdatePayload {
   importanceId: number;
   isActive: boolean;
   photoName: string;
-  IsUrgent: string;
-  ViewInMainScreen: string;
+  IsUrgent: boolean;
+  ViewInMainScreen: boolean;
+  projectCategoryId: number;
 }
 
 // شكل الاستجابة الموحدة

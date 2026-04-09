@@ -17,8 +17,10 @@ export type AddProjectInput = {
   importanceId?: number | string;
   isActive?: boolean;
   projectPhotoName?: string; // ← هنرسل الـ id هنا (لو موجود)
-  IsUrgent: string;
-  ViewInMainScreen: string;
+  IsUrgent: boolean;
+  ViewInMainScreen: boolean;
+  /** آخر عمود: ProjectCategory_Id (1–6) */
+  projectCategoryId?: number | string;
 };
 
 export async function addProject(input: AddProjectInput) {
@@ -31,7 +33,7 @@ export async function addProject(input: AddProjectInput) {
   const to01 = (b: any) => (b ? 1 : 0);
 
   // ترتيب الأعمدة مطابق للنص:
-  // Id#ProjectName#ProjectDesc#SubventionType_Id#ProjectWantedAmount#ProjectOpeningBalance#ProjectRemainingAmount#AllowZakat#Importance_Id#Office_Id#IsActive#ProjectPhotoName
+  // ...#IsUrgent#ViewInMainScreen#ProjectCategory_Id
   const cols = [
     0,                                           // Id بإضافة = 0
     (input.projectName ?? "").trim(),            // ProjectName
@@ -47,6 +49,7 @@ export async function addProject(input: AddProjectInput) {
     (input.projectPhotoName ?? "").trim(),       // ProjectPhotoName ← هنا بنبعت الـ id
     input.IsUrgent?"True" : "False", // IsUrgent
     input.ViewInMainScreen?"True" : "False", // ViewInMainScreen
+    int(input.projectCategoryId ?? 1, 1), // ProjectCategory_Id (آخر عمود)
   ];
 
   const ColumnsValues = cols.join("#");

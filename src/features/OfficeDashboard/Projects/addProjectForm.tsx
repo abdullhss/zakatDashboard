@@ -12,6 +12,7 @@ import { useUpdateProject } from "./hooks/useUpdateProject";
 import { useGetSubventionTypes } from "../../MainDepartment/Subvention/hooks/useGetubventionTypes";
 import { HandelFile } from "../../../HandleFile.js";
 import { getSession } from "../../../session";
+import { PROJECT_CATEGORY_OPTIONS } from "./helpers/projectCategory";
 const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg"];
 
 const ZAKAT_IMAGES_BASE = "https://framework.md-license.com:8093/ZakatImages";
@@ -22,6 +23,8 @@ type FormShape = {
   id?: number;
   name: string;
   category: string;
+  /** ProjectCategory_Id — افتراضي عام (1) */
+  projectCategory: string;
   initialValue: string;
   remainingValue: string;
   requestedValue: string;
@@ -54,6 +57,7 @@ export default function AddProjectForm() {
     id: undefined,
     name: "",
     category: "",
+    projectCategory: "1",
     initialValue: "",
     remainingValue: "",
     requestedValue: "",
@@ -92,7 +96,7 @@ export default function AddProjectForm() {
   const update = (k: keyof FormShape, v: any) =>
     setForm((s) => ({ ...s, [k]: v }));
 
-  const { data, isLoading, isError, error } = useGetSubventionTypes(0, 50);
+  const { data, isLoading, isError, error } = useGetSubventionTypes(0, 50, "", "");
   const subventionRows = data?.rows ?? [];
 
   const splitName = (f: File | null) => {
@@ -110,6 +114,9 @@ export default function AddProjectForm() {
       id: Number(incoming.Id ?? incoming.ProjectId ?? incoming.id),
       name: incoming.Name ?? incoming.ProjectName ?? "",
       category: String(incoming.SubventionType_Id ?? ""),
+      projectCategory: String(
+        incoming.ProjectCategory_Id ?? incoming.ProjectCategoryId ?? "1"
+      ),
       initialValue: String(incoming.OpeningBalance ?? incoming.ProjectOpeningBalance ?? ""),
       remainingValue: String(incoming.RemainingAmount ?? incoming.ProjectRemainingAmount ?? ""),
       requestedValue: String(incoming.WantedAmount ?? incoming.ProjectWantedAmount ?? ""),
@@ -230,6 +237,7 @@ export default function AddProjectForm() {
           projectPhotoName: photoIdToSend || "",
           IsUrgent: !!form.IsUrgent,
           ViewInMainScreen: false,
+          projectCategoryId: Number(form.projectCategory) || 1,
         };
         if(Number(payload.remainingAmount) > 0){
           const response = await addProject.mutateAsync(payload);
@@ -276,6 +284,7 @@ export default function AddProjectForm() {
           photoName: photoIdToSend || "", // ← دايمًا ID
           IsUrgent: !!form.IsUrgent,
           ViewInMainScreen: form.ViewInMainScreen,
+          projectCategoryId: Number(form.projectCategory) || 1,
         };
         if(Number(payload.remainingAmount) > 0){
           const res = await updateProject.mutateAsync(payload);
@@ -340,10 +349,10 @@ export default function AddProjectForm() {
             </FormControl>
 
             <FormControl mb={4} isRequired>
-              <FormLabel>تصنيف المشروع</FormLabel>
+              <FormLabel>تصنيف الاعانة</FormLabel>
               <Select
                 px={3}
-                placeholder="برجاء اختيار تصنيف المشروع"
+                placeholder="برجاء اختيار تصنيف الاعانة"
                 value={form.category}
                 onChange={(e) => update("category", e.target.value)}
                 isDisabled={subventionRows.length === 0}
@@ -351,6 +360,21 @@ export default function AddProjectForm() {
                 {subventionRows.map((row: any) => (
                   <option key={row.Id} value={row.Id}>
                     {row.SubventionTypeName}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl mb={4}>
+              <FormLabel>تصنيف المشروع</FormLabel>
+              <Select
+                px={3}
+                value={form.projectCategory}
+                onChange={(e) => update("projectCategory", e.target.value)}
+              >
+                {PROJECT_CATEGORY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
                   </option>
                 ))}
               </Select>

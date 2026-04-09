@@ -18,6 +18,7 @@ import { getSession } from "../../../session";
 import { buildProjectPhotoUrl } from "./helpers/photos.js";
 import { AddIcon } from "@chakra-ui/icons";
 import { getSubventionTypes } from "../../MainDepartment/Subvention/Services/getubventionTypes.js";
+import { getProjectCategoryLabel } from "./helpers/projectCategory";
 
 const PAGE_SIZE = 10;
 
@@ -134,6 +135,13 @@ export default function Projects() {
         importanceId: Number(editRow.Importance_Id ?? 0),
         isActive: !!fIsActive,
         photoName: photoId, // ← ده الID للصورة
+        IsUrgent: !!(editRow as AnyRec).IsUrgent,
+        ViewInMainScreen: !!(editRow as AnyRec).ViewInMainScreen,
+        projectCategoryId: Number(
+          (editRow as AnyRec).ProjectCategory_Id ??
+            (editRow as AnyRec).ProjectCategoryId ??
+            1
+        ),
       };
 
       const res = await updateProject(payload);
@@ -185,10 +193,21 @@ export default function Projects() {
       },
       {
         key: "SubventionTypeName",
-        header: "نوع المشروع",
+        header: "نوع الاعانة",
         render: (row: AnyRec) => (
           <Text fontWeight="600" color="gray.800">
             {row.SubventionTypeName ?? "—"}
+          </Text>
+        ),
+      },
+      {
+        key: "ProjectCategory_Id",
+        header: "نوع المشروع",
+        render: (row: AnyRec) => (
+          <Text fontWeight="600" color="gray.800">
+            {getProjectCategoryLabel(
+              row.ProjectCategory_Id ?? row.ProjectCategoryId
+            )}
           </Text>
         ),
       },

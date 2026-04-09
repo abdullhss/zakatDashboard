@@ -14,8 +14,9 @@ export interface UpdatePayload {
   importanceId: number;
   isActive: boolean;
   photoName: string; // ← هنا بنبعت الـID
-  IsUrgent: string;
-  ViewInMainScreen: string;
+  IsUrgent: boolean;
+  ViewInMainScreen: boolean;
+  projectCategoryId: number;
 }
 
 const scrub = (v: unknown) => String(v ?? "").replace(/#/g, "");
@@ -26,7 +27,7 @@ export async function updateProject(payload: UpdatePayload): Promise<NormalizedS
   const currentOfficeId = officeId ?? 0;
 
   const columnsNames =
-    "Id#ProjectName#ProjectDesc#SubventionType_Id#ProjectWantedAmount#ProjectOpeningBalance#ProjectRemainingAmount#AllowZakat#Importance_Id#Office_Id#IsActive#ProjectPhotoName#IsUrgent#ViewInMainScreen";
+    "Id#ProjectName#ProjectDesc#SubventionType_Id#ProjectWantedAmount#ProjectOpeningBalance#ProjectRemainingAmount#AllowZakat#Importance_Id#Office_Id#IsActive#ProjectPhotoName#IsUrgent#ViewInMainScreen#ProjectCategory_Id";
 
   const columnsValues =
     `${payload.id}#` +
@@ -42,7 +43,8 @@ export async function updateProject(payload: UpdatePayload): Promise<NormalizedS
     `${payload.isActive ? 1 : 0}#` +
     `${scrub(payload.photoName)}` +
     `#${payload.IsUrgent ? "True" : "False"}` +
-    `#${payload.ViewInMainScreen ? "True" : "False"}`
+    `#${payload.ViewInMainScreen ? "True" : "False"}` +
+    `#${Number.isFinite(Number(payload.projectCategoryId)) ? Number(payload.projectCategoryId) : 1}`
     ;
 
   console.log("🧩 ColumnsValues for update:", columnsValues);
